@@ -1,22 +1,22 @@
 import { Outlet, Link, useLoaderData } from "react-router-dom";
-import { getContacts } from "../contacts";
+import { getAuthors } from "../authors";
 
 export async function loader() {
-    const contacts = await getContacts();
-    return { contacts };
+    const authors = await getAuthors();
+    return { authors };
   }
 
 export default function Root() {
-    const { contacts } = useLoaderData();
+    const { authors } = useLoaderData();
     return (
       <>
         <div id="sidebar">
-          <h1>React Router Contacts</h1>
+          <h1>React Router authors</h1>
           <div>
             <form id="search-form" role="search">
               <input
                 id="q"
-                aria-label="Search contacts"
+                aria-label="Search authors"
                 placeholder="Search"
                 type="search"
                 name="q"
@@ -36,26 +36,19 @@ export default function Root() {
             </form>
           </div>
           <nav>
-            {contacts.length ? (
+            {authors.length ? (
                 <ul>
-                {contacts.map((contact) => (
-                    <li key={contact.id}>
-                    <Link to={`contacts/${contact.id}`}>
-                        {contact.first || contact.last ? (
-                        <>
-                            {contact.first} {contact.last}
-                        </>
-                        ) : (
-                        <i>No Name</i>
-                        )}{" "}
-                        {contact.favorite && <span>★</span>}
+                {authors.map((author) => (
+                    <li key={author.id}>
+                    <Link to={`authors/${author.id}`}>
+                        {author.name}
                     </Link>
                     </li>
                 ))}
                 </ul>
             ) : (
                 <p>
-                <i>No contacts</i>
+                <i>No authors</i>
                 </p>
             )}
           </nav>

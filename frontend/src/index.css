@@ -56,27 +56,27 @@ button:active {
   transform: translateY(1px);
 }
 
-#contact h1 {
+#author h1 {
   display: flex;
   align-items: flex-start;
   gap: 1rem;
 }
-#contact h1 form {
+#author h1 form {
   display: flex;
   align-items: center;
   margin-top: 0.25rem;
 }
-#contact h1 form button {
+#author h1 form button {
   box-shadow: none;
   font-size: 1.5rem;
   font-weight: 400;
   padding: 0;
 }
-#contact h1 form button[value="true"] {
+#author h1 form button[value="true"] {
   color: #a4a4a4;
 }
-#contact h1 form button[value="true"]:hover,
-#contact h1 form button[value="false"] {
+#author h1 form button[value="true"]:hover,
+#author h1 form button[value="false"] {
   color: #eeb004;
 }
 
@@ -250,42 +250,42 @@ i {
   transition-delay: 200ms;
 }
 
-#contact {
+#author {
   max-width: 40rem;
   display: flex;
 }
 
-#contact h1 {
+#author h1 {
   font-size: 2rem;
   font-weight: 700;
   margin: 0;
   line-height: 1.2;
 }
 
-#contact h1 + p {
+#author h1 + p {
   margin: 0;
 }
 
-#contact h1 + p + p {
+#author h1 + p + p {
   white-space: break-spaces;
 }
 
-#contact h1:focus {
+#author h1:focus {
   outline: none;
   color: hsl(224, 98%, 58%);
 }
 
-#contact a[href*="twitter"] {
+#author a[href*="twitter"] {
   display: flex;
   font-size: 1.5rem;
   color: #3992ff;
   text-decoration: none;
 }
-#contact a[href*="twitter"]:hover {
+#author a[href*="twitter"]:hover {
   text-decoration: underline;
 }
 
-#contact img {
+#author img {
   width: 12rem;
   height: 12rem;
   background: #c8c8c8;
@@ -294,62 +294,62 @@ i {
   object-fit: cover;
 }
 
-#contact h1 ~ div {
+#author h1 ~ div {
   display: flex;
   gap: 0.5rem;
   margin: 1rem 0;
 }
 
-#contact-form {
+#author-form {
   display: flex;
   max-width: 40rem;
   flex-direction: column;
   gap: 1rem;
 }
-#contact-form > p:first-child {
+#author-form > p:first-child {
   margin: 0;
   padding: 0;
 }
-#contact-form > p:first-child > :nth-child(2) {
+#author-form > p:first-child > :nth-child(2) {
   margin-right: 1rem;
 }
-#contact-form > p:first-child,
-#contact-form label {
+#author-form > p:first-child,
+#author-form label {
   display: flex;
 }
-#contact-form p:first-child span,
-#contact-form label span {
+#author-form p:first-child span,
+#author-form label span {
   width: 8rem;
 }
-#contact-form p:first-child input,
-#contact-form label input,
-#contact-form label textarea {
+#author-form p:first-child input,
+#author-form label input,
+#author-form label textarea {
   flex-grow: 2;
 }
 
-#contact-form-avatar {
+#author-form-avatar {
   margin-right: 2rem;
 }
 
-#contact-form-avatar img {
+#author-form-avatar img {
   width: 12rem;
   height: 12rem;
   background: hsla(0, 0%, 0%, 0.2);
   border-radius: 1rem;
 }
 
-#contact-form-avatar input {
+#author-form-avatar input {
   box-sizing: border-box;
   width: 100%;
 }
 
-#contact-form p:last-child {
+#author-form p:last-child {
   display: flex;
   gap: 0.5rem;
   margin: 0 0 0 8rem;
 }
 
-#contact-form p:last-child button[type="button"] {
+#author-form p:last-child button[type="button"] {
   color: inherit;
 }
 
