@@ -15,6 +15,7 @@
 	<description>Cite Graph - Citation Graph Online Visualizer</description>
 	<properties>
 		<java.version>11</java.version>
+		<janusgraph.version>1.0.0-rc2</janusgraph.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -25,7 +26,19 @@
 		<dependency>
 			<groupId>org.janusgraph</groupId>
 			<artifactId>janusgraph-core</artifactId>
-			<version>1.0.0-rc2</version>
+			<version>${janusgraph.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.janusgraph</groupId>
+			<artifactId>janusgraph-berkeleyje</artifactId>
+			<version>${janusgraph.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.janusgraph</groupId>
+			<artifactId>janusgraph-lucene</artifactId>
+			<version>${janusgraph.version}</version>
 		</dependency>
 
 		<dependency>

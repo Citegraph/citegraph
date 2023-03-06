@@ -7,6 +7,8 @@ import org.janusgraph.core.PropertyKey;
 import org.janusgraph.core.schema.JanusGraphManagement;
 import org.janusgraph.core.schema.Mapping;
 
+import java.net.URL;
+
 public class GraphInitializer {
     public static void main(String[] args) {
         if (args.length != 1) {
@@ -15,7 +17,14 @@ public class GraphInitializer {
         }
 
         System.out.println("Opening graph...");
-        JanusGraph graph = JanusGraphFactory.open("janusgraph-berkeleyje-lucene.properties");
+        URL resource = GraphInitializer.class.getClassLoader().getResource("janusgraph-berkeleyje-lucene.properties");
+        JanusGraph graph = null;
+        try {
+             graph = JanusGraphFactory.open(resource.toURI().getPath());
+        } catch (Exception ex) {
+            System.out.println(ex);
+            System.exit(0);
+        }
         JanusGraphManagement mgmt = graph.openManagement();
         System.out.println("Current schema is...");
         mgmt.printSchema();
@@ -25,7 +34,14 @@ public class GraphInitializer {
 
         if ("dblp".equalsIgnoreCase(dataset)) {
             PropertyKey name = mgmt.makePropertyKey("name").dataType(String.class).make();
+            PropertyKey vid = mgmt.makePropertyKey("vid").dataType(String.class).make();
             mgmt.buildIndex("nameIdx", Vertex.class).addKey(name, Mapping.TEXTSTRING.asParameter()).buildMixedIndex("search");
+            mgmt.buildIndex("vidIdx", Vertex.class).addKey(vid).buildCompositeIndex();
         }
+
+        mgmt.commit();
+        System.out.println("Schema created");
+        graph.close();
+        System.out.println("Graph closed, good bye");
     }
 }

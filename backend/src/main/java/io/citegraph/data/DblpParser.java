@@ -1,57 +1,91 @@
 package io.citegraph.data;
 
-import java.io.IOException;
-import java.util.List;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.citegraph.data.model.Author;
+import io.citegraph.data.model.Paper;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.janusgraph.core.JanusGraph;
+import org.janusgraph.core.JanusGraphFactory;
+import org.janusgraph.core.JanusGraphVertex;
 
-import org.dblp.mmdb.BookTitle;
-import org.dblp.mmdb.Person;
-import org.dblp.mmdb.PersonName;
-import org.dblp.mmdb.Publication;
-import org.dblp.mmdb.RecordDb;
-import org.dblp.mmdb.RecordDbInterface;
-import org.xml.sax.SAXException;
+import java.io.FileInputStream;
+import java.net.URL;
+import java.util.Scanner;
 
 /**
  * It parses dblp dataset and dumps into graph database
  */
 public class DblpParser {
-    public static void main(String[] args) {
-
-        // we need to raise entityExpansionLimit because the dblp.xml has millions of entities
-        System.setProperty("entityExpansionLimit", "10000000");
-
-        if (args.length != 2) {
-            System.err.format("Usage: java %s <dblp-xml-file> <dblp-dtd-file>\n", DblpParser.class.getName());
+    public static void main(String[] args) throws Exception {
+        if (args.length != 1) {
+            System.err.format("Usage: java %s <DBLP-Citation-network V14 path>\n", DblpParser.class.getName());
             System.exit(0);
         }
-        String dblpXmlFilename = args[0];
-        String dblpDtdFilename = args[1];
 
-        System.out.println("building the dblp main memory DB ...");
-        RecordDbInterface dblp;
+        System.out.println("Opening graph...");
+        URL resource = GraphInitializer.class.getClassLoader().getResource("janusgraph-berkeleyje-lucene.properties");
+        JanusGraph graph = null;
         try {
-            dblp = new RecordDb(dblpXmlFilename, dblpDtdFilename, false);
+            graph = JanusGraphFactory.open(resource.toURI().getPath());
+        } catch (Exception ex) {
+            System.out.println(ex);
+            System.exit(0);
         }
-        catch (final IOException ex) {
-            System.err.println("cannot read dblp XML: " + ex.getMessage());
-            return;
-        }
-        catch (final SAXException ex) {
-            System.err.println("cannot parse XML: " + ex.getMessage());
-            return;
-        }
-        System.out.format("MMDB ready: %d publs, %d pers\n\n", dblp.numberOfPublications(), dblp.numberOfPersons());
 
-        System.out.println("finding most prolific author in dblp ...");
-        for (Person person : dblp.getPersons()) {
-            String name = person.getPrimaryName().name();
-            for (Publication pub : person.getPublications()) {
-                List<PersonName> authors = pub.getNames();
-                String title = pub.getFields("title").iterator().next().value();
+        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        final String path = args[0];
+        FileInputStream inputStream = null;
+        Scanner sc = null;
+        long i = 0;
+        try {
+            inputStream = new FileInputStream(path);
+            sc = new Scanner(inputStream, "UTF-8");
+            while (sc.hasNextLine()) {
+                String line = sc.nextLine();
+                try {
+                    Paper paper = mapper.readValue(line, Paper.class);
+                    // create paper vertex first
+                    JanusGraphVertex pVertex = graph.addVertex("vid", paper.getId(),
+                        "title", paper.getTitle(), "year", paper.getYear(), "type", "paper");
+                    System.out.println("Created paper vertex " + paper.getId());
+                    // create author vertex if not exists
+                    for (Author author : paper.getAuthors()) {
+                        Vertex aVertex;
+                        GraphTraversal<Vertex, Vertex> traversal = graph.traversal().V().has("vid", author.getId());
+                        if (traversal.hasNext()) {
+                            aVertex = traversal.next();
+                        } else {
+                            aVertex = graph.addVertex("vid", author.getId(),
+                                "name", author.getName(), "type", "author");
+                        }
+                        // create edge between author and paper
+                        graph.traversal().V(aVertex).addE("writes").to(pVertex).next();
+                        System.out.println("Created edge between paper " + paper.getId() + " and author " + author.getId());
+                    }
+                } catch (Exception ex) {
+                    System.out.println("Read line " + i + " fails, skip, line = " + line);
+                }
+                i++;
+                if (i % 100 == 0) {
+                    graph.tx().commit();
+                    System.out.println("Batch " + (i / 100) + " committed");
+                }
+            }
+            // note that Scanner suppresses exceptions
+            if (sc.ioException() != null) {
+                throw sc.ioException();
+            }
+        } finally {
+            if (inputStream != null) {
+                inputStream.close();
+            }
+            if (sc != null) {
+                sc.close();
             }
         }
-
-        System.out.println("done.");
+        graph.close();
     }
 }
 
