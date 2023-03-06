@@ -73,6 +73,8 @@ public class DblpParser {
                     System.out.println("Batch " + (i / 100) + " committed");
                 }
             }
+            graph.tx().commit();
+            System.out.println("Batch " + (i / 100) + " committed");
             // note that Scanner suppresses exceptions
             if (sc.ioException() != null) {
                 throw sc.ioException();
