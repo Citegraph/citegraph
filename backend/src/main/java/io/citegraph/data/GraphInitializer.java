@@ -17,7 +17,7 @@ public class GraphInitializer {
         }
 
         System.out.println("Opening graph...");
-        URL resource = GraphInitializer.class.getClassLoader().getResource("janusgraph-berkeleyje-lucene.properties");
+        URL resource = GraphInitializer.class.getClassLoader().getResource("janusgraph-cql-lucene.properties");
         JanusGraph graph = null;
         try {
              graph = JanusGraphFactory.open(resource.toURI().getPath());
@@ -34,9 +34,7 @@ public class GraphInitializer {
 
         if ("dblp".equalsIgnoreCase(dataset)) {
             PropertyKey name = mgmt.makePropertyKey("name").dataType(String.class).make();
-            PropertyKey vid = mgmt.makePropertyKey("vid").dataType(String.class).make();
-            mgmt.buildIndex("nameIdx", Vertex.class).addKey(name, Mapping.TEXTSTRING.asParameter()).buildMixedIndex("search");
-            mgmt.buildIndex("vidIdx", Vertex.class).addKey(vid).buildCompositeIndex();
+            mgmt.buildIndex("nameIdx", Vertex.class).addKey(name).buildMixedIndex("search");
         }
 
         mgmt.commit();
