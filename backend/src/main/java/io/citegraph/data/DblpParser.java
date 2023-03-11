@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
@@ -54,7 +55,7 @@ public class DblpParser {
             paperWithoutRef++;
             return;
         }
-        for (String ref : references) {
+        for (String ref : new HashSet<>(references)) {
             paperRefCount++;
             Vertex citedVertex = graph.traversal().V(ref).next();
             graph.traversal().V(pVertex).addE("cites").to(citedVertex).next();
@@ -164,7 +165,7 @@ public class DblpParser {
                     i++;
                     if (i % 100 == 0) {
                         graph.tx().commit();
-                        LOG.info("Batch " + (i / 100) + " committed, failed count = " + failedCount + " author without Id = " + authorWithoutId);
+                        LOG.info("Batch " + (i / 100) + " committed, failed count = " + failedCount + " paperWithoutRef = " + paperWithoutRef + " paperRecCount = " + paperRefCount);
                     }
                 } catch (Exception ex) {
                     LOG.error("Fail to write to graph", ex);
