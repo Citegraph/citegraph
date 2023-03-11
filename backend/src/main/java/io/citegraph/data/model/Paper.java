@@ -8,6 +8,16 @@ public class Paper {
     private int year;
     private List<Author> authors;
 
+    private List<String> references;
+
+    public List<String> getReferences() {
+        return references;
+    }
+
+    public void setReferences(List<String> references) {
+        this.references = references;
+    }
+
     public String getId() {
         return id;
     }
