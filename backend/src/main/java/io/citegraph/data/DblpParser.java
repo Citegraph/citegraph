@@ -6,6 +6,8 @@ import io.citegraph.data.model.Author;
 import io.citegraph.data.model.Paper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
+import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.janusgraph.core.JanusGraph;
@@ -31,8 +33,49 @@ public class DblpParser {
 
     private static long paperWithoutRef = 0;
 
+    private static long authorRefCount = 0;
+
     private static long paperRefCount = 0;
     private static final Logger LOG = LoggerFactory.getLogger(DblpParser.class);
+
+    /**
+     * A naive single-threaded author references loader. It adds an edge from one
+     * author to another author if their papers have citation relationships. The
+     * edge contains a counter representing the number of times the author cites
+     * the other author's work.
+     * This method is idempotent.
+     *
+     * @param paper
+     * @param graph
+     */
+    private static void loadAuthorRefs(final Paper paper, final JanusGraph graph) {
+        if (StringUtils.isBlank(paper.getId())) {
+            LOG.error("Paper {} does not have id, skip", paper.getTitle());
+            return;
+        }
+        Vertex pVertex = graph.traversal().V(paper.getId()).next();
+        List<String> references = paper.getReferences();
+        if (references == null) {
+            return;
+        }
+        List<Vertex> authors = graph.traversal().V(pVertex).in("writes").toList();
+        List<Vertex> citedPapers = graph.traversal().V(pVertex).out("cites").toList();
+        for (Vertex citedP : citedPapers) {
+            List<Vertex> refAuthors = graph.traversal().V(citedP).in("writes").toList();
+            for (Vertex author : authors) {
+                for (Vertex refAuthor : refAuthors) {
+                    GraphTraversal<Vertex, Edge> t = graph.traversal().V(author).outE("refers").where(__.inV().is(refAuthor));
+                    if (t.hasNext()) {
+                        Edge e = t.next();
+                        int count = Integer.parseInt(graph.traversal().E(e).properties("refCount").next().value().toString());
+                        graph.traversal().E(e).property("refCount", count + 1).next();
+                    } else {
+                        graph.traversal().V(author).addE("refers").to(refAuthor).property("refCount", 1).next();
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * A naive single-threaded citations loader. It only touches upon on paper-paper
@@ -157,6 +200,8 @@ public class DblpParser {
                         loadVertices(paper, graph);
                     } else if (mode.equalsIgnoreCase("citations")) {
                         loadCitations(paper, graph);
+                    } else if (mode.equalsIgnoreCase("references")) {
+                        loadAuthorRefs(paper, graph);
                     } else {
                         LOG.error("Unknown mode {}, must be either vertices or citations", mode);
                         graph.close();
