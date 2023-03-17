@@ -14,7 +14,7 @@
 	<name>app</name>
 	<description>Cite Graph - Citation Graph Online Visualizer</description>
 	<properties>
-		<java.version>11</java.version>
+		<java.version>8</java.version>
 		<janusgraph.version>1.0.0-SNAPSHOT</janusgraph.version>
 	</properties>
 	<dependencies>
