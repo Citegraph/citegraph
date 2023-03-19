@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
 
+import static io.citegraph.app.GraphConfiguration.GRAPH_CONFIG_NAME;
+
 /**
  * It parses dblp dataset and dumps into graph database
  */
@@ -163,7 +165,7 @@ public class DblpParser {
         }
 
         LOG.info("Opening graph...");
-        URL resource = GraphInitializer.class.getClassLoader().getResource("janusgraph-cql-lucene.properties");
+        URL resource = GraphInitializer.class.getClassLoader().getResource(GRAPH_CONFIG_NAME);
         JanusGraph graph = null;
         try {
             graph = JanusGraphFactory.open(resource.toURI().getPath());

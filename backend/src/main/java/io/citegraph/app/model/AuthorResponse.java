@@ -1,0 +1,92 @@
+package io.citegraph.app.model;
+
+import java.util.List;
+
+public class AuthorResponse {
+    private String name;
+    private String id;
+    private int numOfPapers;
+    private int numOfReferees;
+    private int numOfReferers;
+
+    // paper written by this author
+    private List<PaperResponse> papers;
+
+    // authors that are cited by this author
+    private List<CitationResponse> referees;
+
+    // authors that cite this author
+    private List<CitationResponse> referers;
+
+    public AuthorResponse(String name, String id, int numOfPapers, int numOfReferees, int numOfReferers) {
+        this.name = name;
+        this.id = id;
+        this.numOfPapers = numOfPapers;
+        this.numOfReferees = numOfReferees;
+        this.numOfReferers = numOfReferers;
+    }
+
+    public List<PaperResponse> getPapers() {
+        return papers;
+    }
+
+    public void setPapers(List<PaperResponse> papers) {
+        this.papers = papers;
+    }
+
+    public List<CitationResponse> getReferees() {
+        return referees;
+    }
+
+    public void setReferees(List<CitationResponse> referees) {
+        this.referees = referees;
+    }
+
+    public List<CitationResponse> getReferers() {
+        return referers;
+    }
+
+    public void setReferers(List<CitationResponse> referers) {
+        this.referers = referers;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getNumOfPapers() {
+        return numOfPapers;
+    }
+
+    public void setNumOfPapers(int numOfPapers) {
+        this.numOfPapers = numOfPapers;
+    }
+
+    public int getNumOfReferees() {
+        return numOfReferees;
+    }
+
+    public void setNumOfReferees(int numOfReferees) {
+        this.numOfReferees = numOfReferees;
+    }
+
+    public int getNumOfReferers() {
+        return numOfReferers;
+    }
+
+    public void setNumOfReferers(int numOfReferers) {
+        this.numOfReferers = numOfReferers;
+    }
+}
