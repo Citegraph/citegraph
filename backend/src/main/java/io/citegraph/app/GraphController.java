@@ -33,10 +33,41 @@ public class GraphController {
     @Autowired
     private JanusGraph graph;
 
-    /**
-     * @param id
-     * @return
-     */
+    @CrossOrigin
+    @GetMapping("/paper/{id}")
+    public PaperResponse getPaper(@PathVariable String id) {
+        GraphTraversalSource g = graph.traversal();
+        if (!g.V().hasId(id).hasNext()) {
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, String.format("Paper %s not found", id)
+            );
+        }
+        Vertex paper = g.V().hasId(id).next();
+        PaperResponse paperResponse = new PaperResponse(id, paper.value("title"), paper.value("year"));
+
+        // collect authors
+        List<AuthorResponse> authors = g.V(paper).in("writes").toList()
+            .stream()
+            .map(v -> new AuthorResponse(v.value("name"), (String) v.id()))
+            .collect(Collectors.toList());
+        paperResponse.setAuthors(authors);
+
+        // collect paper citations
+        List<PaperResponse> referees = g.V(paper).out("cites").toList()
+            .stream()
+            .map(v -> new PaperResponse((String) v.id(), v.value("title"), v.value("year")))
+            .collect(Collectors.toList());
+        paperResponse.setReferees(referees);
+
+        List<PaperResponse> referers = g.V(paper).in("cites").toList()
+            .stream()
+            .map(v -> new PaperResponse((String) v.id(), v.value("title"), v.value("year")))
+            .collect(Collectors.toList());
+        paperResponse.setReferers(referers);
+
+        return paperResponse;
+    }
+
     @CrossOrigin
     @GetMapping("/author/{id}")
     public AuthorResponse getAuthor(@PathVariable String id) {
@@ -89,15 +120,13 @@ public class GraphController {
 
     @CrossOrigin
     @GetMapping("/search/author/{name}")
-    public AuthorResponse getAuthorByName(@PathVariable String name) {
+    public List<AuthorResponse> getAuthorByName(@PathVariable String name) {
         GraphTraversalSource g = graph.traversal();
-        // TODO: for now, we assume the first match is the right one
-        List<Object> ids = g.V().has("name", Text.textContains(name)).id().toList();
-        LOG.info("Authors are {}", ids);
-        if (ids.isEmpty()) {
-            return null;
-        }
-        return getAuthor((String) ids.get(0));
+        List<AuthorResponse> authors = g.V().has("name", Text.textContains(name)).toList()
+            .stream()
+            .map(v -> new AuthorResponse(v.value("name"), (String) v.id()))
+            .collect(Collectors.toList());
+        return authors;
     }
 
     private void buildNameMap(Map<String, String> idNameMap, List<Vertex> authors) {

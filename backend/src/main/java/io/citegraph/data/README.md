@@ -19,5 +19,6 @@ We use DBLP-Citation-network V14 snapshot (2023-01-31) downloaded [here](https:/
 - Add recently viewed authors to cache and display on homepage
 - Ingest and show number of citations for a given person
 - Ingest and show coauthor relationships
+- Edges should contain author names
 - Allow users to filter papers (to exclude those papers wrongly attributed)
 - Allow users to set up profiles (like google scholar)

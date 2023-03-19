@@ -7,6 +7,8 @@ public class PaperResponse {
     private String title;
     private int year;
 
+    private List<AuthorResponse> authors;
+
     private List<PaperResponse> referees;
 
     private List<PaperResponse> referers;
@@ -15,6 +17,22 @@ public class PaperResponse {
         this.id = id;
         this.title = title;
         this.year = year;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public List<AuthorResponse> getAuthors() {
+        return authors;
+    }
+
+    public void setAuthors(List<AuthorResponse> authors) {
+        this.authors = authors;
     }
 
     public List<PaperResponse> getReferees() {
