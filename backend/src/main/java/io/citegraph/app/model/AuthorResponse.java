@@ -18,6 +18,11 @@ public class AuthorResponse {
     // authors that cite this author
     private List<CitationResponse> referers;
 
+    public AuthorResponse(String name, String id) {
+        this.name = name;
+        this.id = id;
+    }
+
     public AuthorResponse(String name, String id, int numOfPapers, int numOfReferees, int numOfReferers) {
         this.name = name;
         this.id = id;

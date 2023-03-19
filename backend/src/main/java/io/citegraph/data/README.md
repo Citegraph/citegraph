@@ -14,3 +14,10 @@ folder. Run GraphInitializer to create the graph and set up schema.
 
 We use DBLP-Citation-network V14 snapshot (2023-01-31) downloaded [here](https://www.aminer.org/citation).
 
+## Roadmap
+
+- Add recently viewed authors to cache and display on homepage
+- Ingest and show number of citations for a given person
+- Ingest and show coauthor relationships
+- Allow users to filter papers (to exclude those papers wrongly attributed)
+- Allow users to set up profiles (like google scholar)
