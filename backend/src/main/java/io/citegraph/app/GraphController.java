@@ -30,6 +30,11 @@ import java.util.stream.Collectors;
 public class GraphController {
 
     private static final Logger LOG = LoggerFactory.getLogger(GraphController.class);
+
+    private static final int DEFAULT_LIMIT = 100;
+
+    private int searchLimit = 100;
+
     @Autowired
     private JanusGraph graph;
 
@@ -53,13 +58,13 @@ public class GraphController {
         paperResponse.setAuthors(authors);
 
         // collect paper citations
-        List<PaperResponse> referees = g.V(paper).out("cites").toList()
+        List<PaperResponse> referees = g.V(paper).out("cites").limit(searchLimit).toList()
             .stream()
             .map(v -> new PaperResponse((String) v.id(), v.value("title"), v.value("year")))
             .collect(Collectors.toList());
         paperResponse.setReferees(referees);
 
-        List<PaperResponse> referers = g.V(paper).in("cites").toList()
+        List<PaperResponse> referers = g.V(paper).in("cites").limit(searchLimit).toList()
             .stream()
             .map(v -> new PaperResponse((String) v.id(), v.value("title"), v.value("year")))
             .collect(Collectors.toList());
@@ -88,9 +93,10 @@ public class GraphController {
 
         // collect author references
         Map<String, String> idNameMap = new HashMap<>();
-        buildNameMap(idNameMap, g.V(author).both("refers").toList());
+        buildNameMap(idNameMap, g.V(author).out("refers").limit(searchLimit).toList());
+        buildNameMap(idNameMap, g.V(author).in("refers").limit(searchLimit).toList());
 
-        List<Edge> referees = g.V(author).outE("refers").toList();
+        List<Edge> referees = g.V(author).outE("refers").limit(searchLimit).toList();
         List<CitationResponse> refereeResponse = new ArrayList<>();
         for (Edge referee : referees) {
             int refCount = referee.value("refCount");
@@ -100,7 +106,7 @@ public class GraphController {
             refereeResponse.add(citationResponse);
         }
 
-        List<Edge> referers = g.V(author).inE("refers").toList();
+        List<Edge> referers = g.V(author).inE("refers").limit(searchLimit).toList();
         List<CitationResponse> refererResponse = new ArrayList<>();
         for (Edge referer : referers) {
             int refCount = referer.value("refCount");
