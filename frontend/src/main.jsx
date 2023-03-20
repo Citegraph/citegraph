@@ -8,6 +8,7 @@ import "./index.css";
 import Root, { loader as rootLoader } from "./routes/root";
 import ErrorPage from "./error-page";
 import Author, { loader as authorLoader } from "./routes/author";
+import Paper, { loader as paperLoader } from "./routes/paper";
 
 const router = createBrowserRouter([
   {
@@ -17,9 +18,14 @@ const router = createBrowserRouter([
     loader: rootLoader,
     children: [
         {
-          path: "authors/:authorId",
+          path: "author/:authorId",
           element: <Author />,
           loader: authorLoader,
+        },
+        {
+          path: "paper/:paperId",
+          element: <Paper />,
+          loader: paperLoader,
         },
       ],
   }

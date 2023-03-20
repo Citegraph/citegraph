@@ -40,7 +40,7 @@ export default function Root() {
                 <ul>
                 {authors.map((author) => (
                     <li key={author.id}>
-                    <Link to={`authors/${author.id}`}>
+                    <Link to={`author/${author.id}`}>
                         {author.name}
                     </Link>
                     </li>

@@ -1,4 +1,4 @@
-import { Form, useLoaderData } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
 import { getAuthor } from "../authors";
 
 export async function loader({ params }) {
@@ -13,16 +13,16 @@ export default function Author() {
   return (
     <div id="author">
       <div>
-        {/* <img
-          key={author.avatar}
-          src={author.avatar || null}
-        /> */}
+          Name: {author.name}
       </div>
-
       <div>
-        <h1>
-          {author.name}
-        </h1>
+        Publications:
+        <ul>
+          {author.papers.map((paper, index) => (
+            <li key={index}>
+              <Link to={`/paper/${paper.id}`}>{paper.title}, {paper.year}</Link></li>
+          ))}
+        </ul>
       </div>
     </div>
   );
