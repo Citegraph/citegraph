@@ -1,5 +1,6 @@
 import { Outlet, Link, useLoaderData } from "react-router-dom";
 import { getAuthors } from "../authors";
+import logo from "../assets/logo.svg";
 
 export async function loader() {
     const authors = await getAuthors();
@@ -11,7 +12,7 @@ export default function Root() {
     return (
       <>
         <div id="sidebar">
-          <h1>React Router authors</h1>
+          <Link to="/"><img src={logo} id="logo" alt="Logo" /></Link>
           <div>
             <form id="search-form" role="search">
               <input
@@ -30,9 +31,6 @@ export default function Root() {
                 className="sr-only"
                 aria-live="polite"
               ></div>
-            </form>
-            <form method="post">
-              <button type="submit">New</button>
             </form>
           </div>
           <nav>
