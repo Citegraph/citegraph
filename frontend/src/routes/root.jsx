@@ -1,11 +1,11 @@
 import { Outlet, Link, useLoaderData } from "react-router-dom";
 import React, { useState } from "react";
 import { debounce } from "lodash";
-import { getAuthors } from "../authors";
+import { getHotAuthors } from "../apis/authors";
 import logo from "../assets/logo.svg";
 
 export async function loader() {
-  const authors = await getAuthors();
+  const authors = await getHotAuthors();
   return { authors };
 }
 

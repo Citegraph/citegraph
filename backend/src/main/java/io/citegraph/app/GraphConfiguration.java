@@ -1,5 +1,8 @@
 package io.citegraph.app;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import org.apache.commons.lang3.tuple.Pair;
 import org.janusgraph.core.JanusGraph;
 import org.janusgraph.core.JanusGraphFactory;
 import org.slf4j.Logger;
@@ -9,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PreDestroy;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class GraphConfiguration {
@@ -30,6 +34,16 @@ public class GraphConfiguration {
             LOG.error("Fail to open graph", ex);
             throw new RuntimeException(ex);
         }
+    }
+
+    @Bean
+    public Cache<String, String> getAuthorCache() {
+        LOG.info("Init author cache...");
+        Cache<String, String> cache = Caffeine.newBuilder()
+            .maximumSize(10)
+            .expireAfterWrite(10, TimeUnit.MINUTES)
+            .build();
+        return cache;
     }
 
     @PreDestroy

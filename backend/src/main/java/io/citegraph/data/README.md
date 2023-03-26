@@ -16,10 +16,10 @@ We use DBLP-Citation-network V14 snapshot (2023-01-31) downloaded [here](https:/
 
 ## Roadmap
 
-- Limit number of referees/referers in search for lower response time
 - Add recently viewed authors to cache and display on homepage
 - Ingest and show number of citations for a given person
 - Ingest and show coauthor relationships
+- Index paper titles and make them searchable
 - Edges should contain author names
 - Run pagerank algorithm to attribute scores to authors and papers
 - Allow users to filter papers (to exclude those papers wrongly attributed)

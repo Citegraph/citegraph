@@ -1,8 +1,10 @@
 package io.citegraph.app;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import io.citegraph.app.model.AuthorResponse;
 import io.citegraph.app.model.CitationResponse;
 import io.citegraph.app.model.PaperResponse;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -37,6 +39,9 @@ public class GraphController {
 
     @Autowired
     private JanusGraph graph;
+
+    @Autowired
+    private Cache<String, String> authorCache;
 
     @CrossOrigin
     @GetMapping("/paper/{id}")
@@ -84,6 +89,8 @@ public class GraphController {
         }
         Vertex author = g.V().hasId(id).next();
         String name = (String) g.V(author).values("name").next();
+
+        authorCache.get(id, k -> name);
 
         // collect papers
         List<PaperResponse> papers = g.V(author).out("writes").toList()
@@ -133,6 +140,14 @@ public class GraphController {
             .map(v -> new AuthorResponse(v.value("name"), (String) v.id()))
             .collect(Collectors.toList());
         return authors;
+    }
+
+    @CrossOrigin
+    @GetMapping("/discover/authors")
+    public List<AuthorResponse> getAuthors() {
+        return authorCache.asMap().entrySet().stream()
+            .map(entry -> new AuthorResponse(entry.getValue(), entry.getKey()))
+            .collect(Collectors.toList());
     }
 
     private void buildNameMap(Map<String, String> idNameMap, List<Vertex> authors) {

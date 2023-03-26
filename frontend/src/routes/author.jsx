@@ -1,5 +1,5 @@
 import { Link, useLoaderData } from "react-router-dom";
-import { getAuthor } from "../authors";
+import { getAuthor } from "../apis/authors";
 
 export async function loader({ params }) {
   const author = await getAuthor(params.authorId);
