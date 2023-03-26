@@ -1,5 +1,6 @@
 import { Link, useLoaderData } from "react-router-dom";
 import { getAuthor } from "../apis/authors";
+import React, { useEffect } from "react";
 
 export async function loader({ params }) {
   const author = await getAuthor(params.authorId);
@@ -9,6 +10,10 @@ export async function loader({ params }) {
 
 export default function Author() {
   const { author } = useLoaderData();
+
+  useEffect(() => {
+    document.title = `${author.name} - Citegraph`;
+  }, []);
 
   return (
     <div id="author">

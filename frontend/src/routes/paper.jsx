@@ -1,5 +1,6 @@
 import { Link, useLoaderData } from "react-router-dom";
-import { getPaper } from "../papers";
+import { getPaper } from "../apis/papers";
+import React, { useEffect } from "react";
 
 export async function loader({ params }) {
   const paper = await getPaper(params.paperId);
@@ -9,6 +10,10 @@ export async function loader({ params }) {
 
 export default function Paper() {
   const { paper } = useLoaderData();
+
+  useEffect(() => {
+    document.title = `${paper.title} - Citegraph`;
+  }, []);
 
   return (
     <div id="paper">
