@@ -12,15 +12,16 @@ export default function Author() {
 
   return (
     <div id="author">
-      <div>
-          Name: {author.name}
-      </div>
+      <div>Name: {author.name}</div>
       <div>
         Publications:
         <ul>
           {author.papers.map((paper, index) => (
             <li key={index}>
-              <Link to={`/paper/${paper.id}`}>{paper.title}, {paper.year}</Link></li>
+              <Link to={`/paper/${paper.id}`}>
+                {paper.title}, {paper.year}
+              </Link>
+            </li>
           ))}
         </ul>
       </div>

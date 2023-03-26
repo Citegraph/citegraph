@@ -1,9 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 import Root, { loader as rootLoader } from "./routes/root";
 import ErrorPage from "./error-page";
@@ -17,18 +14,18 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     loader: rootLoader,
     children: [
-        {
-          path: "author/:authorId",
-          element: <Author />,
-          loader: authorLoader,
-        },
-        {
-          path: "paper/:paperId",
-          element: <Paper />,
-          loader: paperLoader,
-        },
-      ],
-  }
+      {
+        path: "author/:authorId",
+        element: <Author />,
+        loader: authorLoader,
+      },
+      {
+        path: "paper/:paperId",
+        element: <Paper />,
+        loader: paperLoader,
+      },
+    ],
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(

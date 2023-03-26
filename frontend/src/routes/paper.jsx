@@ -30,7 +30,9 @@ export default function Paper() {
         <ul>
           {paper.referees.map((paper, index) => (
             <li key={index}>
-              <Link to={`/paper/${paper.id}`}>{paper.title} ({paper.year})</Link>
+              <Link to={`/paper/${paper.id}`}>
+                {paper.title} ({paper.year})
+              </Link>
             </li>
           ))}
         </ul>
@@ -40,11 +42,13 @@ export default function Paper() {
         <ul>
           {paper.referers.map((paper, index) => (
             <li key={index}>
-              <Link to={`/paper/${paper.id}`}>{paper.title} ({paper.year})</Link>
+              <Link to={`/paper/${paper.id}`}>
+                {paper.title} ({paper.year})
+              </Link>
             </li>
           ))}
         </ul>
-      </div>      
+      </div>
     </div>
   );
 }
