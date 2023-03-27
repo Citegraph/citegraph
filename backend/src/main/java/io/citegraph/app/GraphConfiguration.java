@@ -41,7 +41,6 @@ public class GraphConfiguration {
         LOG.info("Init author cache...");
         Cache<String, String> cache = Caffeine.newBuilder()
             .maximumSize(10)
-            .expireAfterWrite(10, TimeUnit.MINUTES)
             .build();
         return cache;
     }
