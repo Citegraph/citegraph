@@ -27,7 +27,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/apis/")
+@CrossOrigin(origins = "http://localhost:5173")
 public class GraphController {
 
     private static final Logger LOG = LoggerFactory.getLogger(GraphController.class);
@@ -42,7 +43,6 @@ public class GraphController {
     @Autowired
     private Cache<String, String> authorCache;
 
-    @CrossOrigin
     @GetMapping("/paper/{id}")
     public PaperResponse getPaper(@PathVariable String id) {
         GraphTraversalSource g = graph.traversal();
@@ -82,7 +82,6 @@ public class GraphController {
         return paperResponse;
     }
 
-    @CrossOrigin
     @GetMapping("/author/{id}")
     public AuthorResponse getAuthor(@PathVariable String id) {
         GraphTraversalSource g = graph.traversal();
@@ -138,8 +137,6 @@ public class GraphController {
         return res;
     }
 
-
-    @CrossOrigin
     @GetMapping("/search/author/{name}")
     public List<AuthorResponse> getAuthorByName(@PathVariable String name) {
         GraphTraversalSource g = graph.traversal();
@@ -150,7 +147,6 @@ public class GraphController {
         return authors;
     }
 
-    @CrossOrigin
     @GetMapping("/discover/authors")
     public List<AuthorResponse> getAuthors() {
         return authorCache.asMap().entrySet().stream()
