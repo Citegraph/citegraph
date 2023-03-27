@@ -17,8 +17,12 @@ export default function Paper() {
 
   return (
     <div id="paper">
-      <div>
+      <div id="title">
         {paper.title} ({paper.year})
+      </div>
+      <div id="desc">
+        <p>Number of papers which cited this paper: {paper.numOfReferers}</p>
+        <p>Number of papers cited by this paper: {paper.numOfReferees}</p>
       </div>
       <div>
         Authors:

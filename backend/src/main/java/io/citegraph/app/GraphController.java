@@ -4,7 +4,6 @@ import com.github.benmanes.caffeine.cache.Cache;
 import io.citegraph.app.model.AuthorResponse;
 import io.citegraph.app.model.CitationResponse;
 import io.citegraph.app.model.PaperResponse;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -35,7 +34,7 @@ public class GraphController {
 
     private static final int DEFAULT_LIMIT = 100;
 
-    private int searchLimit = 100;
+    private int searchLimit = DEFAULT_LIMIT;
 
     @Autowired
     private JanusGraph graph;
@@ -63,6 +62,11 @@ public class GraphController {
         paperResponse.setAuthors(authors);
 
         // collect paper citations
+        long numOfReferees = g.V(paper).outE("cites").count().next();
+        long numOfReferers = g.V(paper).inE("cites").count().next();
+        paperResponse.setNumOfReferees((int) numOfReferees);
+        paperResponse.setNumOfReferers((int) numOfReferers);
+
         List<PaperResponse> referees = g.V(paper).out("cites").limit(searchLimit).toList()
             .stream()
             .map(v -> new PaperResponse((String) v.id(), v.value("title"), v.value("year")))
@@ -93,12 +97,16 @@ public class GraphController {
         authorCache.get(id, k -> name);
 
         // collect papers
-        List<PaperResponse> papers = g.V(author).out("writes").toList()
+        long numOfPapers = g.V(author).out("writes").count().next();
+        List<PaperResponse> papers = g.V(author).out("writes").limit(searchLimit).toList()
             .stream()
             .map(v -> new PaperResponse((String) v.id(), v.value("title"), v.value("year")))
             .collect(Collectors.toList());
 
         // collect author references
+        long numOfReferees = g.V(author).outE("refers").count().next();
+        long numOfReferers = g.V(author).inE("refers").count().next();
+
         Map<String, String> idNameMap = new HashMap<>();
         buildNameMap(idNameMap, g.V(author).out("refers").limit(searchLimit).toList());
         buildNameMap(idNameMap, g.V(author).in("refers").limit(searchLimit).toList());
@@ -123,7 +131,7 @@ public class GraphController {
             refererResponse.add(citationResponse);
         }
 
-        AuthorResponse res = new AuthorResponse(name, id, papers.size(), referees.size(), referers.size());
+        AuthorResponse res = new AuthorResponse(name, id, (int) numOfPapers, (int) numOfReferees, (int) numOfReferers);
         res.setPapers(papers);
         res.setReferees(refereeResponse);
         res.setReferers(refererResponse);
