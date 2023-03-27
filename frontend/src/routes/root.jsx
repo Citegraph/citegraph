@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { debounce } from "lodash";
 import { getHotAuthors } from "../apis/authors";
 import logo from "../assets/logo.svg";
+import { API_URL } from "../apis/commons";
 
 export async function loader() {
   const authors = await getHotAuthors();
@@ -18,7 +19,7 @@ export default function Root() {
   const handleSearch = debounce((event) => {
     const query = event.target.value;
     setLoading(true);
-    fetch(`http://localhost:8080/search/author/${query}`)
+    fetch(`${API_URL}/search/author/${query}`)
       .then((response) => response.json())
       .then((data) => {
         setSearchResults(data);
