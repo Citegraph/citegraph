@@ -5,7 +5,6 @@ import org.janusgraph.core.JanusGraph;
 import org.janusgraph.core.JanusGraphFactory;
 import org.janusgraph.core.PropertyKey;
 import org.janusgraph.core.schema.JanusGraphManagement;
-import org.janusgraph.core.schema.Mapping;
 
 import java.net.URL;
 
@@ -20,7 +19,7 @@ public class GraphInitializer {
         URL resource = GraphInitializer.class.getClassLoader().getResource("janusgraph-cql-lucene.properties");
         JanusGraph graph = null;
         try {
-             graph = JanusGraphFactory.open(resource.toURI().getPath());
+            graph = JanusGraphFactory.open(resource.toURI().getPath());
         } catch (Exception ex) {
             System.out.println(ex);
             System.exit(0);
