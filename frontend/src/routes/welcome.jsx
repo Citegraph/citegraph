@@ -7,26 +7,40 @@ export default function Welcome() {
   }, []);
 
   return (
-    <div id="intro">
-      <h1>Welcome to Citegraph</h1>
-      <p>
-        Citegraph is an open-source online visualizer of papers, authors, and
-        citation relationships. Citegraph supports navigation of:
-      </p>
-      <h3>Paper ---cites--&gt; Paper relationships</h3>
-      <p></p>
-      <h3>Author ---writes--&gt; Paper relationships</h3>
-      <p></p>
-      <h3>Author ---cites--&gt; Author relationships</h3>
-      <p>
-        We deduce the relationship that A cites B if A has ever (co)authored a
-        paper which cites another paper written by B.
-      </p>
-      <p>
-        For example,{" "}
-        <Link to={`/author/53f366a7dabfae4b3499c6fe`}>Geoffrey Hinton</Link> has
-        ever cited 1.8k people, and more than 65k people have cited him.
-      </p>
+    <div id="welcome">
+      <div id="intro">
+        <h1>Welcome to Citegraph</h1>
+        <p>
+          Citegraph is an open-source online visualizer of 5+ million papers, 4+
+          million authors, and various relationships. In total, Citegraph has
+          9.4 million vertices and 274 million edges.
+        </p>
+        <p> Citegraph supports navigation of:</p>
+        <h3>Paper ---cites--&gt; Paper relationships</h3>
+        <p>Citegraph contains 32+ million citation relationships</p>
+        <h3>Author ---writes--&gt; Paper relationships</h3>
+        <p>Citegraph contains 16+ million authorship relationships</p>
+        <h3>Author ---cites--&gt; Author relationships</h3>
+        <p>
+          We deduce the relationship that A cites B if A has ever (co)authored a
+          paper which cites another paper written by B. Citegraph contains 224+
+          million such relationships.
+        </p>
+        <p>
+          For example,{" "}
+          <Link to={`/author/53f366a7dabfae4b3499c6fe`}>Geoffrey Hinton</Link>{" "}
+          has ever cited 1.8k people, and more than 65k people have cited him.
+        </p>
+      </div>
+      <div id="copyright">
+        <p>
+          This website is powered by{" "}
+          <a href="https://janusgraph.org/" target="_blank" rel="noreferrer">
+            JanusGraph
+          </a>
+          , an open-source distributed graph database.
+        </p>
+      </div>
     </div>
   );
 }
