@@ -42,7 +42,7 @@ export default function Root() {
             <input
               id="q"
               aria-label="Search authors"
-              placeholder="Search"
+              placeholder="Search author name"
               type="search"
               name="q"
               onChange={handleSearch}
