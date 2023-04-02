@@ -4,6 +4,7 @@ import { debounce } from "lodash";
 import { getHotAuthors } from "../apis/authors";
 import logo from "../assets/logo.svg";
 import { API_URL } from "../apis/commons";
+import { Divider } from "antd";
 
 export async function loader() {
   const authors = await getHotAuthors();
@@ -67,7 +68,7 @@ export default function Root() {
               </li>
             </ul>
           )}
-
+          <Divider />
           {authors.length ? (
             <ul>
               {authors.map((author) => (
