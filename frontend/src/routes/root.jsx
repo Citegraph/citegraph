@@ -19,6 +19,11 @@ export default function Root() {
 
   const handleSearch = debounce((event) => {
     const query = event.target.value;
+    if (!query) {
+      setSearchResults([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     fetch(`${API_URL}/search/author/${query}`)
       .then((response) => response.json())
@@ -49,7 +54,6 @@ export default function Root() {
               onChange={handleSearch}
             />
             <div id="search-spinner" aria-hidden hidden={!loading} />
-            <div className="sr-only" aria-live="polite"></div>
           </form>
         </div>
         <nav>
@@ -69,6 +73,9 @@ export default function Root() {
             </ul>
           )}
           <Divider />
+          <p>
+            <b>People are searching</b>
+          </p>
           {authors.length ? (
             <ul>
               {authors.map((author) => (
