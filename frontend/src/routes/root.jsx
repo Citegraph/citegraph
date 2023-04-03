@@ -16,9 +16,11 @@ export default function Root() {
 
   const [loading, setLoading] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
+  const [query, setQuery] = useState("");
 
   const handleSearch = debounce((event) => {
     const query = event.target.value;
+    setQuery(query);
     if (!query) {
       setSearchResults([]);
       setLoading(false);
@@ -66,13 +68,15 @@ export default function Root() {
               ))}
             </ul>
           ) : (
-            <ul>
-              <li>
-                <i>No results</i>
-              </li>
-            </ul>
+            query.length > 0 && (
+              <ul>
+                <li>
+                  <i>No results</i>
+                </li>
+              </ul>
+            )
           )}
-          <Divider />
+          {query.length > 0 && <Divider />}
           <p>
             <b>People are searching</b>
           </p>
