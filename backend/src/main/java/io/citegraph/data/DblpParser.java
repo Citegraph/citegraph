@@ -142,12 +142,12 @@ public class DblpParser {
                 LOG.debug("Author {} does not have id", author.getName());
                 authorWithoutId++;
                 GraphTraversal<Vertex, Vertex> traversal = graph.traversal().V()
-                    .has("name", Text.textContains(author.getName()));
+                    .has("name", Text.textContains(author.getName())).limit(1);
                 if (traversal.hasNext()) {
                     // we match the author with closest name, usually it's good enough
                     aVertex = traversal.next();
                 } else {
-                    aVertex = graph.addVertex(T.id, UUID.randomUUID().toString().replace('-', '_'),
+                    aVertex = graph.addVertex(T.id, UUID.randomUUID().toString(),
                         "name", author.getName(), "type", "author");
                 }
             }
