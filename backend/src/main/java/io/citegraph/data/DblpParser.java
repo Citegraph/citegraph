@@ -109,9 +109,7 @@ public class DblpParser {
 
     /**
      * A naive single-threaded vertices loader. To finish loading ~5 million papers,
-     * it can take a few days to finish, mostly because the input dataset does not
-     * have unique ID for ~3 million authors, and author name lookup takes most of the
-     * time.
+     * it can take a few hours to finish.
      *
      * This method is NOT idempotent - if you run the method again, it will throw an
      * error because of duplicate papers.
