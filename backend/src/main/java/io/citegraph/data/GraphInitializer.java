@@ -34,8 +34,12 @@ public class GraphInitializer {
         if ("dblp".equalsIgnoreCase(dataset)) {
             PropertyKey name = mgmt.makePropertyKey("name").dataType(String.class).make();
             PropertyKey title = mgmt.makePropertyKey("title").dataType(String.class).make();
+            PropertyKey refCount = mgmt.makePropertyKey("refCount").dataType(Integer.class).make();
             mgmt.buildIndex("nameIdx", Vertex.class).addKey(name).buildMixedIndex("search");
             mgmt.buildIndex("titleIdx", Vertex.class).addKey(title).buildMixedIndex("search");
+            mgmt.makeEdgeLabel("writes").make();
+            mgmt.makeEdgeLabel("cites").make();
+            mgmt.makeEdgeLabel("refers").make();
         }
 
         mgmt.commit();

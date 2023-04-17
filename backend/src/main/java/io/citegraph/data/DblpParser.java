@@ -12,6 +12,7 @@ import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.janusgraph.core.JanusGraph;
 import org.janusgraph.core.JanusGraphFactory;
+import org.janusgraph.core.JanusGraphTransaction;
 import org.janusgraph.core.JanusGraphVertex;
 import org.janusgraph.core.attribute.Text;
 import org.slf4j.Logger;
@@ -23,6 +24,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static io.citegraph.app.GraphConfiguration.GRAPH_CONFIG_NAME;
 
@@ -30,14 +34,6 @@ import static io.citegraph.app.GraphConfiguration.GRAPH_CONFIG_NAME;
  * It parses dblp dataset and dumps into graph database
  */
 public class DblpParser {
-
-    private static long authorWithoutId = 0;
-
-    private static long paperWithoutRef = 0;
-
-    private static long authorRefCount = 0;
-
-    private static long paperRefCount = 0;
     private static final Logger LOG = LoggerFactory.getLogger(DblpParser.class);
 
     /**
@@ -65,6 +61,7 @@ public class DblpParser {
         for (Vertex citedP : citedPapers) {
             List<Vertex> refAuthors = graph.traversal().V(citedP).in("writes").toList();
             for (Vertex author : authors) {
+                final String name = author.value("name");
                 for (Vertex refAuthor : refAuthors) {
                     GraphTraversal<Vertex, Edge> t = graph.traversal().V(author).outE("refers").where(__.inV().is(refAuthor));
                     if (t.hasNext()) {
@@ -72,7 +69,9 @@ public class DblpParser {
                         int count = Integer.parseInt(graph.traversal().E(e).properties("refCount").next().value().toString());
                         graph.traversal().E(e).property("refCount", count + 1).next();
                     } else {
-                        graph.traversal().V(author).addE("refers").to(refAuthor).property("refCount", 1).next();
+                        graph.traversal().V(author).addE("refers").to(refAuthor)
+                            .property("refCount", 1)
+                            .property("name", name).next();
                     }
                 }
             }
@@ -94,17 +93,17 @@ public class DblpParser {
             LOG.error("Paper {} does not have id, skip", paper.getTitle());
             return;
         }
-        Vertex pVertex = graph.traversal().V(paper.getId()).next();
         List<String> references = paper.getReferences();
         if (references == null) {
-            paperWithoutRef++;
             return;
         }
+        JanusGraphTransaction tx = graph.newTransaction();
+        Vertex pVertex = tx.traversal().V(paper.getId()).next();
         for (String ref : new HashSet<>(references)) {
-            paperRefCount++;
-            Vertex citedVertex = graph.traversal().V(ref).next();
-            graph.traversal().V(pVertex).addE("cites").to(citedVertex).next();
+            Vertex citedVertex = tx.traversal().V(ref).next();
+            tx.traversal().V(pVertex).addE("cites").to(citedVertex).next();
         }
+        tx.commit();
     }
 
     /**
@@ -138,7 +137,6 @@ public class DblpParser {
                 }
             } else {
                 LOG.debug("Author {} does not have id", author.getName());
-                authorWithoutId++;
                 GraphTraversal<Vertex, Vertex> traversal = graph.traversal().V()
                     .has("name", Text.textContains(author.getName())).limit(1);
                 if (traversal.hasNext()) {
@@ -175,6 +173,13 @@ public class DblpParser {
         ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         final String path = args[0];
         final String mode = args[1];
+
+        boolean multiThreading = mode.equalsIgnoreCase("citations");
+        // create a thread pool for data loading
+        ExecutorService executor = multiThreading
+            ? Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
+            : null;
+
         FileInputStream inputStream = null;
         Scanner sc = null;
         long i = 0;
@@ -199,7 +204,10 @@ public class DblpParser {
                     if (mode.equalsIgnoreCase("vertices")) {
                         loadVertices(paper, graph);
                     } else if (mode.equalsIgnoreCase("citations")) {
-                        loadCitations(paper, graph);
+                        JanusGraph finalGraph = graph;
+                        executor.submit(() -> {
+                            loadCitations(paper, finalGraph);
+                        });
                     } else if (mode.equalsIgnoreCase("references")) {
                         loadAuthorRefs(paper, graph);
                     } else {
@@ -209,21 +217,29 @@ public class DblpParser {
                     }
                     i++;
                     if (i % 100 == 0) {
-                        graph.tx().commit();
-                        LOG.info("Batch " + (i / 100) + " committed, failed count = " + failedCount + " paperWithoutRef = " + paperWithoutRef + " paperRecCount = " + paperRefCount);
+                        if (!multiThreading) {
+                            graph.tx().commit();
+                        }
+                        LOG.info("Batch " + (i / 100) + " committed, failed count = " + failedCount);
                     }
                 } catch (Exception ex) {
                     LOG.error("Fail to write to graph", ex);
                     failedCount++;
                 }
             }
-            graph.tx().commit();
-            LOG.info("Batch " + (i / 100) + " committed, failed count = " + failedCount + " paperWithoutRef = " + paperWithoutRef + " paperRecCount = " + paperRefCount);
+            if (!multiThreading) {
+                graph.tx().commit();
+                LOG.info("Batch " + (i / 100) + " committed, failed count = " + failedCount);
+            }
             // note that Scanner suppresses exceptions
             if (sc.ioException() != null) {
                 throw sc.ioException();
             }
         } finally {
+            if (executor != null) {
+                executor.shutdown();
+                executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            }
             if (inputStream != null) {
                 inputStream.close();
             }
