@@ -15,6 +15,7 @@
 	<description>Cite Graph - Citation Graph Online Visualizer</description>
 	<properties>
 		<java.version>8</java.version>
+		<!--This version is built locally using https://github.com/li-boxuan/janusgraph/tree/dev/string-vertex-id branch-->
 		<janusgraph.version>1.0.0-SNAPSHOT</janusgraph.version>
 	</properties>
 	<dependencies>
@@ -27,6 +28,30 @@
 			<groupId>org.janusgraph</groupId>
 			<artifactId>janusgraph-core</artifactId>
 			<version>${janusgraph.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.janusgraph</groupId>
+			<artifactId>janusgraph-hadoop</artifactId>
+			<version>${janusgraph.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.janusgraph</groupId>
+			<artifactId>janusgraph-cql</artifactId>
+			<version>${janusgraph.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.janusgraph</groupId>
+			<artifactId>cassandra-hadoop-util</artifactId>
+			<version>${janusgraph.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.tinkerpop</groupId>
+			<artifactId>spark-gremlin</artifactId>
+			<version>3.6.2</version>
 		</dependency>
 
 		<dependency>
