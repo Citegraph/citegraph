@@ -209,7 +209,9 @@ public class DblpParser {
                             loadCitations(paper, finalGraph);
                         });
                     } else if (mode.equalsIgnoreCase("references")) {
-                        loadAuthorRefs(paper, graph);
+                        LOG.error("Mode references deprecated, please use AuthorRefEdgeLoader instead");
+                        graph.close();
+                        System.exit(0);
                     } else {
                         LOG.error("Unknown mode {}, must be either vertices or citations", mode);
                         graph.close();
