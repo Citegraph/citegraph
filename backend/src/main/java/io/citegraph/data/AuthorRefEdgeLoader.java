@@ -64,30 +64,34 @@ public class AuthorRefEdgeLoader {
             partition.forEachRemaining(
                 vertexWritable -> {
                     for (int i = 0; i < 3; i++) {
-                        GraphTraversalSource g = finalGraph.traversal();
-                        StarGraph.StarVertex v = vertexWritable.get();
-                        if (!Objects.equals(v.value("type"), "author")) return;
-                        String name = v.value("name");
-                        List<Vertex> referees = g.V(v.id()).out("writes").out("cites").in("writes").toList();
-                        if (referees.isEmpty()) return;
-                        Map<Vertex, Integer> refereeToCounter = new HashMap<>();
-                        for (Vertex referee : referees) {
-                            refereeToCounter.put(referee, refereeToCounter.getOrDefault(referee, 0) + 1);
-                        }
-                        // System.out.println("Author " + v.id() + " cites " + referees.size() + " authors, after dedup = " + refereeToCounter.size());
-                        Vertex fromV = g.V(v.id()).next();
-                        for (Map.Entry<Vertex, Integer> entry : refereeToCounter.entrySet()) {
-                            if (!g.V(fromV).outE().where(__.otherV().is(entry.getKey())).hasNext()) {
-                                g.addE("refers").from(fromV).to(entry.getKey())
-                                    .property("refCount", entry.getValue())
-                                    .property("name", name)
-                                    .next();
-                            }
-                        }
                         try {
+                            GraphTraversalSource g = finalGraph.traversal();
+                            StarGraph.StarVertex v = vertexWritable.get();
+                            if (!Objects.equals(v.value("type"), "author")) return;
+                            if (g.V(v).outE("refers").limit(1).hasNext()) {
+                                // already processed, skip (don't do this if the graph has been updated)
+                                return;
+                            }
+                            String name = v.value("name");
+                            List<Vertex> referees = g.V(v.id()).out("writes").out("cites").in("writes").toList();
+                            if (referees.isEmpty()) return;
+                            Map<Vertex, Integer> refereeToCounter = new HashMap<>();
+                            for (Vertex referee : referees) {
+                                refereeToCounter.put(referee, refereeToCounter.getOrDefault(referee, 0) + 1);
+                            }
+                            // System.out.println("Author " + v.id() + " cites " + referees.size() + " authors, after dedup = " + refereeToCounter.size());
+                            Vertex fromV = g.V(v.id()).next();
+                            for (Map.Entry<Vertex, Integer> entry : refereeToCounter.entrySet()) {
+                                if (!g.V(fromV).outE().where(__.otherV().is(entry.getKey())).hasNext()) {
+                                    g.addE("refers").from(fromV).to(entry.getKey())
+                                        .property("refCount", entry.getValue())
+                                        .property("name", name)
+                                        .next();
+                                }
+                            }
                             g.tx().commit();
                             // commit successful, break the retry loop
-                            break;
+                            return;
                         } catch (Exception ex) {
                             System.out.println("Commit failed, retry count = " + i);
                         }
