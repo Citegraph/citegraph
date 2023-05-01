@@ -3,6 +3,7 @@ package io.citegraph.app;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import io.citegraph.data.GraphInitializer;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.janusgraph.core.JanusGraph;
 import org.janusgraph.core.JanusGraphFactory;
 import org.slf4j.Logger;
@@ -18,17 +19,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 
+import static org.apache.tinkerpop.gremlin.process.traversal.AnonymousTraversalSource.traversal;
+
 @Configuration
 public class GraphConfiguration {
 
     private static final Logger LOG = LoggerFactory.getLogger(GraphConfiguration.class);
 
-    public static final String GRAPH_CONFIG_NAME = "janusgraph-cql-lucene.properties";
+    public static final String GRAPH_CONFIG_NAME = "remote-graph.properties";
 
-    private JanusGraph graph;
+    private GraphTraversalSource g;
 
     @Bean
-    public JanusGraph getGraph() {
+    public GraphTraversalSource getGraph() {
         LOG.info("Opening graph...");
         URL res = this.getClass().getClassLoader().getResource(GRAPH_CONFIG_NAME);
         File file;
@@ -57,8 +60,8 @@ public class GraphConfiguration {
             throw new RuntimeException("Error: File " + file + " not found!");
         }
         try {
-            graph = JanusGraphFactory.open(file.getAbsolutePath());
-            return graph;
+            GraphTraversalSource g = traversal().withRemote(file.getAbsolutePath());
+            return g;
         } catch (Exception ex) {
             LOG.error("Fail to open graph", ex);
             throw new RuntimeException(ex);
@@ -75,8 +78,8 @@ public class GraphConfiguration {
     }
 
     @PreDestroy
-    public void close() {
+    public void close() throws Exception {
         LOG.info("Closing graph...");
-        graph.close();
+        g.close();
     }
 }

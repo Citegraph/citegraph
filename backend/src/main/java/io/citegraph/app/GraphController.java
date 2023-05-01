@@ -7,7 +7,6 @@ import io.citegraph.app.model.PaperResponse;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.janusgraph.core.JanusGraph;
 import org.janusgraph.core.attribute.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,14 +37,13 @@ public class GraphController {
     private int searchLimit = DEFAULT_LIMIT;
 
     @Autowired
-    private JanusGraph graph;
+    private GraphTraversalSource g;
 
     @Autowired
     private Cache<String, String> authorCache;
 
     @GetMapping("/paper/{id}")
     public PaperResponse getPaper(@PathVariable String id) {
-        GraphTraversalSource g = graph.traversal();
         if (!g.V().hasId(id).hasNext()) {
             throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, String.format("Paper %s not found", id)
@@ -84,7 +82,6 @@ public class GraphController {
 
     @GetMapping("/author/{id}")
     public AuthorResponse getAuthor(@PathVariable String id) {
-        GraphTraversalSource g = graph.traversal();
         if (!g.V().hasId(id).hasNext()) {
             throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, String.format("Author %s not found", id)
@@ -139,7 +136,6 @@ public class GraphController {
 
     @GetMapping("/search/author/{name}")
     public List<AuthorResponse> getAuthorByName(@PathVariable String name) {
-        GraphTraversalSource g = graph.traversal();
         List<AuthorResponse> authors = g.V().has("name", Text.textContains(name)).toList()
             .stream()
             .map(v -> new AuthorResponse(v.value("name"), (String) v.id()))
