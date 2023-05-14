@@ -23,11 +23,13 @@ copy the artifacts to the spring-boot app project as follows:
 cd frontend
 npm run build
 cp -r dist ../backend/src/main/resources
+cd ..
 ```
 
 Then we are ready to package the application.
 
 ```bash
+cd backend
 mvn clean package
 ```
 
