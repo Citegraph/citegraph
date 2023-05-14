@@ -2,65 +2,53 @@ package io.citegraph.app;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import io.citegraph.data.GraphInitializer;
+import org.apache.tinkerpop.gremlin.driver.Cluster;
+import org.apache.tinkerpop.gremlin.driver.MessageSerializer;
+import org.apache.tinkerpop.gremlin.driver.remote.DriverRemoteConnection;
+import org.apache.tinkerpop.gremlin.driver.ser.GraphBinaryMessageSerializerV1;
+import org.apache.tinkerpop.gremlin.process.traversal.AnonymousTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
-import org.janusgraph.core.JanusGraph;
-import org.janusgraph.core.JanusGraphFactory;
+import org.janusgraph.graphdb.tinkerpop.JanusGraphIoRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PreDestroy;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-import static org.apache.tinkerpop.gremlin.process.traversal.AnonymousTraversalSource.traversal;
+import static org.apache.tinkerpop.gremlin.driver.ser.AbstractMessageSerializer.TOKEN_IO_REGISTRIES;
 
 @Configuration
 public class GraphConfiguration {
 
     private static final Logger LOG = LoggerFactory.getLogger(GraphConfiguration.class);
 
-    public static final String GRAPH_CONFIG_NAME = "remote-graph.properties";
+    public static final String GRAPH_CONFIG_NAME = "janusgraph-cql-lucene.properties";
 
     private GraphTraversalSource g;
+
+    private MessageSerializer createGraphBinaryMessageSerializerV1() {
+        final GraphBinaryMessageSerializerV1 serializer = new GraphBinaryMessageSerializerV1();
+        final Map<String, Object> config = new HashMap<>();
+        config.put(TOKEN_IO_REGISTRIES, Collections.singletonList(JanusGraphIoRegistry.class.getName()));
+        serializer.configure(config, Collections.emptyMap());
+        return serializer;
+    }
 
     @Bean
     public GraphTraversalSource getGraph() {
         LOG.info("Opening graph...");
-        URL res = this.getClass().getClassLoader().getResource(GRAPH_CONFIG_NAME);
-        File file;
-        if (res.getProtocol().equals("jar")) {
-            try {
-                InputStream input = GraphInitializer.class.getClassLoader().getResourceAsStream(GRAPH_CONFIG_NAME);
-                file = File.createTempFile("tempfile", ".tmp");
-                OutputStream out = new FileOutputStream(file);
-                int read;
-                byte[] bytes = new byte[1024];
-
-                while ((read = input.read(bytes)) != -1) {
-                    out.write(bytes, 0, read);
-                }
-                out.close();
-                file.deleteOnExit();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-        } else {
-            //this will probably work in your IDE, but not from a JAR
-            file = new File(res.getFile());
-        }
-
-        if (file != null && !file.exists()) {
-            throw new RuntimeException("Error: File " + file + " not found!");
-        }
         try {
-            g = traversal().withRemote(file.getAbsolutePath());
+            Cluster cluster = Cluster.build("localhost")
+                .port(8182)
+                .serializer(createGraphBinaryMessageSerializerV1())
+                .create();
+
+            g = AnonymousTraversalSource.traversal()
+                .withRemote(DriverRemoteConnection.using(cluster, "g"));
             return g;
         } catch (Exception ex) {
             LOG.error("Fail to open graph", ex);
