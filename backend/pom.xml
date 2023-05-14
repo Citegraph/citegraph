@@ -15,8 +15,7 @@
 	<description>Cite Graph - Citation Graph Online Visualizer</description>
 	<properties>
 		<java.version>8</java.version>
-		<!--This version is built locally using https://github.com/li-boxuan/janusgraph/tree/dev/string-vertex-id branch-->
-		<janusgraph.version>1.0.0-SNAPSHOT</janusgraph.version>
+		<janusgraph.version>1.0.0-20230428-082704.5159135</janusgraph.version>
 	</properties>
 	<dependencies>
 		<dependency>

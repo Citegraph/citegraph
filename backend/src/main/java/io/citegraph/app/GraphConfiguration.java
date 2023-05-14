@@ -20,6 +20,7 @@ import java.io.OutputStream;
 import java.net.URL;
 
 import static org.apache.tinkerpop.gremlin.process.traversal.AnonymousTraversalSource.traversal;
+import static org.janusgraph.graphdb.relations.RelationIdentifier.JANUSGRAPH_RELATION_DELIMITER;
 
 @Configuration
 public class GraphConfiguration {

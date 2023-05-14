@@ -50,12 +50,17 @@ public class GraphController {
             );
         }
         Vertex paper = g.V().hasId(id).next();
-        PaperResponse paperResponse = new PaperResponse(id, paper.value("title"), paper.value("year"));
+        PaperResponse paperResponse = new PaperResponse(
+            id,
+            (String) g.V(paper).values("title").next(),
+            (Integer) g.V(paper).values("year").next());
 
         // collect authors
         List<AuthorResponse> authors = g.V(paper).in("writes").toList()
             .stream()
-            .map(v -> new AuthorResponse(v.value("name"), (String) v.id()))
+            .map(v -> new AuthorResponse(
+                (String) g.V(v).values("name").next(),
+                (String) v.id()))
             .collect(Collectors.toList());
         paperResponse.setAuthors(authors);
 
@@ -67,13 +72,19 @@ public class GraphController {
 
         List<PaperResponse> referees = g.V(paper).out("cites").limit(searchLimit).toList()
             .stream()
-            .map(v -> new PaperResponse((String) v.id(), v.value("title"), v.value("year")))
+            .map(v -> new PaperResponse(
+                (String) v.id(),
+                (String) g.V(v).values("title").next(),
+                (Integer) g.V(v).values("year").next()))
             .collect(Collectors.toList());
         paperResponse.setReferees(referees);
 
         List<PaperResponse> referers = g.V(paper).in("cites").limit(searchLimit).toList()
             .stream()
-            .map(v -> new PaperResponse((String) v.id(), v.value("title"), v.value("year")))
+            .map(v -> new PaperResponse(
+                (String) v.id(),
+                (String) g.V(v).values("title").next(),
+                (Integer) g.V(v).values("year").next()))
             .collect(Collectors.toList());
         paperResponse.setReferers(referers);
 
@@ -96,7 +107,9 @@ public class GraphController {
         long numOfPapers = g.V(author).out("writes").count().next();
         List<PaperResponse> papers = g.V(author).out("writes").limit(searchLimit).toList()
             .stream()
-            .map(v -> new PaperResponse((String) v.id(), v.value("title"), v.value("year")))
+            .map(v -> new PaperResponse((String) v.id(),
+                (String) g.V(v).values("title").next(),
+                (Integer) g.V(v).values("year").next()))
             .collect(Collectors.toList());
 
         // collect author references
@@ -110,7 +123,7 @@ public class GraphController {
         List<Edge> referees = g.V(author).outE("refers").limit(searchLimit).toList();
         List<CitationResponse> refereeResponse = new ArrayList<>();
         for (Edge referee : referees) {
-            int refCount = referee.value("refCount");
+            int refCount = (Integer) g.E(referee).values("refCount").next();
             String refereeId = (String) referee.inVertex().id();
             String refereeName = idNameMap.get(refereeId);
             CitationResponse citationResponse = new CitationResponse(new AuthorResponse(refereeName, refereeId), refCount);
@@ -120,7 +133,7 @@ public class GraphController {
         List<Edge> referers = g.V(author).inE("refers").limit(searchLimit).toList();
         List<CitationResponse> refererResponse = new ArrayList<>();
         for (Edge referer : referers) {
-            int refCount = referer.value("refCount");
+            int refCount = (Integer) g.E(referer).values("refCount").next();
             String refererId = (String) referer.outVertex().id();
             String refererName = idNameMap.get(refererId);
             CitationResponse citationResponse = new CitationResponse(new AuthorResponse(refererName, refererId), refCount);
@@ -138,7 +151,7 @@ public class GraphController {
     public List<AuthorResponse> getAuthorByName(@PathVariable String name) {
         List<AuthorResponse> authors = g.V().has("name", Text.textContains(name)).toList()
             .stream()
-            .map(v -> new AuthorResponse(v.value("name"), (String) v.id()))
+            .map(v -> new AuthorResponse((String) g.V(v).values("name").next(), (String) v.id()))
             .collect(Collectors.toList());
         return authors;
     }
@@ -152,7 +165,7 @@ public class GraphController {
 
     private void buildNameMap(Map<String, String> idNameMap, List<Vertex> authors) {
         for (Vertex v : authors) {
-            idNameMap.putIfAbsent((String) v.id(), v.value("name"));
+            idNameMap.putIfAbsent((String) v.id(), (String) g.V(v).values("name").next());
         }
     }
 }
