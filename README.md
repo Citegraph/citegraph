@@ -9,7 +9,7 @@ Enter the root directory of JanusGraph distribution, run the following command
  project):
 
 ```
-JAVA_OPTIONS="-DJANUSGRAPH_RELATION_DELIMITER=@" ./bin/janusgraph-server.sh console /Users/liboxuan/workspace/citegraph/citegraph/backend/src/main/resources/gremlin-server-cql.yaml
+JAVA_OPTIONS="-DJANUSGRAPH_RELATION_DELIMITER=@" ./bin/janusgraph-server.sh console /home/azureuser/gremlin-server-cql.yaml
 ```
 
 ### Start Web App
