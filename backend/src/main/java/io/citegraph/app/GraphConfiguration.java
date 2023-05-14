@@ -20,7 +20,6 @@ import java.io.OutputStream;
 import java.net.URL;
 
 import static org.apache.tinkerpop.gremlin.process.traversal.AnonymousTraversalSource.traversal;
-import static org.janusgraph.graphdb.relations.RelationIdentifier.JANUSGRAPH_RELATION_DELIMITER;
 
 @Configuration
 public class GraphConfiguration {
@@ -61,7 +60,7 @@ public class GraphConfiguration {
             throw new RuntimeException("Error: File " + file + " not found!");
         }
         try {
-            GraphTraversalSource g = traversal().withRemote(file.getAbsolutePath());
+            g = traversal().withRemote(file.getAbsolutePath());
             return g;
         } catch (Exception ex) {
             LOG.error("Fail to open graph", ex);
