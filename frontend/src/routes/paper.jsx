@@ -1,6 +1,6 @@
 import { Link, useLoaderData } from "react-router-dom";
 import { getPaper } from "../apis/papers";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Table } from "antd";
 
 export async function loader({ params }) {
@@ -14,7 +14,7 @@ export default function Paper() {
 
   useEffect(() => {
     document.title = `${paper.title} - Citegraph`;
-  }, []);
+  }, [paper.title]);
 
   const columns = [
     {
@@ -22,12 +22,14 @@ export default function Paper() {
       dataIndex: "title",
       sorter: (a, b) => a.title.length - b.title.length,
       sortDirections: ["descend"],
+      render: (text, record) => <Link to={"/paper/" + record.key}>{text}</Link>,
     },
     {
       title: "Year",
       dataIndex: "year",
       sorter: (a, b) => a.year - b.year,
       sortDirections: ["descend"],
+      defaultSortOrder: "descend",
     },
   ];
   const referers = [];
@@ -47,21 +49,15 @@ export default function Paper() {
     });
   });
 
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const onSelectChange = (newSelectedRowKeys) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
-    setSelectedRowKeys(newSelectedRowKeys);
-  };
-
   return (
     <div id="paper">
       <div id="title">
         {paper.title} ({paper.year})
       </div>
-      {/* <div id="desc">
+      <div id="desc">
         <p>Number of papers which cited this paper: {paper.numOfReferers}</p>
-        <p>Number of papers cited by this paper: {paper.numOfReferees}</p>
-      </div> */}
+        <p>Number of references: {paper.numOfReferees}</p>
+      </div>
       <div>
         Authors:
         {paper.authors.map((author, index) => (
@@ -70,36 +66,20 @@ export default function Paper() {
           </span>
         ))}
       </div>
-      <Table columns={columns} dataSource={referers} title={() => "Cited by"} />
-      {/* <div>
-        Cited by:
-        <ul>
-          {paper.referers.map((paper, index) => (
-            <li key={index}>
-              <Link to={`/paper/${paper.id}`}>
-                {paper.title} ({paper.year})
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div> */}
-      <Table
-        columns={columns}
-        dataSource={referees}
-        title={() => "References"}
-      />
-      {/* <div>
-        References:
-        <ul>
-          {paper.referees.map((paper, index) => (
-            <li key={index}>
-              <Link to={`/paper/${paper.id}`}>
-                {paper.title} ({paper.year})
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div> */}
+      {referers && referers.length > 0 && (
+        <Table
+          columns={columns}
+          dataSource={referers}
+          title={() => "Cited by"}
+        />
+      )}
+      {referees && referees.length > 0 && (
+        <Table
+          columns={columns}
+          dataSource={referees}
+          title={() => "References"}
+        />
+      )}
     </div>
   );
 }

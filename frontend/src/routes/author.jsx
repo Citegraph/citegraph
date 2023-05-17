@@ -13,7 +13,7 @@ export default function Author() {
 
   useEffect(() => {
     document.title = `${author.name} - Citegraph`;
-  }, []);
+  }, [author.name]);
 
   const paperCols = [
     {
@@ -21,12 +21,14 @@ export default function Author() {
       dataIndex: "title",
       sorter: (a, b) => a.title.length - b.title.length,
       sortDirections: ["descend"],
+      render: (text, record) => <Link to={"/paper/" + record.key}>{text}</Link>,
     },
     {
       title: "Year",
       dataIndex: "year",
       sorter: (a, b) => a.year - b.year,
       sortDirections: ["descend"],
+      defaultSortOrder: "descend",
     },
   ];
   const papers = [];
@@ -44,12 +46,16 @@ export default function Author() {
       dataIndex: "name",
       sorter: (a, b) => a.title.length - b.title.length,
       sortDirections: ["descend"],
+      render: (text, record) => (
+        <Link to={"/author/" + record.key}>{text}</Link>
+      ),
     },
     {
       title: "Occurrences",
       dataIndex: "count",
       sorter: (a, b) => a.count - b.count,
       sortDirections: ["descend"],
+      defaultSortOrder: "descend",
     },
   ];
 
@@ -84,18 +90,6 @@ export default function Author() {
         dataSource={papers}
         title={() => "Publications (first 100)"}
       />
-      {/* <div id="pub">
-        Publications:
-        <ul>
-          {author.papers.map((paper, index) => (
-            <li key={index}>
-              <Link to={`/paper/${paper.id}`}>
-                {paper.title}, {paper.year}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div> */}
       <Table
         columns={authorCols}
         dataSource={referers}
@@ -103,17 +97,6 @@ export default function Author() {
           "People who cited " + author.name.toUpperCase() + " (first 100)"
         }
       />
-      {/* <div id="referer">
-        People who cited this author:
-        <ul>
-          {author.referers.map((ppl, index) => (
-            <li key={index}>
-              <Link to={`/author/${ppl.author.id}`}>{ppl.author.name}</Link>{" "}
-              {ppl.count}
-            </li>
-          ))}
-        </ul>
-      </div> */}
       <Table
         columns={authorCols}
         dataSource={referees}
@@ -121,17 +104,6 @@ export default function Author() {
           "People who " + author.name.toUpperCase() + " cited (first 100)"
         }
       />
-      {/* <div id="referee">
-        People who this author cited:
-        <ul>
-          {author.referees.map((ppl, index) => (
-            <li key={index}>
-              <Link to={`/author/${ppl.author.id}`}>{ppl.author.name}</Link>{" "}
-              {ppl.count}
-            </li>
-          ))}
-        </ul>
-      </div> */}
     </div>
   );
 }
