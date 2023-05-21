@@ -7,8 +7,8 @@ public datasets into the graph database.
 
 This assumes you have an empty JanusGraph instance with any storage backend and
 any index backend. If you are running on a single machine, the recommended approach
-is BerkeleyDB + Lucene. You can find the default configuration file under resources
-folder. Run GraphInitializer to create the graph and set up schema.
+is Cassandra + Lucene. You can find the default configuration file under resources
+folder. Run `GraphInitializer` to create the graph and set up schema.
 
 ## DBLP
 

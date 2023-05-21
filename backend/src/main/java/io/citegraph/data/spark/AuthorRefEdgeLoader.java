@@ -1,5 +1,6 @@
-package io.citegraph.data;
+package io.citegraph.data.spark;
 
+import io.citegraph.data.GraphInitializer;
 import org.apache.commons.configuration2.BaseConfiguration;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.spark.SparkConf;

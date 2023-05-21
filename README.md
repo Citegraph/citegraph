@@ -2,6 +2,10 @@
 
 ## Quick Start
 
+### Ingest Graph Data
+
+See [README](backend/src/main/java/io/citegraph/data/README.md) for steps.
+
 ### Start Graph Database
 
 Enter the root directory of JanusGraph distribution, run the following command
