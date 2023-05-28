@@ -18,6 +18,7 @@ public class Utils {
         sparkGraphConfiguration.setProperty("cassandra.input.partitioner.class", "org.apache.cassandra.dht.Murmur3Partitioner");
         sparkGraphConfiguration.setProperty("gremlin.graph", HadoopGraph.class.getCanonicalName());
         sparkGraphConfiguration.setProperty(SparkLauncher.SPARK_MASTER, "local[*]");
+        sparkGraphConfiguration.setProperty("spark.local.dir", "/Users/liboxuan/workspace/tmp");
         return sparkGraphConfiguration;
     }
 }
