@@ -41,34 +41,23 @@ We can then deploy the package to our preferred environment and run
 it. For example, we can upload it to Azure Virtual Machine and run the
 packaged jar file:
 
-```java
-java -jar app-0.0.1-SNAPSHOT.jar
-```
-
-Now the web backend application runs on port 8080. You may need a
-reverse proxy server to expose your website on port 80. For example,
-if you are using Apache, you could do the following:
-
-Step 1. Install Apache and edit the config file
-
 ```bash
-sudo apt -y install apache2
-sudo vim /etc/apache2/apache2.conf
+sudo java -jar app-0.0.1-SNAPSHOT.jar
 ```
 
-Step 2. Add the following code
+Now the web backend application runs on port 443. Note that this needs
+privilege access, so we used `sudo` to launch the app. In production environment,
+You may want to use a non-privileged port and a reverse proxy server to forward
+traffic from 443 to your port.
 
-```bash
-ProxyPreserveHost On
-ProxyPass / http://localhost:8080/
-ProxyPassReverse / http://localhost:8080/
-```
+Note the above steps assumes you have a SSL certificate installed in `/etc/letsencrypt/live/www.citegraph.io/keystore.p12`.
+If you don't, you can follow [this tutorial](https://dzone.com/articles/spring-boot-secured-by-lets-encrypt)
+to generate and install one in your VM. Alternatively, if you don't need SSL support,
+simply change port 443 to 80 in your `application.properties`, and set `server.ssl.enabled=false`.
 
-Step 3. Restart Apache server
-
-```bash
-sudo systemctl restart apache2
-```
+If you need 301 redirect from `non-www` prefix to `www` prefix, you could set it up
+by yourself using `Apache` or `nginx`, or use a third-party forwarding service like
+`redirect.pizza`.
 
 ## Roadmap
 
