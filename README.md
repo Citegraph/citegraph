@@ -46,7 +46,29 @@ java -jar app-0.0.1-SNAPSHOT.jar
 ```
 
 Now the web backend application runs on port 8080. You may need a
-reverse proxy server to expose your website on port 80.
+reverse proxy server to expose your website on port 80. For example,
+if you are using Apache, you could do the following:
+
+Step 1. Install Apache and edit the config file
+
+```bash
+sudo apt -y install apache2
+sudo vim /etc/apache2/apache2.conf
+```
+
+Step 2. Add the following code
+
+```bash
+ProxyPreserveHost On
+ProxyPass / http://localhost:8080/
+ProxyPassReverse / http://localhost:8080/
+```
+
+Step 3. Restart Apache server
+
+```bash
+sudo systemctl restart apache2
+```
 
 ## Roadmap
 
