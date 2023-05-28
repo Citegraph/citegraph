@@ -27,7 +27,7 @@ public class SitemapGenerator {
         while (g.hasNext()) {
             try {
                 Vertex v = g.next();
-                StringBuilder builder = new StringBuilder("http://www.citegraph.io/");
+                StringBuilder builder = new StringBuilder("https://www.citegraph.io/");
 
                 if (v.value("type").equals("author")) {
                     builder.append("author/");
