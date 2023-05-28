@@ -13,14 +13,5 @@ folder. Run `GraphInitializer` to create the graph and set up schema.
 ## DBLP
 
 We use DBLP-Citation-network V14 snapshot (2023-01-31) downloaded [here](https://www.aminer.org/citation).
-
-## Roadmap
-
-- Add recently viewed authors to cache and display on homepage
-- Ingest and show number of citations for a given person
-- Ingest and show coauthor relationships
-- Index paper titles and make them searchable
-- Edges should contain author names
-- Run pagerank algorithm to attribute scores to authors and papers
-- Allow users to filter papers (to exclude those papers wrongly attributed)
-- Allow users to set up profiles (like google scholar)
+Run `DblpParser` to load the vertices and edges. Optionally, you could also run `AuthorRefEdgeLoader` Spark
+program to add edges between any two pair of authors if one has ever cited the other's works.

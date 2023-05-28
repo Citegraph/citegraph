@@ -47,3 +47,11 @@ java -jar app-0.0.1-SNAPSHOT.jar
 
 Now the web backend application runs on port 8080. You may need a
 reverse proxy server to expose your website on port 80.
+
+## Roadmap
+
+- Ingest and show number of citations for a given person
+- Ingest and show coauthor relationships
+- Run pagerank algorithm to attribute scores to authors and papers
+- Allow users to filter papers (to exclude those papers wrongly attributed)
+- Allow users to set up profiles (like google scholar)
