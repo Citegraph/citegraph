@@ -108,6 +108,5 @@ public class VertexPropertyEnricher {
             System.out.println("Partition finished");
             graph.close();
         });
-        System.out.println("number of RDDs:" + verticesRDD.count());
     }
 }
