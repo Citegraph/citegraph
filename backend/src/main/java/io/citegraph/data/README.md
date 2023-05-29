@@ -11,6 +11,10 @@ is Cassandra + Lucene. You can find the default configuration file under resourc
 folder. Run `GraphInitializer` to create the graph and set up schema. Then ingest
 the data you need. Currently, only `DBLP` data is supported.
 
+WARNING: Remember to add `-DJANUSGRAPH_RELATION_DELIMITER=@` VM option before running
+any program, because `DblpParser` uses UUID which has a collision with JanusGraph's
+default relation delimiter.
+
 ### DBLP
 
 We use DBLP-Citation-network V14 snapshot (2023-01-31) downloaded [here](https://www.aminer.org/citation).
@@ -26,6 +30,13 @@ program to add edges between any two pair of authors if one has ever cited the o
 ### VertexCountRunner
 
 You could run `VertexCountRunner` Spark program to count the number of vertices in the graph.
+
+### VertexPropertyEnricher
+
+You could run `VertexPropertyEnricher` to pre-compute some common traversals
+and store the results as vertex properties. `AuthorRefEdgeLoader` is the prerequisite
+of this program since it leverages the edges written by `AuthorRefEdgeLoader`. See
+JavaDoc to see more details.
 
 ### SitemapGenerator
 
