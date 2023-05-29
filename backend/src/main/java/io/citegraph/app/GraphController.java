@@ -65,8 +65,8 @@ public class GraphController {
         paperResponse.setAuthors(authors);
 
         // collect paper citations
-        long numOfReferees = g.V(paper).outE("cites").count().next();
-        long numOfReferers = g.V(paper).inE("cites").count().next();
+        long numOfReferees = (int) g.V(paper).values("numOfPaperReferees").next();
+        long numOfReferers = (int) g.V(paper).values("numOfPaperReferers").next();
         paperResponse.setNumOfReferees((int) numOfReferees);
         paperResponse.setNumOfReferers((int) numOfReferers);
 
@@ -104,7 +104,7 @@ public class GraphController {
         authorCache.get(id, k -> name);
 
         // collect papers
-        long numOfPapers = g.V(author).out("writes").count().next();
+        long numOfPapers = (int) g.V(author).values("numOfPapers").next();
         List<PaperResponse> papers = g.V(author).out("writes").limit(searchLimit).toList()
             .stream()
             .map(v -> new PaperResponse((String) v.id(),
@@ -113,8 +113,8 @@ public class GraphController {
             .collect(Collectors.toList());
 
         // collect author references
-        long numOfReferees = g.V(author).outE("refers").count().next();
-        long numOfReferers = g.V(author).inE("refers").count().next();
+        long numOfReferees = (int) g.V(author).values("numOfAuthorReferees").next();
+        long numOfReferers = (int) g.V(author).values("numOfAuthorReferers").next();
 
         Map<String, String> idNameMap = new HashMap<>();
         buildNameMap(idNameMap, g.V(author).out("refers").limit(searchLimit).toList());
