@@ -50,10 +50,10 @@ privilege access, so we used `sudo` to launch the app. In production environment
 You may want to use a non-privileged port and a reverse proxy server to forward
 traffic from 443 to your port.
 
-Note the above steps assumes you have a SSL certificate installed in `/etc/letsencrypt/live/www.citegraph.io/keystore.p12`.
+Note the above steps assumes you have an SSL certificate installed in `/etc/letsencrypt/live/www.citegraph.io/keystore.p12`.
 If you don't, you can follow [this tutorial](https://dzone.com/articles/spring-boot-secured-by-lets-encrypt)
 to generate and install one in your VM. Alternatively, if you don't need SSL support,
-simply change port 443 to 80 in your `application.properties`, and set `server.ssl.enabled=false`.
+simply set `spring.profiles.active=dev` in your `application.properties`.
 
 If you need 301 redirect from `non-www` prefix to `www` prefix, you could set it up
 by yourself using `Apache` or `nginx`, or use a third-party forwarding service like
