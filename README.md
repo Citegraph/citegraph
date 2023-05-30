@@ -18,23 +18,23 @@ JAVA_OPTIONS="-DJANUSGRAPH_RELATION_DELIMITER=@" ./bin/janusgraph-server.sh cons
 
 ### Start Web App
 
-Let's start by building the frontend artifact first. You can skip
-this step since the built artifacts are already checked into this
-repository. If you made any modifications, please do build it and
-copy the artifacts to the spring-boot app project as follows:
+Let's start by building the frontend artifact first.
 
 ```bash
 cd frontend
 npm run build
-cp -r dist ../backend/src/main/resources
+# optional - upload the built artifacts to VM
+rsync -rave "ssh -i citegraph_key.pem" -r citegraph/frontend/dist azureuser@20.253.223.140:~/
 cd ..
 ```
 
-Then we are ready to package the application.
+Next let's package the backend application to a JAR file.
 
 ```bash
 cd backend
 mvn clean package
+# optional - upload the jar file to VM
+scp -i citegraph_key.pem citegraph/backend/target/app-0.0.1-SNAPSHOT.jar azureuser@20.253.223.140:~/
 ```
 
 We can then deploy the package to our preferred environment and run
@@ -45,10 +45,13 @@ packaged jar file:
 java -jar app-0.0.1-SNAPSHOT.jar
 ```
 
-Now the web backend application runs on port 8443. In production, you may
-want to set up a reverse proxy like nginx server to forward traffic from
-port 80 (http) and 443 (https) to your server port. A config example that
-enables 301 redirect from non-www to www version, and http to https version,
+Now the web backend application runs on port 8080.
+
+### Start Web Server
+
+In production, you may want to set up a reverse proxy like Nginx to
+help you serve the static files, handle SSL and 301 redirect. A complete
+example that enables 301 redirect from non-www to www version, and http to https version,
 looks like this (put it under `/etc/nginx/conf.d`):
 
 ```nginx
@@ -89,20 +92,21 @@ server {
     ssl_certificate /etc/letsencrypt/live/www.citegraph.io/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/www.citegraph.io/privkey.pem;
 
+    location /apis {
+        proxy_pass http://localhost:8080;
+    }
+
     location / {
-        proxy_pass http://localhost:8443;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        root /home/azureuser/dist;
+        index index.html;
+        try_files $uri $uri/ /index.html;
     }
 }
 ```
 
 Note the above steps assumes you have an SSL certificate installed in `/etc/letsencrypt/live/www.citegraph.io`.
 If you don't, you can follow [this tutorial](https://dzone.com/articles/spring-boot-secured-by-lets-encrypt)
-to generate and install one in your VM. Alternatively, if you don't need SSL support,
-simply set `spring.profiles.active=dev` in your `application.properties`.
+to generate and install one in your VM. 
 
 ## Roadmap
 
