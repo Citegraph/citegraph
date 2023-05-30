@@ -42,22 +42,67 @@ it. For example, we can upload it to Azure Virtual Machine and run the
 packaged jar file:
 
 ```bash
-sudo java -jar app-0.0.1-SNAPSHOT.jar
+java -jar app-0.0.1-SNAPSHOT.jar
 ```
 
-Now the web backend application runs on port 443. Note that this needs
-privilege access, so we used `sudo` to launch the app. In production environment,
-You may want to use a non-privileged port and a reverse proxy server to forward
-traffic from 443 to your port.
+Now the web backend application runs on port 8443. In production, you may
+want to set up a reverse proxy like nginx server to forward traffic from
+port 80 (http) and 443 (https) to your server port. A config example that
+enables 301 redirect from non-www to www version, and http to https version,
+looks like this (put it under `/etc/nginx/conf.d`):
 
-Note the above steps assumes you have an SSL certificate installed in `/etc/letsencrypt/live/www.citegraph.io/keystore.p12`.
+```nginx
+server {
+    listen 80;
+    server_name citegraph.io;
+
+    location / {
+        return 301 https://www.citegraph.io$request_uri;
+    }
+}
+
+server {
+    listen 80;
+    server_name www.citegraph.io;
+
+    location / {
+        return 301 https://www.citegraph.io$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name citegraph.io;
+
+    ssl_certificate /etc/letsencrypt/live/www.citegraph.io/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/www.citegraph.io/privkey.pem;
+
+    location / {
+        return 301 https://www.citegraph.io$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name www.citegraph.io;
+
+    ssl_certificate /etc/letsencrypt/live/www.citegraph.io/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/www.citegraph.io/privkey.pem;
+
+    location / {
+        proxy_pass http://localhost:8443;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+Note the above steps assumes you have an SSL certificate installed in `/etc/letsencrypt/live/www.citegraph.io`.
 If you don't, you can follow [this tutorial](https://dzone.com/articles/spring-boot-secured-by-lets-encrypt)
 to generate and install one in your VM. Alternatively, if you don't need SSL support,
 simply set `spring.profiles.active=dev` in your `application.properties`.
-
-If you need 301 redirect from `non-www` prefix to `www` prefix, you could set it up
-by yourself using `Apache` or `nginx`, or use a third-party forwarding service like
-`redirect.pizza`.
 
 ## Roadmap
 
