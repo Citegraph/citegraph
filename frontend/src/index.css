@@ -147,6 +147,7 @@ form[action$="destroy"] button {
   border: none;
   cursor: pointer;
   z-index: 3; /* Value higher than #sidebar-container */
+  display: none;
 }
 
 @media screen and (max-width: 768px) {
