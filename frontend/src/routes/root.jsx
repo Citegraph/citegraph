@@ -6,6 +6,9 @@ import logo from "../assets/logo.svg";
 import { API_URL } from "../apis/commons";
 import { Divider } from "antd";
 import { MenuOutlined } from "@ant-design/icons";
+import { Layout } from "antd";
+
+const { Footer } = Layout;
 
 export async function loader() {
   const authors = await getHotAuthors();
@@ -47,7 +50,7 @@ export default function Root() {
   };
 
   return (
-    <>
+    <Layout style={{ minHeight: "100vh" }}>
       <div id="sidebar-container">
         <button className="hamburger" onClick={toggleSidebar}>
           <MenuOutlined />
@@ -110,6 +113,26 @@ export default function Root() {
       <div id="detail">
         <Outlet />
       </div>
-    </>
+      <Footer style={{ textAlign: "center" }}>
+        This website is powered by{" "}
+        <a
+          href="https://janusgraph.org/"
+          target="_blank"
+          rel="noreferrer"
+          className="no-underline"
+        >
+          JanusGraph
+        </a>{" "}
+        and{" "}
+        <a
+          href="https://www.aminer.org/citation/"
+          target="_blank"
+          rel="noreferrer"
+          className="no-underline"
+        >
+          DBLP-Citation-network V14
+        </a>
+      </Footer>
+    </Layout>
   );
 }
