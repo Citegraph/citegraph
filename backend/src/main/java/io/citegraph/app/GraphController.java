@@ -115,6 +115,9 @@ public class GraphController {
         // collect author references
         long numOfReferees = (int) g.V(author).values("numOfAuthorReferees").next();
         long numOfReferers = (int) g.V(author).values("numOfAuthorReferers").next();
+        // collect paper references
+        long numOfPaperReferees = (int) g.V(author).values("numOfPaperReferees").next();
+        long numOfPaperReferers = (int) g.V(author).values("numOfPaperReferers").next();
 
         Map<String, String> idNameMap = new HashMap<>();
         buildNameMap(idNameMap, g.V(author).out("refers").limit(searchLimit).toList());
@@ -140,7 +143,8 @@ public class GraphController {
             refererResponse.add(citationResponse);
         }
 
-        AuthorResponse res = new AuthorResponse(name, id, (int) numOfPapers, (int) numOfReferees, (int) numOfReferers);
+        AuthorResponse res = new AuthorResponse(name, id, (int) numOfPapers, (int) numOfReferees, (int) numOfReferers,
+            (int) numOfPaperReferees, (int) numOfPaperReferers);
         res.setPapers(papers);
         res.setReferees(refereeResponse);
         res.setReferers(refererResponse);
@@ -154,6 +158,15 @@ public class GraphController {
             .map(v -> new AuthorResponse((String) g.V(v).values("name").next(), (String) v.id()))
             .collect(Collectors.toList());
         return authors;
+    }
+
+    @GetMapping("/search/paper/{title}")
+    public List<PaperResponse> getPaperByTitle(@PathVariable String title) {
+        List<PaperResponse> papers = g.V().has("title", Text.textContains(title)).toList()
+            .stream()
+            .map(v -> new PaperResponse((String) v.id(), (String) g.V(v).values("title").next(), (int) v.id()))
+            .collect(Collectors.toList());
+        return papers;
     }
 
     @GetMapping("/discover/authors")

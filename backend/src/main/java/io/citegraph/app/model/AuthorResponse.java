@@ -9,6 +9,10 @@ public class AuthorResponse {
     private int numOfReferees;
     private int numOfReferers;
 
+    private int numOfPaperReferees;
+
+    private int numOfPaperReferers;
+
     // paper written by this author
     private List<PaperResponse> papers;
 
@@ -23,12 +27,14 @@ public class AuthorResponse {
         this.id = id;
     }
 
-    public AuthorResponse(String name, String id, int numOfPapers, int numOfReferees, int numOfReferers) {
+    public AuthorResponse(String name, String id, int numOfPapers, int numOfReferees, int numOfReferers, int numOfPaperReferees, int numOfPaperReferers) {
         this.name = name;
         this.id = id;
         this.numOfPapers = numOfPapers;
         this.numOfReferees = numOfReferees;
         this.numOfReferers = numOfReferers;
+        this.numOfPaperReferees = numOfPaperReferees;
+        this.numOfPaperReferers = numOfPaperReferers;
     }
 
     public List<PaperResponse> getPapers() {
@@ -93,5 +99,21 @@ public class AuthorResponse {
 
     public void setNumOfReferers(int numOfReferers) {
         this.numOfReferers = numOfReferers;
+    }
+
+    public int getNumOfPaperReferees() {
+        return numOfPaperReferees;
+    }
+
+    public void setNumOfPaperReferees(int numOfPaperReferees) {
+        this.numOfPaperReferees = numOfPaperReferees;
+    }
+
+    public int getNumOfPaperReferers() {
+        return numOfPaperReferers;
+    }
+
+    public void setNumOfPaperReferers(int numOfPaperReferers) {
+        this.numOfPaperReferers = numOfPaperReferers;
     }
 }

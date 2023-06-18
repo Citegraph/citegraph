@@ -17,6 +17,11 @@ public class PaperResponse {
 
     private List<PaperResponse> referers;
 
+    public PaperResponse(String id, String title) {
+        this.id = id;
+        this.title = title;
+    }
+
     public PaperResponse(String id, String title, int year) {
         this.id = id;
         this.title = title;
