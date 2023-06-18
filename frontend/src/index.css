@@ -135,12 +135,18 @@ form[action$="destroy"] button {
   transition: width 0.3s ease-in-out;
 }
 
+#hamburger-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 3; /* Value higher than #sidebar-container */
+}
+
 .hamburger {
-  display: none;
   background: transparent;
   border: none;
   cursor: pointer;
-  z-index: 10;
+  z-index: 3; /* Value higher than #sidebar-container */
 }
 
 @media screen and (max-width: 768px) {
@@ -302,6 +308,7 @@ i {
   flex: 1;
   padding: 2rem 4rem;
   width: 100%;
+  background-color: #fff;
 }
 
 #detail.loading {

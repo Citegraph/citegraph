@@ -51,10 +51,12 @@ export default function Root() {
 
   return (
     <Layout className="main-layout">
-      <div id="sidebar-container">
+      <div id="hamburger-container">
         <button className="hamburger" onClick={toggleSidebar}>
           <MenuOutlined />
         </button>
+      </div>
+      <div id="sidebar-container">
         <div id="sidebar" className={isSidebarActive ? "active" : ""}>
           <Link to="/">
             <img src={logo} id="logo" alt="Logo" />
