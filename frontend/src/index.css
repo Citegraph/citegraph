@@ -318,6 +318,10 @@ i {
   transition-delay: 200ms;
 }
 
+#navigation {
+  margin-bottom: 2rem;
+}
+
 #zero-state {
   margin: 2rem auto;
   text-align: center;

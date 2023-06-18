@@ -1,7 +1,7 @@
 import { Link, useLoaderData } from "react-router-dom";
 import { getAuthor } from "../apis/authors";
 import React, { useEffect } from "react";
-import { Table } from "antd";
+import { Breadcrumb, Descriptions, Table } from "antd";
 
 export async function loader({ params }) {
   const author = await getAuthor(params.authorId);
@@ -79,11 +79,45 @@ export default function Author() {
 
   return (
     <div id="author">
-      <div id="name">{author.name.toUpperCase()}</div>
+      <div id="navigation">
+        <Breadcrumb
+          items={[
+            {
+              title: "Home",
+            },
+            {
+              title: "Author",
+            },
+            {
+              title: `${author.name.toUpperCase()}`,
+            },
+          ]}
+        />
+      </div>
       <div id="desc">
-        <p>Number of papers: {author.numOfPapers}</p>
-        <p>Number of people who cited this author: {author.numOfReferers}</p>
-        <p>Number of people cited by this author: {author.numOfReferees}</p>
+        <Descriptions title="Author Info" layout="vertical">
+          <Descriptions.Item label="Name">
+            {author.name.toUpperCase()}
+          </Descriptions.Item>
+          <Descriptions.Item label="Papers">
+            {author.numOfPapers}
+          </Descriptions.Item>
+          <Descriptions.Item label="Number of coauthors">
+            {author.numOfCoauthors}
+          </Descriptions.Item>
+          <Descriptions.Item label="Citations">
+            {author.numOfPaperReferers}
+          </Descriptions.Item>
+          <Descriptions.Item label="Referers (who have cited the author)">
+            {author.numOfReferers}
+          </Descriptions.Item>
+          <Descriptions.Item label="Referees (whom the author has cited)">
+            {author.numOfReferees}
+          </Descriptions.Item>
+          <Descriptions.Item label="References (papers the author has cited)">
+            {author.numOfPaperReferees}
+          </Descriptions.Item>
+        </Descriptions>
       </div>
       <Table
         columns={paperCols}
