@@ -48,62 +48,64 @@ export default function Root() {
 
   return (
     <>
-      <button className="hamburger" onClick={toggleSidebar}>
-        <MenuOutlined />
-      </button>
-      <div id="sidebar" className={isSidebarActive ? "active" : ""}>
-        <Link to="/">
-          <img src={logo} id="logo" alt="Logo" />
-        </Link>
-        <div>
-          <form id="search-form" role="search">
-            <input
-              id="q"
-              aria-label="Search authors"
-              placeholder="Search author name"
-              type="search"
-              name="q"
-              onChange={handleSearch}
-            />
-            <div id="search-spinner" aria-hidden hidden={!loading} />
-          </form>
-        </div>
-        <nav>
-          {searchResults.length ? (
-            <ul>
-              {searchResults.map((result) => (
-                <li key={result.id}>
-                  <Link to={`author/${result.id}`}>{result.name}</Link>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            query.length > 0 && (
+      <div id="sidebar-container">
+        <button className="hamburger" onClick={toggleSidebar}>
+          <MenuOutlined />
+        </button>
+        <div id="sidebar" className={isSidebarActive ? "active" : ""}>
+          <Link to="/">
+            <img src={logo} id="logo" alt="Logo" />
+          </Link>
+          <div>
+            <form id="search-form" role="search">
+              <input
+                id="q"
+                aria-label="Search authors"
+                placeholder="Search author name"
+                type="search"
+                name="q"
+                onChange={handleSearch}
+              />
+              <div id="search-spinner" aria-hidden hidden={!loading} />
+            </form>
+          </div>
+          <nav>
+            {searchResults.length ? (
               <ul>
-                <li>
-                  <i>No results</i>
-                </li>
+                {searchResults.map((result) => (
+                  <li key={result.id}>
+                    <Link to={`author/${result.id}`}>{result.name}</Link>
+                  </li>
+                ))}
               </ul>
-            )
-          )}
-          {query.length > 0 && <Divider />}
-          <p>
-            <b>People are searching</b>
-          </p>
-          {authors.length ? (
-            <ul>
-              {authors.map((author) => (
-                <li key={author.id}>
-                  <Link to={`author/${author.id}`}>{author.name}</Link>
-                </li>
-              ))}
-            </ul>
-          ) : (
+            ) : (
+              query.length > 0 && (
+                <ul>
+                  <li>
+                    <i>No results</i>
+                  </li>
+                </ul>
+              )
+            )}
+            {query.length > 0 && <Divider />}
             <p>
-              <i>No authors</i>
+              <b>People are searching</b>
             </p>
-          )}
-        </nav>
+            {authors.length ? (
+              <ul>
+                {authors.map((author) => (
+                  <li key={author.id}>
+                    <Link to={`author/${author.id}`}>{author.name}</Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>
+                <i>No authors</i>
+              </p>
+            )}
+          </nav>
+        </div>
       </div>
       <div id="detail">
         <Outlet />
