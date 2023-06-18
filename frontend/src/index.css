@@ -102,7 +102,18 @@ form[action$="destroy"] button {
   width: 100%;
 }
 
+#detail {
+  margin-left: 22rem; /* This should be the same width as your sidebar */
+}
+
+@media screen and (max-width: 768px) {
+  #detail {
+    margin-left: 0;
+  }
+}
+
 #sidebar-container {
+  position: fixed;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
