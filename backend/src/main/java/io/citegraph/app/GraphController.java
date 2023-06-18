@@ -119,6 +119,8 @@ public class GraphController {
         long numOfPaperReferees = (int) g.V(author).values("numOfPaperReferees").next();
         long numOfPaperReferers = (int) g.V(author).values("numOfPaperReferers").next();
 
+        int numOfCoauthors = (int) g.V(author).values("numOfCoworkers").next();
+
         Map<String, String> idNameMap = new HashMap<>();
         buildNameMap(idNameMap, g.V(author).out("refers").limit(searchLimit).toList());
         buildNameMap(idNameMap, g.V(author).in("refers").limit(searchLimit).toList());
@@ -144,7 +146,7 @@ public class GraphController {
         }
 
         AuthorResponse res = new AuthorResponse(name, id, (int) numOfPapers, (int) numOfReferees, (int) numOfReferers,
-            (int) numOfPaperReferees, (int) numOfPaperReferers);
+            (int) numOfPaperReferees, (int) numOfPaperReferers, numOfCoauthors);
         res.setPapers(papers);
         res.setReferees(refereeResponse);
         res.setReferers(refererResponse);
