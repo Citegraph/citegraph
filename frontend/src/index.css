@@ -108,6 +108,34 @@ form[action$="destroy"] button {
   border-right: solid 1px #e3e3e3;
   display: flex;
   flex-direction: column;
+  transition: width 0.3s ease-in-out;
+}
+
+#toggle-sidebar-button {
+  display: none;
+}
+
+.hamburger {
+  display: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 10;
+}
+
+@media screen and (max-width: 768px) {
+  #sidebar {
+    width: 0;
+    overflow: hidden;
+  }
+  
+  #sidebar.active {
+    width: 22rem;
+  }
+
+  .hamburger {
+    display: block;
+  }
 }
 
 #sidebar #logo {

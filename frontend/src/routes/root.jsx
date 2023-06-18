@@ -5,6 +5,7 @@ import { getHotAuthors } from "../apis/authors";
 import logo from "../assets/logo.svg";
 import { API_URL } from "../apis/commons";
 import { Divider } from "antd";
+import { MenuOutlined } from "@ant-design/icons";
 
 export async function loader() {
   const authors = await getHotAuthors();
@@ -39,9 +40,18 @@ export default function Root() {
       });
   }, 500);
 
+  const [isSidebarActive, setSidebarActive] = useState(false);
+
+  const toggleSidebar = () => {
+    setSidebarActive(!isSidebarActive);
+  };
+
   return (
     <>
-      <div id="sidebar">
+      <button className="hamburger" onClick={toggleSidebar}>
+        <MenuOutlined />
+      </button>
+      <div id="sidebar" className={isSidebarActive ? "active" : ""}>
         <Link to="/">
           <img src={logo} id="logo" alt="Logo" />
         </Link>
