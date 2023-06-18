@@ -50,7 +50,7 @@ export default function Root() {
   };
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout className="main-layout">
       <div id="sidebar-container">
         <button className="hamburger" onClick={toggleSidebar}>
           <MenuOutlined />

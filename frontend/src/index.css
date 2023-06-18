@@ -102,15 +102,17 @@ form[action$="destroy"] button {
   width: 100%;
 }
 
-#detail {
-  margin-left: 22rem; /* This should be the same width as your sidebar */
-  background-color: inherit;
+.main-layout {
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
-@media screen and (max-width: 768px) {
-  #detail {
-    margin-left: 0;
-  }
+#detail {
+  margin-left: 22rem; /* This should be the same width as your sidebar */
+  max-width: calc(100vw - 22rem);
+  overflow-x: hidden; 
+  background-color: inherit;
+  box-sizing: border-box;
 }
 
 #sidebar-container {
@@ -119,7 +121,8 @@ form[action$="destroy"] button {
   flex-direction: column;
   align-items: flex-start;
   height: 100vh;
-  width: 22rem; /* Or whatever width you want for the sidebar */
+  width: 22rem;
+  z-index: 2; /* A value higher than other elements */
 }
 
 #sidebar {
@@ -141,6 +144,11 @@ form[action$="destroy"] button {
 }
 
 @media screen and (max-width: 768px) {
+  #detail {
+    margin-left: 0;
+    max-width: 100vw;
+  }
+
   #sidebar {
     width: 0;
     overflow: hidden;
