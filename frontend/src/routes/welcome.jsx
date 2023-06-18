@@ -36,10 +36,7 @@ export default function Welcome() {
           <Text>
             Citegraph contains 224+ million author citation relationships. We
             deduce the relationship that A cites B if A has ever (co)authored a
-            paper which cites another paper written by B.
-          </Text>
-          <Text>
-            For example,{" "}
+            paper which cites another paper written by B. For example,{" "}
             <Link to={`/author/53f366a7dabfae4b3499c6fe`}>Geoffrey Hinton</Link>{" "}
             has ever cited 1.8k people, and more than 65k people have cited him.
           </Text>
