@@ -155,7 +155,7 @@ public class GraphController {
 
     @GetMapping("/search/author/{name}")
     public List<AuthorResponse> getAuthorByName(@PathVariable String name) {
-        List<AuthorResponse> authors = g.V().has("name", Text.textContains(name)).toList()
+        List<AuthorResponse> authors = g.V().has("name", Text.textContains(name)).limit(searchLimit).toList()
             .stream()
             .map(v -> new AuthorResponse((String) g.V(v).values("name").next(), (String) v.id()))
             .collect(Collectors.toList());
@@ -164,9 +164,9 @@ public class GraphController {
 
     @GetMapping("/search/paper/{title}")
     public List<PaperResponse> getPaperByTitle(@PathVariable String title) {
-        List<PaperResponse> papers = g.V().has("title", Text.textContains(title)).toList()
+        List<PaperResponse> papers = g.V().has("title", Text.textContains(title)).limit(searchLimit).toList()
             .stream()
-            .map(v -> new PaperResponse((String) v.id(), (String) g.V(v).values("title").next(), (int) v.id()))
+            .map(v -> new PaperResponse((String) v.id(), (String) g.V(v).values("title").next()))
             .collect(Collectors.toList());
         return papers;
     }

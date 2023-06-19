@@ -6,8 +6,10 @@ import logo from "../assets/logo.svg";
 import { API_URL } from "../apis/commons";
 import { Divider } from "antd";
 import { MenuOutlined } from "@ant-design/icons";
-import { Layout } from "antd";
+import { Layout, Select, Input, Space } from "antd";
 
+const { Option } = Select;
+const { Search } = Input;
 const { Footer } = Layout;
 
 export async function loader() {
@@ -22,8 +24,20 @@ export default function Root() {
   const [searchResults, setSearchResults] = useState([]);
   const [query, setQuery] = useState("");
 
+  const [searchType, setSearchType] = useState("author");
+  const [placeholder, setPlaceholder] = useState("Search author name");
+
+  const handleSearchTypeChange = (value) => {
+    setSearchType(value);
+    if (value === "author") {
+      setPlaceholder("Search author name");
+    } else {
+      setPlaceholder("Search paper title");
+    }
+  };
+
   const handleSearch = debounce((event) => {
-    const query = event.target.value;
+    const query = event.target ? event.target.value : event;
     setQuery(query);
     if (!query) {
       setSearchResults([]);
@@ -31,7 +45,7 @@ export default function Root() {
       return;
     }
     setLoading(true);
-    fetch(`${API_URL}/search/author/${query}`)
+    fetch(`${API_URL}/search/${searchType}/${query}`)
       .then((response) => response.json())
       .then((data) => {
         setSearchResults(data);
@@ -63,27 +77,45 @@ export default function Root() {
           </Link>
           <div>
             <form id="search-form" role="search">
-              <div className="search-input-container">
-                <input
+              <Space.Compact>
+                <Select
+                  defaultValue="author"
+                  style={{ width: 80 }}
+                  onChange={handleSearchTypeChange}
+                >
+                  <Option value="author">Name</Option>
+                  <Option value="paper">Title</Option>
+                </Select>
+                <Search
                   id="q"
-                  aria-label="Search authors"
-                  placeholder="Search author name"
+                  className="search-input"
+                  aria-label="Search"
+                  placeholder={placeholder}
+                  style={{ width: "calc(100% - 80px)" }}
                   type="search"
                   name="q"
                   onChange={handleSearch}
+                  onSearch={handleSearch}
+                  loading={loading}
+                  allowClear
                 />
-                <div id="search-spinner" aria-hidden hidden={!loading} />
-              </div>
+              </Space.Compact>
             </form>
           </div>
           <nav>
             {searchResults.length ? (
               <ul>
-                {searchResults.map((result) => (
-                  <li key={result.id}>
-                    <Link to={`author/${result.id}`}>{result.name}</Link>
-                  </li>
-                ))}
+                {searchResults.map((result) =>
+                  result.name ? (
+                    <li key={result.id}>
+                      <Link to={`author/${result.id}`}>{result.name}</Link>
+                    </li>
+                  ) : (
+                    <li key={result.id}>
+                      <Link to={`paper/${result.id}`}>{result.title}</Link>
+                    </li>
+                  )
+                )}
               </ul>
             ) : (
               query.length > 0 && (

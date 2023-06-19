@@ -5,7 +5,6 @@ import { Breadcrumb, Descriptions, Tabs, Table } from "antd";
 
 export async function loader({ params }) {
   const paper = await getPaper(params.paperId);
-  console.log("paper is", paper);
   return { paper };
 }
 
