@@ -115,7 +115,7 @@ export default function Root() {
       <div id="detail">
         <Outlet />
       </div>
-      <Footer style={{ textAlign: "center" }}>
+      <Footer id="footer">
         This website is powered by{" "}
         <a
           href="https://janusgraph.org/"

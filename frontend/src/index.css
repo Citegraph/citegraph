@@ -115,6 +115,11 @@ form[action$="destroy"] button {
   box-sizing: border-box;
 }
 
+#footer {
+  margin-left: 22rem; /* This should be the same width as your sidebar */
+  text-align: center;
+}
+
 #sidebar-container {
   position: fixed;
   display: flex;
@@ -152,6 +157,11 @@ form[action$="destroy"] button {
 
 @media screen and (max-width: 768px) {
   #detail {
+    margin-left: 0;
+    max-width: 100vw;
+  }
+
+  #footer {
     margin-left: 0;
     max-width: 100vw;
   }
