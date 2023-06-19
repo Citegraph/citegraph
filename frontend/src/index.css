@@ -224,9 +224,10 @@ form[action$="destroy"] button {
   position: relative;
 }
 
-#sidebar > div form input[type="search"] {
-  width: 100%;
-  position: relative;
+#search-form .ant-input {
+  border: none;
+  outline: none;
+  box-shadow: none;
 }
 
 #sidebar nav {

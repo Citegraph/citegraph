@@ -87,13 +87,7 @@ export default function Root() {
                   <Option value="paper">Title</Option>
                 </Select>
                 <Search
-                  id="q"
-                  className="search-input"
-                  aria-label="Search"
                   placeholder={placeholder}
-                  style={{ width: "calc(100% - 80px)" }}
-                  type="search"
-                  name="q"
                   onChange={handleSearch}
                   onSearch={handleSearch}
                   loading={loading}
