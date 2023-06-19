@@ -1,7 +1,7 @@
 import { Link, useLoaderData } from "react-router-dom";
 import { getAuthor } from "../apis/authors";
 import React, { useEffect } from "react";
-import { Breadcrumb, Descriptions, Table } from "antd";
+import { Breadcrumb, Descriptions, Tabs, Table } from "antd";
 
 export async function loader({ params }) {
   const author = await getAuthor(params.authorId);
@@ -77,6 +77,39 @@ export default function Author() {
     });
   });
 
+  const tabs = [
+    {
+      key: "1",
+      label: `Publications (first 100)`,
+      children:
+        papers && papers.length > 0 ? (
+          <Table columns={paperCols} dataSource={papers} />
+        ) : (
+          "N/A"
+        ),
+    },
+    {
+      key: "2",
+      label: `Referers (first 100)`,
+      children:
+        referers && referers.length > 0 ? (
+          <Table columns={authorCols} dataSource={referers} />
+        ) : (
+          "N/A"
+        ),
+    },
+    {
+      key: "3",
+      label: `Referees (first 100)`,
+      children:
+        referees && referees.length > 0 ? (
+          <Table columns={authorCols} dataSource={referees} />
+        ) : (
+          "N/A"
+        ),
+    },
+  ];
+
   return (
     <div id="author">
       <div id="navigation">
@@ -119,25 +152,7 @@ export default function Author() {
           </Descriptions.Item>
         </Descriptions>
       </div>
-      <Table
-        columns={paperCols}
-        dataSource={papers}
-        title={() => "Publications (first 100)"}
-      />
-      <Table
-        columns={authorCols}
-        dataSource={referers}
-        title={() =>
-          "People who cited " + author.name.toUpperCase() + " (first 100)"
-        }
-      />
-      <Table
-        columns={authorCols}
-        dataSource={referees}
-        title={() =>
-          "People who " + author.name.toUpperCase() + " cited (first 100)"
-        }
-      />
+      <Tabs defaultActiveKey="1" items={tabs} />
     </div>
   );
 }

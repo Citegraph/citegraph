@@ -1,7 +1,7 @@
 import { Link, useLoaderData } from "react-router-dom";
 import { getPaper } from "../apis/papers";
 import React, { useEffect } from "react";
-import { Breadcrumb, Descriptions, Table } from "antd";
+import { Breadcrumb, Descriptions, Tabs, Table } from "antd";
 
 export async function loader({ params }) {
   const paper = await getPaper(params.paperId);
@@ -49,6 +49,29 @@ export default function Paper() {
     });
   });
 
+  const tabs = [
+    {
+      key: "1",
+      label: `Cited by (first 100)`,
+      children:
+        referers && referers.length > 0 ? (
+          <Table columns={columns} dataSource={referers} />
+        ) : (
+          "N/A"
+        ),
+    },
+    {
+      key: "2",
+      label: `References (first 100)`,
+      children:
+        referees && referees.length > 0 ? (
+          <Table columns={columns} dataSource={referees} />
+        ) : (
+          "N/A"
+        ),
+    },
+  ];
+
   return (
     <div id="paper">
       <div id="navigation">
@@ -87,20 +110,7 @@ export default function Paper() {
           </Descriptions.Item>
         </Descriptions>
       </div>
-      {referers && referers.length > 0 && (
-        <Table
-          columns={columns}
-          dataSource={referers}
-          title={() => "Cited by"}
-        />
-      )}
-      {referees && referees.length > 0 && (
-        <Table
-          columns={columns}
-          dataSource={referees}
-          title={() => "References"}
-        />
-      )}
+      <Tabs defaultActiveKey="1" items={tabs} />
     </div>
   );
 }
