@@ -224,6 +224,11 @@ form[action$="destroy"] button {
   position: relative;
 }
 
+#sidebar > .input-spinner-container {
+  position: relative;
+  width: 100%;
+}
+
 #sidebar > div form input[type="search"] {
   width: 100%;
   padding-left: 2rem;
@@ -232,6 +237,7 @@ form[action$="destroy"] button {
   background-position: 0.625rem 0.75rem;
   background-size: 1rem;
   position: relative;
+  padding-right: 2rem;
 }
 
 #sidebar > div form input[type="search"].loading {
@@ -244,7 +250,7 @@ form[action$="destroy"] button {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24'%3E%3Cpath stroke='%23000' strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M20 4v5h-.582m0 0a8.001 8.001 0 00-15.356 2m15.356-2H15M4 20v-5h.581m0 0a8.003 8.003 0 0015.357-2M4.581 15H9' /%3E%3C/svg%3E");
   animation: spin 1s infinite linear;
   position: absolute;
-  left: 0.625rem;
+  right: 0.625rem;
   top: 0.75rem;
 }
 

@@ -63,15 +63,17 @@ export default function Root() {
           </Link>
           <div>
             <form id="search-form" role="search">
-              <input
-                id="q"
-                aria-label="Search authors"
-                placeholder="Search author name"
-                type="search"
-                name="q"
-                onChange={handleSearch}
-              />
-              <div id="search-spinner" aria-hidden hidden={!loading} />
+              <div className="search-input-container">
+                <input
+                  id="q"
+                  aria-label="Search authors"
+                  placeholder="Search author name"
+                  type="search"
+                  name="q"
+                  onChange={handleSearch}
+                />
+                <div id="search-spinner" aria-hidden hidden={!loading} />
+              </div>
             </form>
           </div>
           <nav>
