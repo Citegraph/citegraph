@@ -1,7 +1,7 @@
 import { Link, useLoaderData } from "react-router-dom";
 import { getPaper } from "../apis/papers";
 import React, { useEffect } from "react";
-import { Table } from "antd";
+import { Breadcrumb, Descriptions, Table } from "antd";
 
 export async function loader({ params }) {
   const paper = await getPaper(params.paperId);
@@ -51,20 +51,41 @@ export default function Paper() {
 
   return (
     <div id="paper">
-      <div id="title">
-        {paper.title} ({paper.year})
+      <div id="navigation">
+        <Breadcrumb
+          items={[
+            {
+              title: "Home",
+            },
+            {
+              title: "Paper",
+            },
+            {
+              title: `${paper.title}`,
+            },
+          ]}
+        />
       </div>
       <div id="desc">
-        <p>Number of papers which cited this paper: {paper.numOfReferers}</p>
-        <p>Number of references: {paper.numOfReferees}</p>
-      </div>
-      <div>
-        Authors:
-        {paper.authors.map((author, index) => (
-          <span key={index} style={{ paddingLeft: "10px" }}>
-            <Link to={`/author/${author.id}`}>{author.name}</Link>
-          </span>
-        ))}
+        <Descriptions title="Paper Info" layout="vertical">
+          <Descriptions.Item label="Title">{paper.title}</Descriptions.Item>
+          <Descriptions.Item label="Citations">
+            {paper.numOfReferers}
+          </Descriptions.Item>
+          <Descriptions.Item label="References (which the paper has cited)">
+            {paper.numOfReferees}
+          </Descriptions.Item>
+          <Descriptions.Item label="Authors">
+            {paper.authors.map((author, index) => (
+              <span
+                key={index}
+                style={{ paddingLeft: index !== 0 ? "10px" : "0" }}
+              >
+                <Link to={`/author/${author.id}`}>{author.name}</Link>
+              </span>
+            ))}
+          </Descriptions.Item>
+        </Descriptions>
       </div>
       {referers && referers.length > 0 && (
         <Table
