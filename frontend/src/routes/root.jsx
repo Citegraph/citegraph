@@ -70,8 +70,8 @@ export default function Root() {
           <MenuOutlined />
         </button>
       </div>
-      <div id="sidebar-container">
-        <div id="sidebar" className={isSidebarActive ? "active" : ""}>
+      <div id="sidebar-container" className={isSidebarActive ? "active" : ""}>
+        <div id="sidebar">
           <Link to="/">
             <img src={logo} id="logo" alt="Logo" />
           </Link>

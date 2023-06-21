@@ -166,12 +166,12 @@ form[action$="destroy"] button {
     max-width: 100vw;
   }
 
-  #sidebar {
+  #sidebar-container {
     width: 0;
     overflow: hidden;
   }
   
-  #sidebar.active {
+  #sidebar-container.active {
     width: 22rem;
   }
 
