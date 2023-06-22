@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -138,7 +139,7 @@ public class GraphController {
         List<Edge> referers = g.V(author).inE("refers").limit(searchLimit).toList();
         List<CitationResponse> refererResponse = new ArrayList<>();
         for (Edge referer : referers) {
-            int refCount = (Integer) g.E(referer).values("refCount").next();
+            int refCount = (Integer) g.E(referer).values("refCount").tryNext().orElse(1);
             String refererId = (String) referer.outVertex().id();
             String refererName = idNameMap.get(refererId);
             CitationResponse citationResponse = new CitationResponse(new AuthorResponse(refererName, refererId), refCount);
