@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,8 @@ public class GraphController {
     private static final Logger LOG = LoggerFactory.getLogger(GraphController.class);
 
     private static final int DEFAULT_LIMIT = 100;
+
+    private static final List<Integer> DEFAULT_LIST = Arrays.asList(0);
 
     private int searchLimit = DEFAULT_LIMIT;
 
@@ -51,25 +54,31 @@ public class GraphController {
             );
         }
         Vertex paper = g.V().hasId(id).next();
+        Map<Object, Object> paperProps = g.V(paper).valueMap().next();
+        if (!paperProps.containsKey("title")) {
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, String.format("Paper %s does not have title", id)
+            );
+        }
         PaperResponse paperResponse = new PaperResponse(
             id,
-            (String) g.V(paper).values("title").next(),
-            (Integer) g.V(paper).values("year").next());
+            ((List<String>) paperProps.get("title")).get(0),
+            ((List<Integer>) paperProps.getOrDefault("year", DEFAULT_LIST)).get(0));
 
         // collect authors
         List<AuthorResponse> authors = g.V(paper).in("writes").toList()
             .stream()
             .map(v -> new AuthorResponse(
-                (String) g.V(v).values("name").next(),
+                (String) g.V(v).values("name").tryNext().orElse("unknown"),
                 (String) v.id()))
             .collect(Collectors.toList());
         paperResponse.setAuthors(authors);
 
         // collect paper citations
-        long numOfReferees = (int) g.V(paper).values("numOfPaperReferees").next();
-        long numOfReferers = (int) g.V(paper).values("numOfPaperReferers").next();
-        paperResponse.setNumOfReferees((int) numOfReferees);
-        paperResponse.setNumOfReferers((int) numOfReferers);
+        int numOfReferees = ((List<Integer>) paperProps.getOrDefault("numOfPaperReferees", DEFAULT_LIST)).get(0);
+        int numOfReferers = ((List<Integer>) paperProps.getOrDefault("numOfPaperReferers", DEFAULT_LIST)).get(0);
+        paperResponse.setNumOfReferees(numOfReferees);
+        paperResponse.setNumOfReferers(numOfReferers);
 
         List<PaperResponse> referees = g.V(paper).out("cites").limit(searchLimit).toList()
             .stream()
@@ -100,12 +109,18 @@ public class GraphController {
             );
         }
         Vertex author = g.V().hasId(id).next();
-        String name = (String) g.V(author).values("name").next();
+        Map<Object, Object> authorProps = g.V(author).valueMap().next();
+        if (!authorProps.containsKey("name")) {
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, String.format("Author %s's name not found", id)
+            );
+        }
+        String name = ((List<String>) authorProps.get("name")).get(0);
 
         authorCache.get(id, k -> name);
 
         // collect papers
-        long numOfPapers = (int) g.V(author).values("numOfPapers").next();
+        int numOfPapers = ((List<Integer>) authorProps.getOrDefault("numOfPapers", DEFAULT_LIST)).get(0);
         List<PaperResponse> papers = g.V(author).out("writes").limit(searchLimit).toList()
             .stream()
             .map(v -> new PaperResponse((String) v.id(),
@@ -114,13 +129,13 @@ public class GraphController {
             .collect(Collectors.toList());
 
         // collect author references
-        long numOfReferees = (int) g.V(author).values("numOfAuthorReferees").next();
-        long numOfReferers = (int) g.V(author).values("numOfAuthorReferers").next();
+        int numOfReferees = ((List<Integer>) authorProps.getOrDefault("numOfAuthorReferees", DEFAULT_LIST)).get(0);
+        int numOfReferers = ((List<Integer>) authorProps.getOrDefault("numOfAuthorReferers", DEFAULT_LIST)).get(0);
         // collect paper references
-        long numOfPaperReferees = (int) g.V(author).values("numOfPaperReferees").next();
-        long numOfPaperReferers = (int) g.V(author).values("numOfPaperReferers").next();
+        int numOfPaperReferees = ((List<Integer>) authorProps.getOrDefault("numOfPaperReferees", DEFAULT_LIST)).get(0);
+        int numOfPaperReferers = ((List<Integer>) authorProps.getOrDefault("numOfPaperReferers", DEFAULT_LIST)).get(0);
 
-        int numOfCoauthors = (int) g.V(author).values("numOfCoworkers").next();
+        int numOfCoauthors = ((List<Integer>) authorProps.getOrDefault("numOfCoworkers", DEFAULT_LIST)).get(0);
 
         Map<String, String> idNameMap = new HashMap<>();
         buildNameMap(idNameMap, g.V(author).out("refers").limit(searchLimit).toList());
@@ -146,8 +161,8 @@ public class GraphController {
             refererResponse.add(citationResponse);
         }
 
-        AuthorResponse res = new AuthorResponse(name, id, (int) numOfPapers, (int) numOfReferees, (int) numOfReferers,
-            (int) numOfPaperReferees, (int) numOfPaperReferers, numOfCoauthors);
+        AuthorResponse res = new AuthorResponse(name, id, numOfPapers, numOfReferees, numOfReferers,
+            numOfPaperReferees, numOfPaperReferers, numOfCoauthors);
         res.setPapers(papers);
         res.setReferees(refereeResponse);
         res.setReferers(refererResponse);
@@ -181,7 +196,7 @@ public class GraphController {
 
     private void buildNameMap(Map<String, String> idNameMap, List<Vertex> authors) {
         for (Vertex v : authors) {
-            idNameMap.putIfAbsent((String) v.id(), (String) g.V(v).values("name").next());
+            idNameMap.putIfAbsent((String) v.id(), (String) g.V(v).values("name").tryNext().orElse("unknown"));
         }
     }
 }
