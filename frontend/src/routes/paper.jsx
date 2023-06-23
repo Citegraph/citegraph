@@ -19,15 +19,15 @@ export default function Paper() {
     {
       title: "Title",
       dataIndex: "title",
-      sorter: (a, b) => a.title.length - b.title.length,
-      sortDirections: ["descend"],
+      sorter: (a, b) => a.title.localeCompare(b.title),
+      sortDirections: ["ascend", "descend", "ascend"],
       render: (text, record) => <Link to={"/paper/" + record.key}>{text}</Link>,
     },
     {
       title: "Year",
       dataIndex: "year",
       sorter: (a, b) => a.year - b.year,
-      sortDirections: ["descend"],
+      sortDirections: ["descend", "ascend", "descend"],
       defaultSortOrder: "descend",
     },
   ];
@@ -51,7 +51,7 @@ export default function Paper() {
   const tabs = [
     {
       key: "1",
-      label: `Cited by (first 100)`,
+      label: `Cited by (showing 100)`,
       children:
         referers && referers.length > 0 ? (
           <Table columns={columns} dataSource={referers} />
@@ -61,7 +61,7 @@ export default function Paper() {
     },
     {
       key: "2",
-      label: `References (first 100)`,
+      label: `References (showing 100)`,
       children:
         referees && referees.length > 0 ? (
           <Table columns={columns} dataSource={referees} />

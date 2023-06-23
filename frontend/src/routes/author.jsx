@@ -19,15 +19,15 @@ export default function Author() {
     {
       title: "Title",
       dataIndex: "title",
-      sorter: (a, b) => a.title.length - b.title.length,
-      sortDirections: ["descend"],
+      sorter: (a, b) => a.title.localeCompare(b.title),
+      sortDirections: ["ascend", "descend", "ascend"],
       render: (text, record) => <Link to={"/paper/" + record.key}>{text}</Link>,
     },
     {
       title: "Year",
       dataIndex: "year",
       sorter: (a, b) => a.year - b.year,
-      sortDirections: ["descend"],
+      sortDirections: ["descend", "ascend", "descend"],
       defaultSortOrder: "descend",
     },
   ];
@@ -44,8 +44,8 @@ export default function Author() {
     {
       title: "Name",
       dataIndex: "name",
-      sorter: (a, b) => a.title.length - b.title.length,
-      sortDirections: ["descend"],
+      sorter: (a, b) => a.name.localeCompare(b.name),
+      sortDirections: ["ascend", "descend", "ascend"],
       render: (text, record) => (
         <Link to={"/author/" + record.key}>{text}</Link>
       ),
@@ -54,7 +54,7 @@ export default function Author() {
       title: "Occurrences",
       dataIndex: "count",
       sorter: (a, b) => a.count - b.count,
-      sortDirections: ["descend"],
+      sortDirections: ["descend", "ascend", "descend"],
       defaultSortOrder: "descend",
     },
   ];
@@ -80,7 +80,7 @@ export default function Author() {
   const tabs = [
     {
       key: "1",
-      label: `Publications (first 100)`,
+      label: `Publications (showing 100)`,
       children:
         papers && papers.length > 0 ? (
           <Table columns={paperCols} dataSource={papers} />
@@ -90,7 +90,7 @@ export default function Author() {
     },
     {
       key: "2",
-      label: `Referers (first 100)`,
+      label: `Referers (showing 100)`,
       children:
         referers && referers.length > 0 ? (
           <Table columns={authorCols} dataSource={referers} />
@@ -100,7 +100,7 @@ export default function Author() {
     },
     {
       key: "3",
-      label: `Referees (first 100)`,
+      label: `Referees (showing 100)`,
       children:
         referees && referees.length > 0 ? (
           <Table columns={authorCols} dataSource={referees} />
