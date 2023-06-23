@@ -144,7 +144,16 @@ export default function Root() {
         <Outlet />
       </div>
       <Footer id="footer">
-        This website is powered by{" "}
+        CiteGraph is open-sourced on{" "}
+        <a
+          href="https://github.com/li-boxuan/citegraph"
+          target="_blank"
+          rel="noreferrer"
+          className="no-underline"
+        >
+          GitHub
+        </a>
+        , powered by{" "}
         <a
           href="https://janusgraph.org/"
           target="_blank"
