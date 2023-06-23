@@ -1,6 +1,13 @@
-# Citegraph
+[![CiteGraph logo](citegraph.svg)](https://www.citegraph.io)
+
+## Introduction
+
+CiteGraph is an open-source online visualizer of citation networks. It was initially created as a demo
+of [JanusGraph](https://janusgraph.org), a distributed graph database.
 
 ## Quick Start
+
+Of course, only if you want to launch CiteGraph on your own. Otherwise, just visit [CiteGraph](https://www.citegraph.io) and have fun!
 
 ### Ingest Graph Data
 
@@ -110,8 +117,8 @@ to generate and install one in your VM.
 
 ## Roadmap
 
-- Ingest and show number of citations for a given person
-- Ingest and show coauthor relationships
+- Migrate to server-side rendering
+- Allow overriding search limit
+- Add visualizer of subgraphs
 - Run pagerank algorithm to attribute scores to authors and papers
-- Allow users to filter papers (to exclude those papers wrongly attributed)
-- Allow users to set up profiles (like google scholar)
+- Ingest and show coauthor relationships
