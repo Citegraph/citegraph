@@ -1,18 +1,8 @@
-import { ConfigProvider, theme } from "antd";
+import { ConfigProvider } from "antd";
 import { extractStyle } from "@ant-design/static-style-extract";
 
-const themeLight = {
-  token: {
-    colorPrimary: "#4cb75b",
-    colorPrimaryBg: "#dbf1db",
-  },
-  algorithm: [theme.defaultAlgorithm],
-};
-
-export const loader = async ({ request }) => {
-  const css = extractStyle((node) => (
-    <ConfigProvider theme={themeLight}>{node}</ConfigProvider>
-  ));
+export const loader = async () => {
+  const css = extractStyle((node) => <ConfigProvider>{node}</ConfigProvider>);
 
   return new Response(css, {
     status: 200,
