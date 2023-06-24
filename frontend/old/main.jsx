@@ -2,11 +2,11 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
-import Root, { loader as rootLoader } from "./routes/root";
-import ErrorPage from "./error-page";
-import Author, { loader as authorLoader } from "./routes/author";
-import Paper, { loader as paperLoader } from "./routes/paper";
-import Welcome from "./routes/welcome";
+import Root, { loader as rootLoader } from "../app/routes/root";
+import ErrorPage from "../app/error-page";
+import Author, { loader as authorLoader } from "../app/routes/author/$authorId";
+import Paper, { loader as paperLoader } from "../app/routes/paper/$paperId";
+import Welcome from "../app/routes";
 
 const router = createBrowserRouter([
   {

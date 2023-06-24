@@ -1,5 +1,5 @@
-import { Link, useLoaderData } from "react-router-dom";
-import { getAuthor } from "../apis/authors";
+import { Link, useLoaderData } from "@remix-run/react";
+import { getAuthor } from "../../apis/authors";
 import React, { useEffect } from "react";
 import { Breadcrumb, Descriptions, Tabs, Table } from "antd";
 

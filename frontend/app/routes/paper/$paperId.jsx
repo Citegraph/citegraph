@@ -1,5 +1,5 @@
-import { Link, useLoaderData } from "react-router-dom";
-import { getPaper } from "../apis/papers";
+import { Link, useLoaderData, useParams } from "@remix-run/react";
+import { getPaper } from "../../apis/papers";
 import React, { useEffect } from "react";
 import { Breadcrumb, Descriptions, Tabs, Table } from "antd";
 
@@ -9,6 +9,9 @@ export async function loader({ params }) {
 }
 
 export default function Paper() {
+  const params = useParams();
+  console.log("paper id = ", params.paperId);
+
   const { paper } = useLoaderData();
 
   useEffect(() => {
