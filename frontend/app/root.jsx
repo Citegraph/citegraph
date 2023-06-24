@@ -18,6 +18,7 @@ export const links = () => {
   return [
     { rel: "icon", href: "/favicon.ico" },
     { rel: "stylesheet", href: stylesheetUrl },
+    { rel: "stylesheet", href: "/antd.css" },
   ];
 };
 
