@@ -6,10 +6,6 @@ import { Card, Space } from "antd";
 const { Title, Text } = Typography;
 
 export default function Welcome() {
-  useEffect(() => {
-    document.title = `Citegraph`;
-  }, []);
-
   return (
     <div className="welcome">
       <Space direction="vertical" size="large">
@@ -18,7 +14,8 @@ export default function Welcome() {
           <Text>
             Citegraph is an open-source online visualizer of 5+ million papers,
             4+ million authors, and various relationships. In total, Citegraph
-            has 9.4 million vertices and 274 million edges.
+            has 9.4 million vertices and 274 million edges. At the moment,
+            Citegraph only has computer science bibliography.
           </Text>
         </Card>
         <Card>
