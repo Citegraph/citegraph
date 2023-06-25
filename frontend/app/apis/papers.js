@@ -1,5 +1,5 @@
 import { API_URL } from "./commons";
 
-export async function getPaper(id) {
-  return fetch(`${API_URL}/paper/${id}`).then((r) => r.json());
+export async function getPaper(id, limit = 100) {
+  return fetch(`${API_URL}/paper/${id}?limit=${limit}`).then((r) => r.json());
 }

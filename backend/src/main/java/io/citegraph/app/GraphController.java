@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -34,11 +35,9 @@ public class GraphController {
 
     private static final Logger LOG = LoggerFactory.getLogger(GraphController.class);
 
-    private static final int DEFAULT_LIMIT = 100;
+    private static final int DEFAULT_LIMIT = 500;
 
     private static final List<Integer> DEFAULT_LIST = Arrays.asList(0);
-
-    private int searchLimit = DEFAULT_LIMIT;
 
     @Autowired
     private GraphTraversalSource g;
@@ -47,7 +46,7 @@ public class GraphController {
     private Cache<String, String> authorCache;
 
     @GetMapping("/paper/{id}")
-    public PaperResponse getPaper(@PathVariable String id) {
+    public PaperResponse getPaper(@PathVariable String id, @RequestParam int limit) {
         if (!g.V().hasId(id).hasNext()) {
             throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, String.format("Paper %s not found", id)
@@ -80,7 +79,7 @@ public class GraphController {
         paperResponse.setNumOfReferees(numOfReferees);
         paperResponse.setNumOfReferers(numOfReferers);
 
-        List<PaperResponse> referees = g.V(paper).out("cites").limit(searchLimit).toList()
+        List<PaperResponse> referees = g.V(paper).out("cites").limit(limit).toList()
             .stream()
             .map(v -> new PaperResponse(
                 (String) v.id(),
@@ -89,7 +88,7 @@ public class GraphController {
             .collect(Collectors.toList());
         paperResponse.setReferees(referees);
 
-        List<PaperResponse> referers = g.V(paper).in("cites").limit(searchLimit).toList()
+        List<PaperResponse> referers = g.V(paper).in("cites").limit(limit).toList()
             .stream()
             .map(v -> new PaperResponse(
                 (String) v.id(),
@@ -102,7 +101,7 @@ public class GraphController {
     }
 
     @GetMapping("/author/{id}")
-    public AuthorResponse getAuthor(@PathVariable String id) {
+    public AuthorResponse getAuthor(@PathVariable String id, @RequestParam int limit) {
         if (!g.V().hasId(id).hasNext()) {
             throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, String.format("Author %s not found", id)
@@ -121,7 +120,7 @@ public class GraphController {
 
         // collect papers
         int numOfPapers = ((List<Integer>) authorProps.getOrDefault("numOfPapers", DEFAULT_LIST)).get(0);
-        List<PaperResponse> papers = g.V(author).out("writes").limit(searchLimit).toList()
+        List<PaperResponse> papers = g.V(author).out("writes").limit(limit).toList()
             .stream()
             .map(v -> new PaperResponse((String) v.id(),
                 (String) g.V(v).values("title").next(),
@@ -138,10 +137,10 @@ public class GraphController {
         int numOfCoauthors = ((List<Integer>) authorProps.getOrDefault("numOfCoworkers", DEFAULT_LIST)).get(0);
 
         Map<String, String> idNameMap = new HashMap<>();
-        buildNameMap(idNameMap, g.V(author).out("refers").limit(searchLimit).toList());
-        buildNameMap(idNameMap, g.V(author).in("refers").limit(searchLimit).toList());
+        buildNameMap(idNameMap, g.V(author).out("refers").limit(limit).toList());
+        buildNameMap(idNameMap, g.V(author).in("refers").limit(limit).toList());
 
-        List<Edge> referees = g.V(author).outE("refers").limit(searchLimit).toList();
+        List<Edge> referees = g.V(author).outE("refers").limit(limit).toList();
         List<CitationResponse> refereeResponse = new ArrayList<>();
         for (Edge referee : referees) {
             int refCount = (Integer) g.E(referee).values("refCount").next();
@@ -151,7 +150,7 @@ public class GraphController {
             refereeResponse.add(citationResponse);
         }
 
-        List<Edge> referers = g.V(author).inE("refers").limit(searchLimit).toList();
+        List<Edge> referers = g.V(author).inE("refers").limit(limit).toList();
         List<CitationResponse> refererResponse = new ArrayList<>();
         for (Edge referer : referers) {
             int refCount = (Integer) g.E(referer).values("refCount").tryNext().orElse(1);
@@ -171,7 +170,7 @@ public class GraphController {
 
     @GetMapping("/search/author/{name}")
     public List<AuthorResponse> getAuthorByName(@PathVariable String name) {
-        List<AuthorResponse> authors = g.V().has("name", Text.textContains(name)).limit(searchLimit).toList()
+        List<AuthorResponse> authors = g.V().has("name", Text.textContains(name)).limit(DEFAULT_LIMIT).toList()
             .stream()
             .map(v -> new AuthorResponse((String) g.V(v).values("name").next(), (String) v.id()))
             .collect(Collectors.toList());
@@ -180,7 +179,7 @@ public class GraphController {
 
     @GetMapping("/search/paper/{title}")
     public List<PaperResponse> getPaperByTitle(@PathVariable String title) {
-        List<PaperResponse> papers = g.V().has("title", Text.textContains(title)).limit(searchLimit).toList()
+        List<PaperResponse> papers = g.V().has("title", Text.textContains(title)).limit(DEFAULT_LIMIT).toList()
             .stream()
             .map(v -> new PaperResponse((String) v.id(), (String) g.V(v).values("title").next()))
             .collect(Collectors.toList());

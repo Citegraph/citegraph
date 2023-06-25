@@ -1,4 +1,4 @@
-import { Link, useLoaderData, useParams } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 import { getPaper } from "../../apis/papers";
 import React from "react";
 import { Breadcrumb, Descriptions, Tabs, Table } from "antd";
