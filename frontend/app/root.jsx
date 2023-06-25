@@ -1,9 +1,8 @@
-import { Outlet, Link, useLoaderData } from "@remix-run/react";
+import { Outlet, Link, Links, Meta, useLoaderData } from "@remix-run/react";
 import React, { useState } from "react";
 import { debounce } from "lodash";
 import { getHotAuthors } from "./apis/authors";
 import logo from "./assets/logo.svg";
-import { Links } from "@remix-run/react";
 import stylesheetUrl from "./index.css";
 import { API_URL } from "./apis/commons";
 import { Divider } from "antd";
@@ -20,6 +19,15 @@ export const links = () => {
     { rel: "stylesheet", href: stylesheetUrl },
     { rel: "stylesheet", href: "/antd.css" },
   ];
+};
+
+export const meta = () => {
+  return {
+    title: `Citegraph | Open-Source Citation Networks Visualizer`,
+    description:
+      "Citegraph is an open-source online visualizer of 5+ million papers, 4+ million authors, and various relationships. " +
+      "In total, Citegraph has 9.4 million vertices and 274 million edges.",
+  };
 };
 
 export async function loader() {
@@ -78,8 +86,8 @@ export default function Root() {
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <Meta />
         <Links />
-        <title>Citegraph</title>
       </head>
       <body>
         <div id="root">

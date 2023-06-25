@@ -8,12 +8,16 @@ export async function loader({ params }) {
   return { author };
 }
 
+export const meta = ({ data }) => {
+  const author = data.author;
+  return {
+    title: `${author.name} - Citegraph`,
+    description: `Details of ${author.name}, including publications, coauthors, citations, potential referers, etc.`,
+  };
+};
+
 export default function Author() {
   const { author } = useLoaderData();
-
-  useEffect(() => {
-    document.title = `${author.name} - Citegraph`;
-  }, [author.name]);
 
   const paperCols = [
     {

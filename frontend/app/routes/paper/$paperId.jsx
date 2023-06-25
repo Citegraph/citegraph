@@ -1,6 +1,6 @@
 import { Link, useLoaderData, useParams } from "@remix-run/react";
 import { getPaper } from "../../apis/papers";
-import React, { useEffect } from "react";
+import React from "react";
 import { Breadcrumb, Descriptions, Tabs, Table } from "antd";
 
 export async function loader({ params }) {
@@ -8,15 +8,16 @@ export async function loader({ params }) {
   return { paper };
 }
 
+export const meta = ({ data }) => {
+  const paper = data.paper;
+  return {
+    title: `${paper.title} - Citegraph`,
+    description: `Details of paper ${paper.title} published on ${paper.year}`,
+  };
+};
+
 export default function Paper() {
-  const params = useParams();
-  console.log("paper id = ", params.paperId);
-
   const { paper } = useLoaderData();
-
-  useEffect(() => {
-    document.title = `${paper.title} - Citegraph`;
-  }, [paper.title]);
 
   const columns = [
     {
