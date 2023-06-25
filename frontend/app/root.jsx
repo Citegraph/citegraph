@@ -1,4 +1,11 @@
-import { Outlet, Link, Links, Meta, useLoaderData } from "@remix-run/react";
+import {
+  Outlet,
+  Scripts,
+  Link,
+  Links,
+  Meta,
+  useLoaderData,
+} from "@remix-run/react";
 import React, { useState } from "react";
 import { debounce } from "lodash";
 import { getHotAuthors } from "./apis/authors";
@@ -90,6 +97,7 @@ export default function Root() {
         <Links />
       </head>
       <body>
+        <Scripts />
         <div id="root">
           <Layout className="main-layout">
             <div id="hamburger-container">
