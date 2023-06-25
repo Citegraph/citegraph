@@ -3,7 +3,8 @@
 ## Introduction
 
 CiteGraph is an open-source online visualizer of citation networks. It was initially created as a demo
-of [JanusGraph](https://janusgraph.org), a distributed graph database.
+of [JanusGraph](https://janusgraph.org), a distributed graph database. The tech stack includes JanusGraph,
+Spring Boot, Nginx, React, Remix (Server Side Rendering), Lucene, Cassandra, and Spark.
 
 ## Quick Start
 
@@ -23,19 +24,9 @@ Enter the root directory of JanusGraph distribution, run the following command
 JAVA_OPTIONS="-DJANUSGRAPH_RELATION_DELIMITER=@" ./bin/janusgraph-server.sh console /home/azureuser/gremlin-server-cql.yaml
 ```
 
-### Start Web App
+### Start Backend
 
-Let's start by building the frontend artifact first.
-
-```bash
-cd frontend
-npm run build
-# optional - upload the built artifacts to VM
-rsync -rave "ssh -i citegraph_key.pem" -r citegraph/frontend/dist azureuser@20.253.223.140:~/
-cd ..
-```
-
-Next let's package the backend application to a JAR file.
+Let's package the backend application to a JAR file first.
 
 ```bash
 cd backend
@@ -56,10 +47,19 @@ Now the web backend application runs on port 8080.
 
 ### Start Web Server
 
+We use Remix for server-side rendering. Let's launch the web server that runs
+on 3000 port (tested using node.js v16):
+
+```bash
+cd frontend
+npm install
+npm run start
+```
+
 In production, you may want to set up a reverse proxy like Nginx to
 help you serve the static files, handle SSL and 301 redirect. A complete
 example that enables 301 redirect from non-www to www version, and http to https version,
-looks like this (put it under `/etc/nginx/conf.d`):
+looks like this (put it in a file under `/etc/nginx/conf.d` directory):
 
 ```nginx
 server {
@@ -104,9 +104,7 @@ server {
     }
 
     location / {
-        root /home/azureuser/dist;
-        index index.html;
-        try_files $uri $uri/ /index.html;
+        proxy_pass http://localhost:3000;
     }
 }
 ```
