@@ -1,10 +1,26 @@
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData, useFetcher, useParams } from "@remix-run/react";
 import { getAuthor } from "../../apis/authors";
-import React, { useEffect } from "react";
-import { Breadcrumb, Descriptions, Tabs, Table } from "antd";
+import React, { useEffect, useState } from "react";
+import { DEFAULT_SEARCH_LIMIT } from "../../apis/commons";
+import {
+  Breadcrumb,
+  Descriptions,
+  Divider,
+  Tabs,
+  Typography,
+  Table,
+  Col,
+  InputNumber,
+  Row,
+  Slider,
+} from "antd";
 
-export async function loader({ params }) {
-  const author = await getAuthor(params.authorId);
+const { Text } = Typography;
+
+export async function loader({ params, request }) {
+  const limit =
+    new URL(request.url).searchParams.get("limit") || DEFAULT_SEARCH_LIMIT;
+  const author = await getAuthor(params.authorId, limit);
   return { author };
 }
 
@@ -17,7 +33,28 @@ export const meta = ({ data }) => {
 };
 
 export default function Author() {
-  const { author } = useLoaderData();
+  const fetcher = useFetcher();
+  const authorId = useParams().authorId;
+  console.log("author id", authorId);
+  const initialData = useLoaderData().author;
+  const [author, setAuthor] = useState(initialData);
+  const [limitValue, setLimitValue] = useState(DEFAULT_SEARCH_LIMIT);
+  const [loading, setLoading] = useState(false);
+
+  const onLimitChange = (newValue) => {
+    if (fetcher.state === "idle") {
+      setLimitValue(newValue);
+      setLoading(true);
+      fetcher.load(`/author/${author.id}?limit=${newValue}`);
+    }
+  };
+
+  useEffect(() => {
+    if (fetcher.data) {
+      setAuthor(fetcher.data.author);
+      setLoading(false);
+    }
+  }, [fetcher.data, setLoading]);
 
   const paperCols = [
     {
@@ -63,56 +100,56 @@ export default function Author() {
     },
   ];
 
-  const referers = [];
-  author.referers.forEach((p) => {
-    referers.push({
-      key: p.author.id,
-      name: p.author.name,
-      count: p.count,
-    });
-  });
+  const referers = author.referers.map((p) => ({
+    key: p.author.id,
+    name: p.author.name,
+    count: p.count,
+  }));
 
-  const referees = [];
-  author.referees.forEach((p) => {
-    referees.push({
-      key: p.author.id,
-      name: p.author.name,
-      count: p.count,
-    });
-  });
+  const referees = author.referees.map((p) => ({
+    key: p.author.id,
+    name: p.author.name,
+    count: p.count,
+  }));
 
   const tabs = [
     {
       key: "1",
-      label: `Publications (showing 100)`,
+      label: `Publications (${(papers && papers.length) || 0} rows)`,
       children:
         papers && papers.length > 0 ? (
-          <Table columns={paperCols} dataSource={papers} />
+          <Table columns={paperCols} dataSource={papers} loading={loading} />
         ) : (
           "N/A"
         ),
     },
     {
       key: "2",
-      label: `Referers (showing 100)`,
+      label: `Referers (${(referers && referers.length) || 0} rows)`,
       children:
         referers && referers.length > 0 ? (
-          <Table columns={authorCols} dataSource={referers} />
+          <Table columns={authorCols} dataSource={referers} loading={loading} />
         ) : (
           "N/A"
         ),
     },
     {
       key: "3",
-      label: `Referees (showing 100)`,
+      label: `Referees (${(referees && referees.length) || 0} rows)`,
       children:
         referees && referees.length > 0 ? (
-          <Table columns={authorCols} dataSource={referees} />
+          <Table columns={authorCols} dataSource={referees} loading={loading} />
         ) : (
           "N/A"
         ),
     },
   ];
+
+  const maxSearchLimit = Math.max(
+    author.numOfPapers || 0,
+    author.numOfReferees || 0,
+    author.numOfReferers || 0
+  );
 
   return (
     <div id="author">
@@ -156,6 +193,39 @@ export default function Author() {
           </Descriptions.Item>
         </Descriptions>
       </div>
+      <Divider dashed />
+      {maxSearchLimit > DEFAULT_SEARCH_LIMIT && (
+        <div id="searchLimitConfig">
+          <Text>Search Limit</Text>
+          <Row>
+            <Col span={8}>
+              <Slider
+                min={DEFAULT_SEARCH_LIMIT}
+                max={maxSearchLimit}
+                onChange={onLimitChange}
+                disabled={fetcher.state !== "idle"}
+                step={100}
+                value={
+                  typeof limitValue === "number"
+                    ? limitValue
+                    : DEFAULT_SEARCH_LIMIT
+                }
+              />
+            </Col>
+            <Col span={4}>
+              <InputNumber
+                min={DEFAULT_SEARCH_LIMIT}
+                max={maxSearchLimit}
+                style={{ margin: "0 16px" }}
+                value={limitValue}
+                disabled={fetcher.state !== "idle"}
+                onChange={onLimitChange}
+                step={100}
+              />
+            </Col>
+          </Row>
+        </div>
+      )}
       <Tabs defaultActiveKey="1" items={tabs} />
     </div>
   );
