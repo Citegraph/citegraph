@@ -16,11 +16,13 @@
     "@remix-run/serve": "^1.17.1",
     "@remix-run/server-runtime": "^1.17.1",
     "antd": "^5.3.3",
+    "cytoscape": "^3.25.0",
     "isbot": "latest",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "match-sorter": "^6.3.1",
     "react": "^18.2.0",
+    "react-cytoscapejs": "^2.0.0",
     "react-dom": "^18.2.0",
     "sort-by": "^1.2.0"
   },
