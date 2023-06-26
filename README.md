@@ -115,8 +115,6 @@ to generate and install one in your VM.
 
 ## Roadmap
 
-- Migrate to server-side rendering
-- Allow overriding search limit
 - Add visualizer of subgraphs
 - Run pagerank algorithm to attribute scores to authors and papers
 - Ingest and show coauthor relationships

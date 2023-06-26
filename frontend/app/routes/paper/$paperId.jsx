@@ -1,7 +1,7 @@
 import { Link, useLoaderData, useFetcher } from "@remix-run/react";
 import { getPaper } from "../../apis/papers";
 import React, { useEffect, useState } from "react";
-import { DEFAULT_SEARCH_LIMIT } from "../../apis/commons";
+import { DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from "../../apis/commons";
 import {
   Breadcrumb,
   Descriptions,
@@ -114,10 +114,15 @@ export default function Paper() {
     },
   ];
 
-  const maxSearchLimit = Math.max(
-    paper.numOfReferers || 0,
-    paper.numOfReferees || 0
+  const maxSearchLimit = Math.min(
+    MAX_SEARCH_LIMIT,
+    Math.max(paper.numOfReferers || 0, paper.numOfReferees || 0)
   );
+
+  const sliderMarks = {
+    [DEFAULT_SEARCH_LIMIT]: DEFAULT_SEARCH_LIMIT,
+    [maxSearchLimit]: maxSearchLimit,
+  };
 
   return (
     <div id="paper">
@@ -166,6 +171,8 @@ export default function Paper() {
               <Slider
                 min={DEFAULT_SEARCH_LIMIT}
                 max={maxSearchLimit}
+                defaultValue={DEFAULT_SEARCH_LIMIT}
+                marks={sliderMarks}
                 onChange={onLimitChange}
                 disabled={fetcher.state !== "idle"}
                 step={100}
