@@ -34,7 +34,8 @@ export const meta = ({ data }) => {
 
 export default function Paper() {
   const fetcher = useFetcher();
-  const [paper, setPaper] = useState(useLoaderData().paper);
+  const initialData = useLoaderData().paper;
+  const [paper, setPaper] = useState(initialData);
   const [limitValue, setLimitValue] = useState(DEFAULT_SEARCH_LIMIT);
   const [loading, setLoading] = useState(false);
 
@@ -46,6 +47,14 @@ export default function Paper() {
     }
   };
 
+  // invoked when new page is loaded
+  useEffect(() => {
+    setPaper(initialData);
+    setLimitValue(DEFAULT_SEARCH_LIMIT);
+    setLoading(false);
+  }, [initialData]);
+
+  // invoked when search limit changed
   useEffect(() => {
     if (fetcher.data) {
       setPaper(fetcher.data.paper);

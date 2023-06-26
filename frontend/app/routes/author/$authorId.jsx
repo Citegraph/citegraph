@@ -1,4 +1,4 @@
-import { Link, useLoaderData, useFetcher, useParams } from "@remix-run/react";
+import { Link, useLoaderData, useFetcher } from "@remix-run/react";
 import { getAuthor } from "../../apis/authors";
 import React, { useEffect, useState } from "react";
 import { DEFAULT_SEARCH_LIMIT } from "../../apis/commons";
@@ -34,8 +34,6 @@ export const meta = ({ data }) => {
 
 export default function Author() {
   const fetcher = useFetcher();
-  const authorId = useParams().authorId;
-  console.log("author id", authorId);
   const initialData = useLoaderData().author;
   const [author, setAuthor] = useState(initialData);
   const [limitValue, setLimitValue] = useState(DEFAULT_SEARCH_LIMIT);
@@ -49,6 +47,14 @@ export default function Author() {
     }
   };
 
+  // invoked when new page is loaded
+  useEffect(() => {
+    setAuthor(initialData);
+    setLimitValue(DEFAULT_SEARCH_LIMIT);
+    setLoading(false);
+  }, [initialData]);
+
+  // invoked when search limit changed
   useEffect(() => {
     if (fetcher.data) {
       setAuthor(fetcher.data.author);
