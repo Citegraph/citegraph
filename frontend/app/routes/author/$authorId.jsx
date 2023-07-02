@@ -5,6 +5,7 @@ import { DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from "../../apis/commons";
 import CytoscapeComponent from "react-cytoscapejs";
 import {
   Breadcrumb,
+  Collapse,
   Descriptions,
   Divider,
   Tabs,
@@ -173,14 +174,25 @@ export default function Author() {
       children:
         papers && papers.length > 0 ? (
           <div>
-            <Table columns={paperCols} dataSource={papers} loading={loading} />
-            <CytoscapeComponent
-              elements={publicationGraph}
-              layout={{ name: "random" }}
-              minZoom={0.5}
-              maxZoom={2}
-              style={{ width: "100%", height: "600px" }}
+            <Collapse
+              style={{ marginBottom: "1rem" }}
+              items={[
+                {
+                  key: "publicationGraph",
+                  label: "Show graph visualization",
+                  children: (
+                    <CytoscapeComponent
+                      elements={publicationGraph}
+                      layout={{ name: "random" }}
+                      minZoom={0.5}
+                      maxZoom={2}
+                      style={{ width: "100%", height: "600px" }}
+                    />
+                  ),
+                },
+              ]}
             />
+            <Table columns={paperCols} dataSource={papers} loading={loading} />
           </div>
         ) : (
           "N/A"
@@ -192,17 +204,29 @@ export default function Author() {
       children:
         referers && referers.length > 0 ? (
           <div>
+            <Collapse
+              style={{ marginBottom: "1rem" }}
+              items={[
+                {
+                  key: "publicationGraph",
+                  label: "Show graph visualization",
+                  children: (
+                    <CytoscapeComponent
+                      elements={refererGraph}
+                      layout={{ name: "random" }}
+                      minZoom={0.5}
+                      maxZoom={2}
+                      style={{ width: "100%", height: "600px" }}
+                    />
+                  ),
+                },
+              ]}
+            />
+
             <Table
               columns={authorCols}
               dataSource={referers}
               loading={loading}
-            />
-            <CytoscapeComponent
-              elements={refererGraph}
-              layout={{ name: "random" }}
-              minZoom={0.5}
-              maxZoom={2}
-              style={{ width: "100%", height: "600px" }}
             />
           </div>
         ) : (
@@ -215,17 +239,28 @@ export default function Author() {
       children:
         referees && referees.length > 0 ? (
           <div>
+            <Collapse
+              style={{ marginBottom: "1rem" }}
+              items={[
+                {
+                  key: "publicationGraph",
+                  label: "Show graph visualization",
+                  children: (
+                    <CytoscapeComponent
+                      elements={refereeGraph}
+                      layout={{ name: "random" }}
+                      minZoom={0.5}
+                      maxZoom={2}
+                      style={{ width: "100%", height: "600px" }}
+                    />
+                  ),
+                },
+              ]}
+            />
             <Table
               columns={authorCols}
               dataSource={referees}
               loading={loading}
-            />
-            <CytoscapeComponent
-              elements={refereeGraph}
-              layout={{ name: "random" }}
-              minZoom={0.5}
-              maxZoom={2}
-              style={{ width: "100%", height: "600px" }}
             />
           </div>
         ) : (
