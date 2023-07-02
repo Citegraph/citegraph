@@ -2,6 +2,7 @@ import { Link, useLoaderData, useFetcher } from "@remix-run/react";
 import { getAuthor } from "../../apis/authors";
 import React, { useEffect, useState } from "react";
 import { DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from "../../apis/commons";
+import CytoscapeComponent from "react-cytoscapejs";
 import {
   Breadcrumb,
   Descriptions,
@@ -78,14 +79,11 @@ export default function Author() {
       defaultSortOrder: "descend",
     },
   ];
-  const papers = [];
-  author.papers.forEach((p) => {
-    papers.push({
-      key: p.id,
-      title: p.title,
-      year: p.year,
-    });
-  });
+  const papers = author.papers.map((p) => ({
+    key: p.id,
+    title: p.title,
+    year: p.year,
+  }));
 
   const authorCols = [
     {
@@ -165,6 +163,50 @@ export default function Author() {
     [maxSearchLimit]: maxSearchLimit,
   };
 
+  const graphElements = [
+    { data: { id: author.id, label: author.name } },
+  ].concat(
+    author.referers.map((p) => ({
+      data: {
+        id: p.author.id,
+        label: p.author.name,
+      },
+    })),
+    author.referers.map((p) => ({
+      data: {
+        source: p.author.id,
+        target: author.id,
+        label: "cites",
+      },
+    })),
+    author.referees.map((p) => ({
+      data: {
+        id: p.author.id,
+        label: p.author.name,
+      },
+    })),
+    author.referees.map((p) => ({
+      data: {
+        source: author.id,
+        target: p.author.id,
+        label: "cites",
+      },
+    })),
+    author.papers.map((p) => ({
+      data: {
+        id: p.id,
+        label: p.title,
+      },
+    })),
+    author.papers.map((p) => ({
+      data: {
+        source: author.id,
+        target: p.id,
+        label: "writes",
+      },
+    }))
+  );
+
   return (
     <div id="author">
       <div id="navigation">
@@ -243,6 +285,13 @@ export default function Author() {
         </div>
       )}
       <Tabs defaultActiveKey="1" items={tabs} />
+      <CytoscapeComponent
+        elements={graphElements}
+        layout={{ name: "random" }}
+        minZoom={0.5}
+        maxZoom={2}
+        style={{ width: "100%", height: "600px" }}
+      />
     </div>
   );
 }
