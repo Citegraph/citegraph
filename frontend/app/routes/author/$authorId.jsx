@@ -116,13 +116,72 @@ export default function Author() {
     count: p.count,
   }));
 
+  const publicationGraph = [
+    { data: { id: author.id, label: author.name } },
+  ].concat(
+    author.papers.map((p) => ({
+      data: {
+        id: p.id,
+        label: p.title,
+      },
+    })),
+    author.papers.map((p) => ({
+      data: {
+        source: author.id,
+        target: p.id,
+        label: "writes",
+      },
+    }))
+  );
+
+  const refererGraph = [{ data: { id: author.id, label: author.name } }].concat(
+    author.referers.map((p) => ({
+      data: {
+        id: p.author.id,
+        label: p.author.name,
+      },
+    })),
+    author.referers.map((p) => ({
+      data: {
+        source: p.author.id,
+        target: author.id,
+        label: "cites",
+      },
+    }))
+  );
+
+  const refereeGraph = [{ data: { id: author.id, label: author.name } }].concat(
+    author.referees.map((p) => ({
+      data: {
+        id: p.author.id,
+        label: p.author.name,
+      },
+    })),
+    author.referees.map((p) => ({
+      data: {
+        source: author.id,
+        target: p.author.id,
+        label: "cites",
+      },
+    }))
+  );
+
   const tabs = [
     {
       key: "1",
       label: `Publications (${(papers && papers.length) || 0} rows)`,
       children:
         papers && papers.length > 0 ? (
-          <Table columns={paperCols} dataSource={papers} loading={loading} />
+          <div>
+            <Table columns={paperCols} dataSource={papers} loading={loading} />
+            <CytoscapeComponent
+              elements={publicationGraph}
+              layout={{ name: "random" }}
+              minZoom={0.5}
+              maxZoom={2}
+              style={{ width: "100%", height: "600px" }}
+            />
+          </div>
         ) : (
           "N/A"
         ),
@@ -132,7 +191,20 @@ export default function Author() {
       label: `Referers (${(referers && referers.length) || 0} rows)`,
       children:
         referers && referers.length > 0 ? (
-          <Table columns={authorCols} dataSource={referers} loading={loading} />
+          <div>
+            <Table
+              columns={authorCols}
+              dataSource={referers}
+              loading={loading}
+            />
+            <CytoscapeComponent
+              elements={refererGraph}
+              layout={{ name: "random" }}
+              minZoom={0.5}
+              maxZoom={2}
+              style={{ width: "100%", height: "600px" }}
+            />
+          </div>
         ) : (
           "N/A"
         ),
@@ -142,7 +214,20 @@ export default function Author() {
       label: `Referees (${(referees && referees.length) || 0} rows)`,
       children:
         referees && referees.length > 0 ? (
-          <Table columns={authorCols} dataSource={referees} loading={loading} />
+          <div>
+            <Table
+              columns={authorCols}
+              dataSource={referees}
+              loading={loading}
+            />
+            <CytoscapeComponent
+              elements={refereeGraph}
+              layout={{ name: "random" }}
+              minZoom={0.5}
+              maxZoom={2}
+              style={{ width: "100%", height: "600px" }}
+            />
+          </div>
         ) : (
           "N/A"
         ),
@@ -162,50 +247,6 @@ export default function Author() {
     [DEFAULT_SEARCH_LIMIT]: DEFAULT_SEARCH_LIMIT,
     [maxSearchLimit]: maxSearchLimit,
   };
-
-  const graphElements = [
-    { data: { id: author.id, label: author.name } },
-  ].concat(
-    author.referers.map((p) => ({
-      data: {
-        id: p.author.id,
-        label: p.author.name,
-      },
-    })),
-    author.referers.map((p) => ({
-      data: {
-        source: p.author.id,
-        target: author.id,
-        label: "cites",
-      },
-    })),
-    author.referees.map((p) => ({
-      data: {
-        id: p.author.id,
-        label: p.author.name,
-      },
-    })),
-    author.referees.map((p) => ({
-      data: {
-        source: author.id,
-        target: p.author.id,
-        label: "cites",
-      },
-    })),
-    author.papers.map((p) => ({
-      data: {
-        id: p.id,
-        label: p.title,
-      },
-    })),
-    author.papers.map((p) => ({
-      data: {
-        source: author.id,
-        target: p.id,
-        label: "writes",
-      },
-    }))
-  );
 
   return (
     <div id="author">
@@ -285,13 +326,6 @@ export default function Author() {
         </div>
       )}
       <Tabs defaultActiveKey="1" items={tabs} />
-      <CytoscapeComponent
-        elements={graphElements}
-        layout={{ name: "random" }}
-        minZoom={0.5}
-        maxZoom={2}
-        style={{ width: "100%", height: "600px" }}
-      />
     </div>
   );
 }
