@@ -5,9 +5,9 @@ export const DEFAULT_LAYOUT = {
 };
 
 export const resetLayout = (cyRef) => {
-  if (cyRef.current) {
-    cyRef.current.on("add", () => {
-      cyRef.current.elements().layout(DEFAULT_LAYOUT).run();
+  if (cyRef) {
+    cyRef.on("add", () => {
+      cyRef.elements().layout(DEFAULT_LAYOUT).run();
     });
   }
 };

@@ -1,7 +1,7 @@
 import { Link, useLoaderData, useFetcher } from "@remix-run/react";
 import { getAuthor } from "../../apis/authors";
 import { DEFAULT_LAYOUT, resetLayout } from "../../common/layout";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from "../../apis/commons";
 import CytoscapeComponent from "react-cytoscapejs";
 import {
@@ -44,9 +44,9 @@ export default function Author() {
   // control collapse components
   const [activeKey, setActiveKey] = useState(["1"]);
 
-  const cyRefPub = useRef(null);
-  const cyRefReferer = useRef(null);
-  const cyRefReferee = useRef(null);
+  const [cyRefPub, setCyRefPub] = useState(null);
+  const [cyRefReferer, setCyRefReferer] = useState(null);
+  const [cyRefReferee, setCyRefReferee] = useState(null);
 
   const onLimitChange = (newValue) => {
     if (fetcher.state === "idle") {
@@ -56,6 +56,24 @@ export default function Author() {
       fetcher.load(`/author/${author.id}?limit=${newValue}`);
     }
   };
+
+  // invoked when cytoscape handler is changed
+  useEffect(() => {
+    console.log("cyref use effect called", cyRefPub);
+    if (cyRefPub) {
+      console.log("cyref has current");
+      const handler = (event) => {
+        const target = event.target;
+        console.log("Clicked node with data:", target.data());
+      };
+
+      cyRefPub.on("tap", "node", handler);
+
+      return () => {
+        cyRefPub.off("tap", "node", handler);
+      };
+    }
+  }, [cyRefPub]);
 
   // invoked when new page is loaded
   useEffect(() => {
@@ -202,9 +220,7 @@ export default function Author() {
                   label: "Show graph visualization",
                   children: (
                     <CytoscapeComponent
-                      cy={(cy) => {
-                        cyRefPub.current = cy;
-                      }}
+                      cy={setCyRefPub}
                       elements={publicationGraph}
                       layout={DEFAULT_LAYOUT}
                       minZoom={0.1}
@@ -238,9 +254,7 @@ export default function Author() {
                   label: "Show graph visualization",
                   children: (
                     <CytoscapeComponent
-                      cy={(cy) => {
-                        cyRefReferer.current = cy;
-                      }}
+                      cy={setCyRefReferer}
                       elements={refererGraph}
                       layout={DEFAULT_LAYOUT}
                       minZoom={0.1}
@@ -279,9 +293,7 @@ export default function Author() {
                   label: "Show graph visualization",
                   children: (
                     <CytoscapeComponent
-                      cy={(cy) => {
-                        cyRefReferee.current = cy;
-                      }}
+                      cy={setCyRefReferee}
                       elements={refereeGraph}
                       layout={DEFAULT_LAYOUT}
                       minZoom={0.1}
