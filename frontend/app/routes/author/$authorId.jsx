@@ -1,6 +1,7 @@
 import { Link, useLoaderData, useFetcher } from "@remix-run/react";
 import { getAuthor } from "../../apis/authors";
-import React, { useEffect, useState } from "react";
+import { DEFAULT_LAYOUT, resetLayout } from "../../common/layout";
+import React, { useEffect, useState, useRef } from "react";
 import { DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from "../../apis/commons";
 import CytoscapeComponent from "react-cytoscapejs";
 import {
@@ -40,9 +41,16 @@ export default function Author() {
   const [author, setAuthor] = useState(initialData);
   const [limitValue, setLimitValue] = useState(DEFAULT_SEARCH_LIMIT);
   const [loading, setLoading] = useState(false);
+  // control collapse components
+  const [activeKey, setActiveKey] = useState(["1"]);
+
+  const cyRefPub = useRef(null);
+  const cyRefReferer = useRef(null);
+  const cyRefReferee = useRef(null);
 
   const onLimitChange = (newValue) => {
     if (fetcher.state === "idle") {
+      setActiveKey([]);
       setLimitValue(newValue);
       setLoading(true);
       fetcher.load(`/author/${author.id}?limit=${newValue}`);
@@ -54,6 +62,9 @@ export default function Author() {
     setAuthor(initialData);
     setLimitValue(DEFAULT_SEARCH_LIMIT);
     setLoading(false);
+    resetLayout(cyRefPub);
+    resetLayout(cyRefReferer);
+    resetLayout(cyRefReferee);
   }, [initialData]);
 
   // invoked when search limit changed
@@ -61,6 +72,9 @@ export default function Author() {
     if (fetcher.data) {
       setAuthor(fetcher.data.author);
       setLoading(false);
+      resetLayout(cyRefPub);
+      resetLayout(cyRefReferer);
+      resetLayout(cyRefReferee);
     }
   }, [fetcher.data, setLoading]);
 
@@ -123,7 +137,10 @@ export default function Author() {
     author.papers.map((p) => ({
       data: {
         id: p.id,
-        label: p.title,
+        label:
+          p.title && p.title.length > 100
+            ? p.title.substring(0, 100) + "..."
+            : p.title,
       },
     })),
     author.papers.map((p) => ({
@@ -175,6 +192,9 @@ export default function Author() {
         papers && papers.length > 0 ? (
           <div>
             <Collapse
+              className="desktop-collapse"
+              activeKey={activeKey}
+              onChange={setActiveKey}
               style={{ marginBottom: "1rem" }}
               items={[
                 {
@@ -182,9 +202,12 @@ export default function Author() {
                   label: "Show graph visualization",
                   children: (
                     <CytoscapeComponent
+                      cy={(cy) => {
+                        cyRefPub.current = cy;
+                      }}
                       elements={publicationGraph}
-                      layout={{ name: "random" }}
-                      minZoom={0.5}
+                      layout={DEFAULT_LAYOUT}
+                      minZoom={0.1}
                       maxZoom={2}
                       style={{ width: "100%", height: "600px" }}
                     />
@@ -205,6 +228,9 @@ export default function Author() {
         referers && referers.length > 0 ? (
           <div>
             <Collapse
+              className="desktop-collapse"
+              activeKey={activeKey}
+              onChange={setActiveKey}
               style={{ marginBottom: "1rem" }}
               items={[
                 {
@@ -212,9 +238,12 @@ export default function Author() {
                   label: "Show graph visualization",
                   children: (
                     <CytoscapeComponent
+                      cy={(cy) => {
+                        cyRefReferer.current = cy;
+                      }}
                       elements={refererGraph}
-                      layout={{ name: "random" }}
-                      minZoom={0.5}
+                      layout={DEFAULT_LAYOUT}
+                      minZoom={0.1}
                       maxZoom={2}
                       style={{ width: "100%", height: "600px" }}
                     />
@@ -240,6 +269,9 @@ export default function Author() {
         referees && referees.length > 0 ? (
           <div>
             <Collapse
+              className="desktop-collapse"
+              activeKey={activeKey}
+              onChange={setActiveKey}
               style={{ marginBottom: "1rem" }}
               items={[
                 {
@@ -247,9 +279,12 @@ export default function Author() {
                   label: "Show graph visualization",
                   children: (
                     <CytoscapeComponent
+                      cy={(cy) => {
+                        cyRefReferee.current = cy;
+                      }}
                       elements={refereeGraph}
-                      layout={{ name: "random" }}
-                      minZoom={0.5}
+                      layout={DEFAULT_LAYOUT}
+                      minZoom={0.1}
                       maxZoom={2}
                       style={{ width: "100%", height: "600px" }}
                     />
