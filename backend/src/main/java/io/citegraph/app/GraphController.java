@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -46,7 +45,7 @@ public class GraphController {
     private Cache<String, String> authorCache;
 
     @GetMapping("/paper/{id}")
-    public PaperResponse getPaper(@PathVariable String id, @RequestParam int limit) {
+    public PaperResponse getPaper(@PathVariable String id, @RequestParam int limit, @RequestParam boolean getEdges) {
         if (!g.V().hasId(id).hasNext()) {
             throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, String.format("Paper %s not found", id)
@@ -65,13 +64,15 @@ public class GraphController {
             ((List<Integer>) paperProps.getOrDefault("year", DEFAULT_LIST)).get(0));
 
         // collect authors
-        List<AuthorResponse> authors = g.V(paper).in("writes").toList()
-            .stream()
-            .map(v -> new AuthorResponse(
-                (String) g.V(v).values("name").tryNext().orElse("unknown"),
-                (String) v.id()))
-            .collect(Collectors.toList());
-        paperResponse.setAuthors(authors);
+        if (getEdges) {
+            List<AuthorResponse> authors = g.V(paper).in("writes").toList()
+                .stream()
+                .map(v -> new AuthorResponse(
+                    (String) g.V(v).values("name").tryNext().orElse("unknown"),
+                    (String) v.id()))
+                .collect(Collectors.toList());
+            paperResponse.setAuthors(authors);
+        }
 
         // collect paper citations
         int numOfReferees = ((List<Integer>) paperProps.getOrDefault("numOfPaperReferees", DEFAULT_LIST)).get(0);
@@ -79,29 +80,31 @@ public class GraphController {
         paperResponse.setNumOfReferees(numOfReferees);
         paperResponse.setNumOfReferers(numOfReferers);
 
-        List<PaperResponse> referees = g.V(paper).out("cites").limit(limit).toList()
-            .stream()
-            .map(v -> new PaperResponse(
-                (String) v.id(),
-                (String) g.V(v).values("title").next(),
-                (Integer) g.V(v).values("year").next()))
-            .collect(Collectors.toList());
-        paperResponse.setReferees(referees);
+        if (getEdges) {
+            List<PaperResponse> referees = g.V(paper).out("cites").limit(limit).toList()
+                .stream()
+                .map(v -> new PaperResponse(
+                    (String) v.id(),
+                    (String) g.V(v).values("title").next(),
+                    (Integer) g.V(v).values("year").next()))
+                .collect(Collectors.toList());
+            paperResponse.setReferees(referees);
 
-        List<PaperResponse> referers = g.V(paper).in("cites").limit(limit).toList()
-            .stream()
-            .map(v -> new PaperResponse(
-                (String) v.id(),
-                (String) g.V(v).values("title").next(),
-                (Integer) g.V(v).values("year").next()))
-            .collect(Collectors.toList());
-        paperResponse.setReferers(referers);
+            List<PaperResponse> referers = g.V(paper).in("cites").limit(limit).toList()
+                .stream()
+                .map(v -> new PaperResponse(
+                    (String) v.id(),
+                    (String) g.V(v).values("title").next(),
+                    (Integer) g.V(v).values("year").next()))
+                .collect(Collectors.toList());
+            paperResponse.setReferers(referers);
+        }
 
         return paperResponse;
     }
 
     @GetMapping("/author/{id}")
-    public AuthorResponse getAuthor(@PathVariable String id, @RequestParam int limit) {
+    public AuthorResponse getAuthor(@PathVariable String id, @RequestParam int limit, @RequestParam boolean getEdges) {
         if (!g.V().hasId(id).hasNext()) {
             throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, String.format("Author %s not found", id)
@@ -120,12 +123,6 @@ public class GraphController {
 
         // collect papers
         int numOfPapers = ((List<Integer>) authorProps.getOrDefault("numOfPapers", DEFAULT_LIST)).get(0);
-        List<PaperResponse> papers = g.V(author).out("writes").limit(limit).toList()
-            .stream()
-            .map(v -> new PaperResponse((String) v.id(),
-                (String) g.V(v).values("title").next(),
-                (Integer) g.V(v).values("year").next()))
-            .collect(Collectors.toList());
 
         // collect author references
         int numOfReferees = ((List<Integer>) authorProps.getOrDefault("numOfAuthorReferees", DEFAULT_LIST)).get(0);
@@ -136,35 +133,45 @@ public class GraphController {
 
         int numOfCoauthors = ((List<Integer>) authorProps.getOrDefault("numOfCoworkers", DEFAULT_LIST)).get(0);
 
-        Map<String, String> idNameMap = new HashMap<>();
-        buildNameMap(idNameMap, g.V(author).out("refers").limit(limit).toList());
-        buildNameMap(idNameMap, g.V(author).in("refers").limit(limit).toList());
-
-        List<Edge> referees = g.V(author).outE("refers").limit(limit).toList();
-        List<CitationResponse> refereeResponse = new ArrayList<>();
-        for (Edge referee : referees) {
-            int refCount = (Integer) g.E(referee).values("refCount").next();
-            String refereeId = (String) referee.inVertex().id();
-            String refereeName = idNameMap.get(refereeId);
-            CitationResponse citationResponse = new CitationResponse(new AuthorResponse(refereeName, refereeId), refCount);
-            refereeResponse.add(citationResponse);
-        }
-
-        List<Edge> referers = g.V(author).inE("refers").limit(limit).toList();
-        List<CitationResponse> refererResponse = new ArrayList<>();
-        for (Edge referer : referers) {
-            int refCount = (Integer) g.E(referer).values("refCount").tryNext().orElse(1);
-            String refererId = (String) referer.outVertex().id();
-            String refererName = idNameMap.get(refererId);
-            CitationResponse citationResponse = new CitationResponse(new AuthorResponse(refererName, refererId), refCount);
-            refererResponse.add(citationResponse);
-        }
-
         AuthorResponse res = new AuthorResponse(name, id, numOfPapers, numOfReferees, numOfReferers,
             numOfPaperReferees, numOfPaperReferers, numOfCoauthors);
-        res.setPapers(papers);
-        res.setReferees(refereeResponse);
-        res.setReferers(refererResponse);
+
+        if (getEdges) {
+            List<PaperResponse> papers = g.V(author).out("writes").limit(limit).toList()
+                .stream()
+                .map(v -> new PaperResponse((String) v.id(),
+                    (String) g.V(v).values("title").next(),
+                    (Integer) g.V(v).values("year").next()))
+                .collect(Collectors.toList());
+            res.setPapers(papers);
+
+            Map<String, String> idNameMap = new HashMap<>();
+            buildNameMap(idNameMap, g.V(author).out("refers").limit(limit).toList());
+            buildNameMap(idNameMap, g.V(author).in("refers").limit(limit).toList());
+
+            List<Edge> referees = g.V(author).outE("refers").limit(limit).toList();
+            List<CitationResponse> refereeResponse = new ArrayList<>();
+            for (Edge referee : referees) {
+                int refCount = (Integer) g.E(referee).values("refCount").next();
+                String refereeId = (String) referee.inVertex().id();
+                String refereeName = idNameMap.get(refereeId);
+                CitationResponse citationResponse = new CitationResponse(new AuthorResponse(refereeName, refereeId), refCount);
+                refereeResponse.add(citationResponse);
+            }
+
+            List<Edge> referers = g.V(author).inE("refers").limit(limit).toList();
+            List<CitationResponse> refererResponse = new ArrayList<>();
+            for (Edge referer : referers) {
+                int refCount = (Integer) g.E(referer).values("refCount").tryNext().orElse(1);
+                String refererId = (String) referer.outVertex().id();
+                String refererName = idNameMap.get(refererId);
+                CitationResponse citationResponse = new CitationResponse(new AuthorResponse(refererName, refererId), refCount);
+                refererResponse.add(citationResponse);
+            }
+            res.setReferees(refereeResponse);
+            res.setReferers(refererResponse);
+        }
+
         return res;
     }
 
