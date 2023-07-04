@@ -52,6 +52,15 @@ export default function Author() {
   const [selectedReferer, setSelectedReferer] = useState(null);
   const [selectedReferee, setSelectedReferee] = useState(null);
 
+  const resetGraph = () => {
+    resetLayout(cyRefPub);
+    resetLayout(cyRefReferer);
+    resetLayout(cyRefReferee);
+    setSelectedPub(null);
+    setSelectedReferer(null);
+    setSelectedReferee(null);
+  };
+
   const onLimitChange = (newValue) => {
     if (fetcher.state === "idle") {
       setActiveKey([]);
@@ -63,78 +72,130 @@ export default function Author() {
 
   useEffect(() => {
     if (cyRefPub) {
-      const handler = async (event) => {
+      const nodeHandler = async (event) => {
         const target = event.target;
-        try {
-          const data = await getPaper(
-            target.data().id,
-            DEFAULT_SEARCH_LIMIT,
-            false
-          );
-          setSelectedPub(data);
-        } catch (error) {
-          console.error("Failed to fetch paper data", error);
+        if (selectedPub && selectedPub.id === target.data().id) {
+          setSelectedPub(null);
+        } else {
+          try {
+            const data = await getPaper(
+              target.data().id,
+              DEFAULT_SEARCH_LIMIT,
+              false
+            );
+            setSelectedPub(data);
+          } catch (error) {
+            console.error("Failed to fetch paper data", error);
+          }
         }
       };
-      cyRefPub.on("tap", "node", handler);
+      const canvasHandler = (event) => {
+        if (event.target === cyRefPub) {
+          // If the canvas is clicked, "unselect" any selected node
+          setSelectedPub(null);
+        }
+      };
+      const edgeHandler = () => {
+        // if an edge is clicked, unselect any selected node
+        setSelectedPub(null);
+      };
+      cyRefPub.on("tap", "node", nodeHandler);
+      cyRefPub.on("tap", "edge", edgeHandler);
+      cyRefPub.on("tap", canvasHandler);
       return () => {
-        cyRefPub.off("tap", "node", handler);
+        cyRefPub.off("tap", "node", nodeHandler);
+        cyRefPub.off("tap", "edge", edgeHandler);
+        cyRefPub.off("tap", canvasHandler);
       };
     }
-  }, [cyRefPub]);
+  }, [cyRefPub, selectedPub]);
 
   useEffect(() => {
     if (cyRefReferer) {
-      const handler = async (event) => {
+      const nodeHandler = async (event) => {
         const target = event.target;
-        try {
-          const data = await getAuthor(
-            target.data().id,
-            DEFAULT_SEARCH_LIMIT,
-            false
-          );
-          setSelectedReferer(data);
-        } catch (error) {
-          console.error("Failed to fetch author data", error);
+        if (selectedReferer && selectedReferer.id === target.data().id) {
+          setSelectedReferer(null);
+        } else {
+          try {
+            const data = await getAuthor(
+              target.data().id,
+              DEFAULT_SEARCH_LIMIT,
+              false
+            );
+            setSelectedReferer(data);
+          } catch (error) {
+            console.error("Failed to fetch author data", error);
+          }
         }
       };
-      cyRefReferer.on("tap", "node", handler);
+      const canvasHandler = (event) => {
+        if (event.target === cyRefReferer) {
+          // If the canvas was clicked, "unselect" any selected node
+          setSelectedReferer(null);
+        }
+      };
+      const edgeHandler = () => {
+        // if an edge is clicked, unselect any selected node
+        setSelectedReferer(null);
+      };
+      cyRefReferer.on("tap", "node", nodeHandler);
+      cyRefReferer.on("tap", "edge", edgeHandler);
+      cyRefReferer.on("tap", canvasHandler);
       return () => {
-        cyRefReferer.off("tap", "node", handler);
+        cyRefReferer.off("tap", "node", nodeHandler);
+        cyRefReferer.off("tap", "edge", edgeHandler);
+        cyRefReferer.off("tap", canvasHandler);
       };
     }
-  }, [cyRefReferer]);
+  }, [cyRefReferer, selectedReferer]);
 
   useEffect(() => {
     if (cyRefReferee) {
-      const handler = async (event) => {
+      const nodeHandler = async (event) => {
         const target = event.target;
-        try {
-          const data = await getAuthor(
-            target.data().id,
-            DEFAULT_SEARCH_LIMIT,
-            false
-          );
-          setSelectedReferee(data);
-        } catch (error) {
-          console.error("Failed to fetch author data", error);
+        if (selectedReferee && selectedReferee.id === target.data().id) {
+          setSelectedReferee(null);
+        } else {
+          try {
+            const data = await getAuthor(
+              target.data().id,
+              DEFAULT_SEARCH_LIMIT,
+              false
+            );
+            setSelectedReferee(data);
+          } catch (error) {
+            console.error("Failed to fetch author data", error);
+          }
         }
       };
-      cyRefReferee.on("tap", "node", handler);
+      const canvasHandler = (event) => {
+        if (event.target === cyRefReferee) {
+          // If the canvas was clicked, "unselect" any selected node
+          setSelectedReferee(null);
+        }
+      };
+      const edgeHandler = () => {
+        // if an edge is clicked, unselect any selected node
+        setSelectedReferee(null);
+      };
+      cyRefReferee.on("tap", "node", nodeHandler);
+      cyRefReferee.on("tap", "edge", edgeHandler);
+      cyRefReferee.on("tap", canvasHandler);
       return () => {
-        cyRefReferee.off("tap", "node", handler);
+        cyRefReferee.off("tap", "node", nodeHandler);
+        cyRefReferee.off("tap", "edge", edgeHandler);
+        cyRefReferee.off("tap", canvasHandler);
       };
     }
-  }, [cyRefReferee]);
+  }, [cyRefReferee, selectedReferee]);
 
   // invoked when new page is loaded
   useEffect(() => {
     setAuthor(initialData);
     setLimitValue(DEFAULT_SEARCH_LIMIT);
     setLoading(false);
-    resetLayout(cyRefPub);
-    resetLayout(cyRefReferer);
-    resetLayout(cyRefReferee);
+    resetGraph();
   }, [initialData]);
 
   // invoked when search limit changed
@@ -142,9 +203,7 @@ export default function Author() {
     if (fetcher.data) {
       setAuthor(fetcher.data.author);
       setLoading(false);
-      resetLayout(cyRefPub);
-      resetLayout(cyRefReferer);
-      resetLayout(cyRefReferee);
+      resetGraph();
     }
   }, [fetcher.data, setLoading]);
 
