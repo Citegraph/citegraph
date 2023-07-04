@@ -2,6 +2,7 @@ import { Link, useLoaderData, useFetcher } from "@remix-run/react";
 import { getAuthor } from "../../apis/authors";
 import { getPaper } from "../../apis/papers";
 import { DEFAULT_LAYOUT, resetLayout } from "../../common/layout";
+import { AuthorInfoPanel, PaperInfoPanel } from "../../common/infoPanel";
 import React, { useEffect, useState } from "react";
 import { DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from "../../apis/commons";
 import CytoscapeComponent from "react-cytoscapejs";
@@ -338,26 +339,7 @@ export default function Author() {
                         maxZoom={2}
                         style={{ width: "calc(100% - 200px)", height: "600px" }}
                       />
-                      {selectedPub && (
-                        <div className="node-info-panel">
-                          <Descriptions title="Paper Info" layout="vertical">
-                            <Descriptions.Item label="Title" span={3}>
-                              <Link to={"/paper/" + selectedPub.id}>
-                                {selectedPub.title}
-                              </Link>
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Year" span={3}>
-                              {selectedPub.year}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Citations" span={3}>
-                              {selectedPub.numOfReferers}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="References">
-                              {selectedPub.numOfReferees}
-                            </Descriptions.Item>
-                          </Descriptions>
-                        </div>
-                      )}
+                      {selectedPub && <PaperInfoPanel paper={selectedPub} />}
                     </div>
                   ),
                 },
@@ -395,15 +377,7 @@ export default function Author() {
                         style={{ width: "calc(100% - 200px)", height: "600px" }}
                       />
                       {selectedReferer && (
-                        <div className="node-info-panel">
-                          <Descriptions title="Author Info" layout="vertical">
-                            <Descriptions.Item label="Name" span={3}>
-                              <Link to={"/author/" + selectedReferer.id}>
-                                {selectedReferer.name}
-                              </Link>
-                            </Descriptions.Item>
-                          </Descriptions>
-                        </div>
+                        <AuthorInfoPanel author={selectedReferer} />
                       )}
                     </div>
                   ),
@@ -447,15 +421,7 @@ export default function Author() {
                         style={{ width: "calc(100% - 200px)", height: "600px" }}
                       />
                       {selectedReferee && (
-                        <div className="node-info-panel">
-                          <Descriptions title="Author Info" layout="vertical">
-                            <Descriptions.Item label="Name" span={3}>
-                              <Link to={"/author/" + selectedReferee.id}>
-                                {selectedReferee.name}
-                              </Link>
-                            </Descriptions.Item>
-                          </Descriptions>
-                        </div>
+                        <AuthorInfoPanel author={selectedReferee} />
                       )}
                     </div>
                   ),
@@ -513,7 +479,7 @@ export default function Author() {
           <Descriptions.Item label="Papers">
             {author.numOfPapers}
           </Descriptions.Item>
-          <Descriptions.Item label="Number of coauthors">
+          <Descriptions.Item label="Collaborators">
             {author.numOfCoauthors}
           </Descriptions.Item>
           <Descriptions.Item label="Citations">
