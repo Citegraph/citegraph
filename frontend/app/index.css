@@ -344,3 +344,15 @@ i {
 .no-underline {
   text-decoration: none;
 }
+
+.graph-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.node-info-panel {
+  width: 200px; /* Adjust width as necessary */
+  padding: 20px;
+  border-left: 1px solid #ddd; /* Optional: add a border between the graph and the panel */
+  overflow-y: auto; /* Optional: add scrolling if the panel content becomes too tall */
+}

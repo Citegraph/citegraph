@@ -1,5 +1,6 @@
 import { Link, useLoaderData, useFetcher } from "@remix-run/react";
 import { getAuthor } from "../../apis/authors";
+import { getPaper } from "../../apis/papers";
 import { DEFAULT_LAYOUT, resetLayout } from "../../common/layout";
 import React, { useEffect, useState } from "react";
 import { DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from "../../apis/commons";
@@ -47,6 +48,9 @@ export default function Author() {
   const [cyRefPub, setCyRefPub] = useState(null);
   const [cyRefReferer, setCyRefReferer] = useState(null);
   const [cyRefReferee, setCyRefReferee] = useState(null);
+  const [selectedPub, setSelectedPub] = useState(null);
+  const [selectedReferer, setSelectedReferer] = useState(null);
+  const [selectedReferee, setSelectedReferee] = useState(null);
 
   const onLimitChange = (newValue) => {
     if (fetcher.state === "idle") {
@@ -57,23 +61,71 @@ export default function Author() {
     }
   };
 
-  // invoked when cytoscape handler is changed
   useEffect(() => {
-    console.log("cyref use effect called", cyRefPub);
     if (cyRefPub) {
-      console.log("cyref has current");
-      const handler = (event) => {
+      const handler = async (event) => {
         const target = event.target;
-        console.log("Clicked node with data:", target.data());
+        try {
+          const data = await getPaper(
+            target.data().id,
+            DEFAULT_SEARCH_LIMIT,
+            false
+          );
+          setSelectedPub(data);
+        } catch (error) {
+          console.error("Failed to fetch paper data", error);
+        }
       };
-
       cyRefPub.on("tap", "node", handler);
-
       return () => {
         cyRefPub.off("tap", "node", handler);
       };
     }
   }, [cyRefPub]);
+
+  useEffect(() => {
+    if (cyRefReferer) {
+      const handler = async (event) => {
+        const target = event.target;
+        try {
+          const data = await getAuthor(
+            target.data().id,
+            DEFAULT_SEARCH_LIMIT,
+            false
+          );
+          setSelectedReferer(data);
+        } catch (error) {
+          console.error("Failed to fetch author data", error);
+        }
+      };
+      cyRefReferer.on("tap", "node", handler);
+      return () => {
+        cyRefReferer.off("tap", "node", handler);
+      };
+    }
+  }, [cyRefReferer]);
+
+  useEffect(() => {
+    if (cyRefReferee) {
+      const handler = async (event) => {
+        const target = event.target;
+        try {
+          const data = await getAuthor(
+            target.data().id,
+            DEFAULT_SEARCH_LIMIT,
+            false
+          );
+          setSelectedReferee(data);
+        } catch (error) {
+          console.error("Failed to fetch author data", error);
+        }
+      };
+      cyRefReferee.on("tap", "node", handler);
+      return () => {
+        cyRefReferee.off("tap", "node", handler);
+      };
+    }
+  }, [cyRefReferee]);
 
   // invoked when new page is loaded
   useEffect(() => {
@@ -201,7 +253,6 @@ export default function Author() {
       },
     }))
   );
-
   const tabs = [
     {
       key: "1",
@@ -219,14 +270,36 @@ export default function Author() {
                   key: "publicationGraph",
                   label: "Show graph visualization",
                   children: (
-                    <CytoscapeComponent
-                      cy={setCyRefPub}
-                      elements={publicationGraph}
-                      layout={DEFAULT_LAYOUT}
-                      minZoom={0.1}
-                      maxZoom={2}
-                      style={{ width: "100%", height: "600px" }}
-                    />
+                    <div className="graph-container">
+                      <CytoscapeComponent
+                        cy={setCyRefPub}
+                        elements={publicationGraph}
+                        layout={DEFAULT_LAYOUT}
+                        minZoom={0.1}
+                        maxZoom={2}
+                        style={{ width: "calc(100% - 200px)", height: "600px" }}
+                      />
+                      {selectedPub && (
+                        <div className="node-info-panel">
+                          <Descriptions title="Paper Info" layout="vertical">
+                            <Descriptions.Item label="Title" span={3}>
+                              <Link to={"/paper/" + selectedPub.id}>
+                                {selectedPub.title}
+                              </Link>
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Year" span={3}>
+                              {selectedPub.year}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Citations" span={3}>
+                              {selectedPub.numOfReferers}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="References">
+                              {selectedPub.numOfReferees}
+                            </Descriptions.Item>
+                          </Descriptions>
+                        </div>
+                      )}
+                    </div>
                   ),
                 },
               ]}
@@ -253,14 +326,27 @@ export default function Author() {
                   key: "publicationGraph",
                   label: "Show graph visualization",
                   children: (
-                    <CytoscapeComponent
-                      cy={setCyRefReferer}
-                      elements={refererGraph}
-                      layout={DEFAULT_LAYOUT}
-                      minZoom={0.1}
-                      maxZoom={2}
-                      style={{ width: "100%", height: "600px" }}
-                    />
+                    <div className="graph-container">
+                      <CytoscapeComponent
+                        cy={setCyRefReferer}
+                        elements={refererGraph}
+                        layout={DEFAULT_LAYOUT}
+                        minZoom={0.1}
+                        maxZoom={2}
+                        style={{ width: "calc(100% - 200px)", height: "600px" }}
+                      />
+                      {selectedReferer && (
+                        <div className="node-info-panel">
+                          <Descriptions title="Author Info" layout="vertical">
+                            <Descriptions.Item label="Name" span={3}>
+                              <Link to={"/author/" + selectedReferer.id}>
+                                {selectedReferer.name}
+                              </Link>
+                            </Descriptions.Item>
+                          </Descriptions>
+                        </div>
+                      )}
+                    </div>
                   ),
                 },
               ]}
@@ -292,14 +378,27 @@ export default function Author() {
                   key: "publicationGraph",
                   label: "Show graph visualization",
                   children: (
-                    <CytoscapeComponent
-                      cy={setCyRefReferee}
-                      elements={refereeGraph}
-                      layout={DEFAULT_LAYOUT}
-                      minZoom={0.1}
-                      maxZoom={2}
-                      style={{ width: "100%", height: "600px" }}
-                    />
+                    <div className="graph-container">
+                      <CytoscapeComponent
+                        cy={setCyRefReferee}
+                        elements={refereeGraph}
+                        layout={DEFAULT_LAYOUT}
+                        minZoom={0.1}
+                        maxZoom={2}
+                        style={{ width: "calc(100% - 200px)", height: "600px" }}
+                      />
+                      {selectedReferee && (
+                        <div className="node-info-panel">
+                          <Descriptions title="Author Info" layout="vertical">
+                            <Descriptions.Item label="Name" span={3}>
+                              <Link to={"/author/" + selectedReferee.id}>
+                                {selectedReferee.name}
+                              </Link>
+                            </Descriptions.Item>
+                          </Descriptions>
+                        </div>
+                      )}
+                    </div>
                   ),
                 },
               ]}
