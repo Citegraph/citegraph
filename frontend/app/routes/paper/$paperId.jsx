@@ -1,5 +1,4 @@
 import { Link, useLoaderData, useFetcher } from "@remix-run/react";
-import { getAuthor } from "../../apis/authors";
 import { getPaper } from "../../apis/papers";
 import React, { useEffect, useState } from "react";
 import { resetLayout } from "../../common/layout";
