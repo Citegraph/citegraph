@@ -3,12 +3,11 @@ import { getAuthor } from "../../apis/authors";
 import { getPaper } from "../../apis/papers";
 import { DEFAULT_LAYOUT, resetLayout } from "../../common/layout";
 import { AuthorInfoPanel, PaperInfoPanel } from "../../common/infoPanel";
+import { GraphPanel } from "../../common/graph";
 import React, { useEffect, useState } from "react";
 import { DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from "../../apis/commons";
-import CytoscapeComponent from "react-cytoscapejs";
 import {
   Breadcrumb,
-  Collapse,
   Descriptions,
   Divider,
   Tabs,
@@ -320,30 +319,13 @@ export default function Author() {
       children:
         papers && papers.length > 0 ? (
           <div>
-            <Collapse
-              className="desktop-collapse"
+            <GraphPanel
               activeKey={activeKey}
-              onChange={setActiveKey}
-              style={{ marginBottom: "1rem" }}
-              items={[
-                {
-                  key: "publicationGraph",
-                  label: "Show graph visualization",
-                  children: (
-                    <div className="graph-container">
-                      <CytoscapeComponent
-                        cy={setCyRefPub}
-                        elements={publicationGraph}
-                        layout={DEFAULT_LAYOUT}
-                        minZoom={0.1}
-                        maxZoom={2}
-                        style={{ width: "calc(100% - 200px)", height: "600px" }}
-                      />
-                      {selectedPub && <PaperInfoPanel paper={selectedPub} />}
-                    </div>
-                  ),
-                },
-              ]}
+              setActiveKey={setActiveKey}
+              setCyRef={setCyRefPub}
+              graphElements={publicationGraph}
+              selectedNode={selectedPub}
+              isAuthorPanel={false}
             />
             <Table columns={paperCols} dataSource={papers} loading={loading} />
           </div>
@@ -357,34 +339,14 @@ export default function Author() {
       children:
         referers && referers.length > 0 ? (
           <div>
-            <Collapse
-              className="desktop-collapse"
+            <GraphPanel
               activeKey={activeKey}
-              onChange={setActiveKey}
-              style={{ marginBottom: "1rem" }}
-              items={[
-                {
-                  key: "publicationGraph",
-                  label: "Show graph visualization",
-                  children: (
-                    <div className="graph-container">
-                      <CytoscapeComponent
-                        cy={setCyRefReferer}
-                        elements={refererGraph}
-                        layout={DEFAULT_LAYOUT}
-                        minZoom={0.1}
-                        maxZoom={2}
-                        style={{ width: "calc(100% - 200px)", height: "600px" }}
-                      />
-                      {selectedReferer && (
-                        <AuthorInfoPanel author={selectedReferer} />
-                      )}
-                    </div>
-                  ),
-                },
-              ]}
+              setActiveKey={setActiveKey}
+              setCyRef={setCyRefReferer}
+              graphElements={refererGraph}
+              selectedNode={selectedReferer}
+              isAuthorPanel={true}
             />
-
             <Table
               columns={authorCols}
               dataSource={referers}
@@ -401,32 +363,13 @@ export default function Author() {
       children:
         referees && referees.length > 0 ? (
           <div>
-            <Collapse
-              className="desktop-collapse"
+            <GraphPanel
               activeKey={activeKey}
-              onChange={setActiveKey}
-              style={{ marginBottom: "1rem" }}
-              items={[
-                {
-                  key: "publicationGraph",
-                  label: "Show graph visualization",
-                  children: (
-                    <div className="graph-container">
-                      <CytoscapeComponent
-                        cy={setCyRefReferee}
-                        elements={refereeGraph}
-                        layout={DEFAULT_LAYOUT}
-                        minZoom={0.1}
-                        maxZoom={2}
-                        style={{ width: "calc(100% - 200px)", height: "600px" }}
-                      />
-                      {selectedReferee && (
-                        <AuthorInfoPanel author={selectedReferee} />
-                      )}
-                    </div>
-                  ),
-                },
-              ]}
+              setActiveKey={setActiveKey}
+              setCyRef={setCyRefReferee}
+              graphElements={refereeGraph}
+              selectedNode={selectedReferee}
+              isAuthorPanel={true}
             />
             <Table
               columns={authorCols}
