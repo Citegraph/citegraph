@@ -1,8 +1,7 @@
 import { Link, useLoaderData, useFetcher } from "@remix-run/react";
 import { getAuthor } from "../../apis/authors";
 import { getPaper } from "../../apis/papers";
-import { DEFAULT_LAYOUT, resetLayout } from "../../common/layout";
-import { AuthorInfoPanel, PaperInfoPanel } from "../../common/infoPanel";
+import { resetLayout } from "../../common/layout";
 import { GraphPanel } from "../../common/graph";
 import React, { useEffect, useState } from "react";
 import { DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from "../../apis/commons";

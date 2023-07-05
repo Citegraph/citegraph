@@ -1,6 +1,9 @@
 import { Link, useLoaderData, useFetcher } from "@remix-run/react";
+import { getAuthor } from "../../apis/authors";
 import { getPaper } from "../../apis/papers";
 import React, { useEffect, useState } from "react";
+import { resetLayout } from "../../common/layout";
+import { GraphPanel } from "../../common/graph";
 import { DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from "../../apis/commons";
 import {
   Breadcrumb,
@@ -38,6 +41,20 @@ export default function Paper() {
   const [paper, setPaper] = useState(initialData);
   const [limitValue, setLimitValue] = useState(DEFAULT_SEARCH_LIMIT);
   const [loading, setLoading] = useState(false);
+  // control collapse components
+  const [activeKey, setActiveKey] = useState(["1"]);
+
+  const [cyRefReferer, setCyRefReferer] = useState(null);
+  const [cyRefReferee, setCyRefReferee] = useState(null);
+  const [selectedReferer, setSelectedReferer] = useState(null);
+  const [selectedReferee, setSelectedReferee] = useState(null);
+
+  const resetGraph = () => {
+    resetLayout(cyRefReferer);
+    resetLayout(cyRefReferee);
+    setSelectedReferer(null);
+    setSelectedReferee(null);
+  };
 
   const onLimitChange = (newValue) => {
     if (fetcher.state === "idle") {
@@ -47,11 +64,92 @@ export default function Paper() {
     }
   };
 
+  useEffect(() => {
+    if (cyRefReferer) {
+      const nodeHandler = async (event) => {
+        const target = event.target;
+        if (selectedReferer && selectedReferer.id === target.data().id) {
+          setSelectedReferer(null);
+        } else {
+          try {
+            const data = await getPaper(
+              target.data().id,
+              DEFAULT_SEARCH_LIMIT,
+              false
+            );
+            setSelectedReferer(data);
+          } catch (error) {
+            console.error("Failed to fetch author data", error);
+          }
+        }
+      };
+      const canvasHandler = (event) => {
+        if (event.target === cyRefReferer) {
+          // If the canvas was clicked, "unselect" any selected node
+          setSelectedReferer(null);
+        }
+      };
+      const edgeHandler = () => {
+        // if an edge is clicked, unselect any selected node
+        setSelectedReferer(null);
+      };
+      cyRefReferer.on("tap", "node", nodeHandler);
+      cyRefReferer.on("tap", "edge", edgeHandler);
+      cyRefReferer.on("tap", canvasHandler);
+      return () => {
+        cyRefReferer.off("tap", "node", nodeHandler);
+        cyRefReferer.off("tap", "edge", edgeHandler);
+        cyRefReferer.off("tap", canvasHandler);
+      };
+    }
+  }, [cyRefReferer, selectedReferer]);
+
+  useEffect(() => {
+    if (cyRefReferee) {
+      const nodeHandler = async (event) => {
+        const target = event.target;
+        if (selectedReferee && selectedReferee.id === target.data().id) {
+          setSelectedReferee(null);
+        } else {
+          try {
+            const data = await getPaper(
+              target.data().id,
+              DEFAULT_SEARCH_LIMIT,
+              false
+            );
+            setSelectedReferee(data);
+          } catch (error) {
+            console.error("Failed to fetch author data", error);
+          }
+        }
+      };
+      const canvasHandler = (event) => {
+        if (event.target === cyRefReferee) {
+          // If the canvas was clicked, "unselect" any selected node
+          setSelectedReferee(null);
+        }
+      };
+      const edgeHandler = () => {
+        // if an edge is clicked, unselect any selected node
+        setSelectedReferee(null);
+      };
+      cyRefReferee.on("tap", "node", nodeHandler);
+      cyRefReferee.on("tap", "edge", edgeHandler);
+      cyRefReferee.on("tap", canvasHandler);
+      return () => {
+        cyRefReferee.off("tap", "node", nodeHandler);
+        cyRefReferee.off("tap", "edge", edgeHandler);
+        cyRefReferee.off("tap", canvasHandler);
+      };
+    }
+  }, [cyRefReferee, selectedReferee]);
+
   // invoked when new page is loaded
   useEffect(() => {
     setPaper(initialData);
     setLimitValue(DEFAULT_SEARCH_LIMIT);
     setLoading(false);
+    resetGraph();
   }, [initialData]);
 
   // invoked when search limit changed
@@ -59,6 +157,7 @@ export default function Paper() {
     if (fetcher.data) {
       setPaper(fetcher.data.paper);
       setLoading(false);
+      resetGraph();
     }
   }, [fetcher.data, setLoading]);
 
@@ -91,13 +190,55 @@ export default function Paper() {
     year: p.year,
   }));
 
+  const refererGraph = [{ data: { id: paper.id, label: paper.title } }].concat(
+    paper.referers.map((p) => ({
+      data: {
+        id: p.id,
+        label: p.title,
+      },
+    })),
+    paper.referers.map((p) => ({
+      data: {
+        source: p.id,
+        target: paper.id,
+        label: "cites",
+      },
+    }))
+  );
+
+  const refereeGraph = [{ data: { id: paper.id, label: paper.title } }].concat(
+    paper.referees.map((p) => ({
+      data: {
+        id: p.id,
+        label: p.title,
+      },
+    })),
+    paper.referees.map((p) => ({
+      data: {
+        source: paper.id,
+        target: p.id,
+        label: "cites",
+      },
+    }))
+  );
+
   const tabs = [
     {
       key: "1",
       label: `Cited by (${(referers && referers.length) || 0} rows)`,
       children:
         referers && referers.length > 0 ? (
-          <Table columns={columns} dataSource={referers} loading={loading} />
+          <div>
+            <GraphPanel
+              activeKey={activeKey}
+              setActiveKey={setActiveKey}
+              setCyRef={setCyRefReferer}
+              graphElements={refererGraph}
+              selectedNode={selectedReferer}
+              isAuthorPanel={false}
+            />
+            <Table columns={columns} dataSource={referers} loading={loading} />
+          </div>
         ) : (
           "N/A"
         ),
@@ -107,7 +248,17 @@ export default function Paper() {
       label: `References (${(referees && referees.length) || 0} rows)`,
       children:
         referees && referees.length > 0 ? (
-          <Table columns={columns} dataSource={referees} loading={loading} />
+          <div>
+            <GraphPanel
+              activeKey={activeKey}
+              setActiveKey={setActiveKey}
+              setCyRef={setCyRefReferee}
+              graphElements={refereeGraph}
+              selectedNode={selectedReferee}
+              isAuthorPanel={false}
+            />
+            <Table columns={columns} dataSource={referees} loading={loading} />
+          </div>
         ) : (
           "N/A"
         ),
