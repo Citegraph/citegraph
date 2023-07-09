@@ -5,6 +5,7 @@ import io.citegraph.app.model.AuthorResponse;
 import io.citegraph.app.model.CitationResponse;
 import io.citegraph.app.model.PaperResponse;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.janusgraph.core.attribute.Text;
@@ -208,6 +209,20 @@ public class GraphController {
         return authorCache.asMap().entrySet().stream()
             .map(entry -> new AuthorResponse(entry.getValue(), entry.getKey()))
             .collect(Collectors.toList());
+    }
+
+    @GetMapping("/graph/vertex/{vid}")
+    public Map<String, Object> getVertexById(@PathVariable String vid, @RequestParam int limit) {
+        return g.V(vid)
+            .project("self", "neighbors")
+            .by(__.elementMap())
+            .by(
+                __.bothE().limit(limit).as("edge")
+                    .otherV().as("vertex")
+                    .select("edge", "vertex")
+                    .by(__.elementMap())
+                    .fold()
+            ).next();
     }
 
     private void buildNameMap(Map<String, String> idNameMap, List<Vertex> authors) {
