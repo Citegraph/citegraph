@@ -73,7 +73,10 @@ export default function Author() {
     if (cyRefPub) {
       const nodeHandler = async (event) => {
         const target = event.target;
-        if (selectedPub && selectedPub.id === target.data().id) {
+        if (
+          (selectedPub && selectedPub.id === target.data().id) ||
+          author.id === target.data().id
+        ) {
           setSelectedPub(null);
         } else {
           try {
@@ -113,7 +116,10 @@ export default function Author() {
     if (cyRefReferer) {
       const nodeHandler = async (event) => {
         const target = event.target;
-        if (selectedReferer && selectedReferer.id === target.data().id) {
+        if (
+          (selectedReferer && selectedReferer.id === target.data().id) ||
+          author.id === target.data().id
+        ) {
           setSelectedReferer(null);
         } else {
           try {
@@ -153,7 +159,10 @@ export default function Author() {
     if (cyRefReferee) {
       const nodeHandler = async (event) => {
         const target = event.target;
-        if (selectedReferee && selectedReferee.id === target.data().id) {
+        if (
+          (selectedReferee && selectedReferee.id === target.data().id) ||
+          author.id === target.data().id
+        ) {
           setSelectedReferee(null);
         } else {
           try {
@@ -324,7 +333,6 @@ export default function Author() {
               setCyRef={setCyRefPub}
               graphElements={publicationGraph}
               selectedNode={selectedPub}
-              isAuthorPanel={false}
             />
             <Table columns={paperCols} dataSource={papers} loading={loading} />
           </div>
@@ -344,7 +352,6 @@ export default function Author() {
               setCyRef={setCyRefReferer}
               graphElements={refererGraph}
               selectedNode={selectedReferer}
-              isAuthorPanel={true}
             />
             <Table
               columns={authorCols}
@@ -368,7 +375,6 @@ export default function Author() {
               setCyRef={setCyRefReferee}
               graphElements={refereeGraph}
               selectedNode={selectedReferee}
-              isAuthorPanel={true}
             />
             <Table
               columns={authorCols}

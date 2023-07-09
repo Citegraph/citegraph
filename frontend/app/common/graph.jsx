@@ -9,7 +9,6 @@ export function GraphPanel({
   setCyRef,
   graphElements,
   selectedNode,
-  isAuthorPanel,
 }) {
   return (
     <Collapse
@@ -32,7 +31,7 @@ export function GraphPanel({
                 style={{ width: "calc(100% - 200px)", height: "600px" }}
               />
               {selectedNode &&
-                (isAuthorPanel ? (
+                (selectedNode.name ? (
                   <AuthorInfoPanel author={selectedNode} />
                 ) : (
                   <PaperInfoPanel paper={selectedNode} />

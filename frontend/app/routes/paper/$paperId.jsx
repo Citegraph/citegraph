@@ -67,7 +67,10 @@ export default function Paper() {
     if (cyRefReferer) {
       const nodeHandler = async (event) => {
         const target = event.target;
-        if (selectedReferer && selectedReferer.id === target.data().id) {
+        if (
+          (selectedReferer && selectedReferer.id === target.data().id) ||
+          paper.id === target.data().id
+        ) {
           setSelectedReferer(null);
         } else {
           try {
@@ -107,7 +110,10 @@ export default function Paper() {
     if (cyRefReferee) {
       const nodeHandler = async (event) => {
         const target = event.target;
-        if (selectedReferee && selectedReferee.id === target.data().id) {
+        if (
+          (selectedReferee && selectedReferee.id === target.data().id) ||
+          paper.id === target.data().id
+        ) {
           setSelectedReferee(null);
         } else {
           try {
@@ -234,7 +240,6 @@ export default function Paper() {
               setCyRef={setCyRefReferer}
               graphElements={refererGraph}
               selectedNode={selectedReferer}
-              isAuthorPanel={false}
             />
             <Table columns={columns} dataSource={referers} loading={loading} />
           </div>
@@ -254,7 +259,6 @@ export default function Paper() {
               setCyRef={setCyRefReferee}
               graphElements={refereeGraph}
               selectedNode={selectedReferee}
-              isAuthorPanel={false}
             />
             <Table columns={columns} dataSource={referees} loading={loading} />
           </div>
