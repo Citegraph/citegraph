@@ -224,6 +224,12 @@ export default function Author() {
       render: (text, record) => <Link to={"/paper/" + record.key}>{text}</Link>,
     },
     {
+      title: "Citations",
+      dataIndex: "citations",
+      sorter: (a, b) => a.citations - b.citations,
+      sortDirections: ["descend", "ascend", "descend"],
+    },
+    {
       title: "Year",
       dataIndex: "year",
       sorter: (a, b) => a.year - b.year,
@@ -231,9 +237,11 @@ export default function Author() {
       defaultSortOrder: "descend",
     },
   ];
+
   const papers = author.papers.map((p) => ({
     key: p.id,
     title: p.title,
+    citations: p.numOfReferees,
     year: p.year,
   }));
 
