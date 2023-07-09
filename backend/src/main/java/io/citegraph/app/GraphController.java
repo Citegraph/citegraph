@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.ws.rs.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -54,7 +55,7 @@ public class GraphController {
             );
         }
         Vertex paper = g.V().hasId(id).next();
-        Map<Object, Object> paperProps = g.V(paper).valueMap().next();
+        Map<Object, Object> paperProps = g.V(paper).elementMap().next();
         if (!paperProps.containsKey("title")) {
             throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, String.format("Paper %s does not have title", id)
@@ -62,8 +63,8 @@ public class GraphController {
         }
         PaperResponse paperResponse = new PaperResponse(
             id,
-            ((List<String>) paperProps.get("title")).get(0),
-            ((List<Integer>) paperProps.getOrDefault("year", DEFAULT_INT_LIST)).get(0));
+            (String) paperProps.get("title"),
+            (Integer) paperProps.getOrDefault("year", 0));
 
         // collect authors
         if (getEdges) {
@@ -77,8 +78,8 @@ public class GraphController {
         }
 
         // collect paper citations
-        int numOfReferees = ((List<Integer>) paperProps.getOrDefault("numOfPaperReferees", DEFAULT_INT_LIST)).get(0);
-        int numOfReferers = ((List<Integer>) paperProps.getOrDefault("numOfPaperReferers", DEFAULT_INT_LIST)).get(0);
+        int numOfReferees = (Integer) paperProps.getOrDefault("numOfPaperReferees", 0);
+        int numOfReferers = (Integer) paperProps.getOrDefault("numOfPaperReferers", 0);
         paperResponse.setNumOfReferees(numOfReferees);
         paperResponse.setNumOfReferers(numOfReferers);
 
@@ -114,27 +115,27 @@ public class GraphController {
             );
         }
         Vertex author = g.V().hasId(id).next();
-        Map<Object, Object> authorProps = g.V(author).valueMap().next();
+        Map<Object, Object> authorProps = g.V(author).elementMap().next();
         if (!authorProps.containsKey("name")) {
             throw new ResponseStatusException(
                 HttpStatus.NOT_FOUND, String.format("Author %s's name not found", id)
             );
         }
-        String name = ((List<String>) authorProps.get("name")).get(0);
+        String name = (String) authorProps.get("name");
 
         authorCache.get(id, k -> name);
 
         // collect papers
-        int numOfPapers = ((List<Integer>) authorProps.getOrDefault("numOfPapers", DEFAULT_INT_LIST)).get(0);
+        int numOfPapers = (Integer) authorProps.getOrDefault("numOfPapers", 0);
 
         // collect author references
-        int numOfReferees = ((List<Integer>) authorProps.getOrDefault("numOfAuthorReferees", DEFAULT_INT_LIST)).get(0);
-        int numOfReferers = ((List<Integer>) authorProps.getOrDefault("numOfAuthorReferers", DEFAULT_INT_LIST)).get(0);
+        int numOfReferees = (Integer) authorProps.getOrDefault("numOfAuthorReferees", 0);
+        int numOfReferers = (Integer) authorProps.getOrDefault("numOfAuthorReferers", 0);
         // collect paper references
-        int numOfPaperReferees = ((List<Integer>) authorProps.getOrDefault("numOfPaperReferees", DEFAULT_INT_LIST)).get(0);
-        int numOfPaperReferers = ((List<Integer>) authorProps.getOrDefault("numOfPaperReferers", DEFAULT_INT_LIST)).get(0);
+        int numOfPaperReferees = (Integer) authorProps.getOrDefault("numOfPaperReferees", 0);
+        int numOfPaperReferers = (Integer) authorProps.getOrDefault("numOfPaperReferers", 0);
 
-        int numOfCoauthors = ((List<Integer>) authorProps.getOrDefault("numOfCoworkers", DEFAULT_INT_LIST)).get(0);
+        int numOfCoauthors = (Integer) authorProps.getOrDefault("numOfCoworkers", 0);
 
         AuthorResponse res = new AuthorResponse(name, id, numOfPapers, numOfReferees, numOfReferers,
             numOfPaperReferees, numOfPaperReferers, numOfCoauthors);
@@ -143,12 +144,12 @@ public class GraphController {
             List<PaperResponse> papers = g.V(author).out("writes").limit(limit).toList()
                 .stream()
                 .map(v -> {
-                    Map<Object, Object> props = g.V(v).valueMap().next();
+                    Map<Object, Object> props = g.V(v).elementMap().next();
                     return new PaperResponse((String) v.id(),
-                        ((List<String>) props.getOrDefault("title", DEFAULT_STRING_LIST)).get(0),
-                        ((List<Integer>) props.getOrDefault("year", DEFAULT_STRING_LIST)).get(0),
-                        ((List<Integer>) props.getOrDefault("numOfPaperReferees", DEFAULT_INT_LIST)).get(0),
-                        ((List<Integer>) props.getOrDefault("numOfPaperReferers", DEFAULT_INT_LIST)).get(0)
+                        (String) props.getOrDefault("title", "N/A"),
+                        (Integer) props.getOrDefault("year", 0),
+                        (Integer) props.getOrDefault("numOfPaperReferees", 0),
+                        (Integer) props.getOrDefault("numOfPaperReferers", 0)
                     );
                 })
                 .collect(Collectors.toList());
