@@ -241,7 +241,7 @@ export default function Author() {
   const papers = author.papers.map((p) => ({
     key: p.id,
     title: p.title,
-    citations: p.numOfReferees,
+    citations: p.numOfReferers,
     year: p.year,
   }));
 
