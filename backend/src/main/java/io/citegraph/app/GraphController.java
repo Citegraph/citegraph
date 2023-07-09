@@ -36,7 +36,8 @@ public class GraphController {
 
     private static final int DEFAULT_LIMIT = 500;
 
-    private static final List<Integer> DEFAULT_LIST = Arrays.asList(0);
+    private static final List<Integer> DEFAULT_INT_LIST = Arrays.asList(0);
+    private static final List<String> DEFAULT_STRING_LIST = Arrays.asList("N/A");
 
     @Autowired
     private GraphTraversalSource g;
@@ -45,6 +46,7 @@ public class GraphController {
     private Cache<String, String> authorCache;
 
     @GetMapping("/paper/{id}")
+    @SuppressWarnings("unchecked")
     public PaperResponse getPaper(@PathVariable String id, @RequestParam int limit, @RequestParam boolean getEdges) {
         if (!g.V().hasId(id).hasNext()) {
             throw new ResponseStatusException(
@@ -61,7 +63,7 @@ public class GraphController {
         PaperResponse paperResponse = new PaperResponse(
             id,
             ((List<String>) paperProps.get("title")).get(0),
-            ((List<Integer>) paperProps.getOrDefault("year", DEFAULT_LIST)).get(0));
+            ((List<Integer>) paperProps.getOrDefault("year", DEFAULT_INT_LIST)).get(0));
 
         // collect authors
         if (getEdges) {
@@ -75,8 +77,8 @@ public class GraphController {
         }
 
         // collect paper citations
-        int numOfReferees = ((List<Integer>) paperProps.getOrDefault("numOfPaperReferees", DEFAULT_LIST)).get(0);
-        int numOfReferers = ((List<Integer>) paperProps.getOrDefault("numOfPaperReferers", DEFAULT_LIST)).get(0);
+        int numOfReferees = ((List<Integer>) paperProps.getOrDefault("numOfPaperReferees", DEFAULT_INT_LIST)).get(0);
+        int numOfReferers = ((List<Integer>) paperProps.getOrDefault("numOfPaperReferers", DEFAULT_INT_LIST)).get(0);
         paperResponse.setNumOfReferees(numOfReferees);
         paperResponse.setNumOfReferers(numOfReferers);
 
@@ -104,6 +106,7 @@ public class GraphController {
     }
 
     @GetMapping("/author/{id}")
+    @SuppressWarnings("unchecked")
     public AuthorResponse getAuthor(@PathVariable String id, @RequestParam int limit, @RequestParam boolean getEdges) {
         if (!g.V().hasId(id).hasNext()) {
             throw new ResponseStatusException(
@@ -122,16 +125,16 @@ public class GraphController {
         authorCache.get(id, k -> name);
 
         // collect papers
-        int numOfPapers = ((List<Integer>) authorProps.getOrDefault("numOfPapers", DEFAULT_LIST)).get(0);
+        int numOfPapers = ((List<Integer>) authorProps.getOrDefault("numOfPapers", DEFAULT_INT_LIST)).get(0);
 
         // collect author references
-        int numOfReferees = ((List<Integer>) authorProps.getOrDefault("numOfAuthorReferees", DEFAULT_LIST)).get(0);
-        int numOfReferers = ((List<Integer>) authorProps.getOrDefault("numOfAuthorReferers", DEFAULT_LIST)).get(0);
+        int numOfReferees = ((List<Integer>) authorProps.getOrDefault("numOfAuthorReferees", DEFAULT_INT_LIST)).get(0);
+        int numOfReferers = ((List<Integer>) authorProps.getOrDefault("numOfAuthorReferers", DEFAULT_INT_LIST)).get(0);
         // collect paper references
-        int numOfPaperReferees = ((List<Integer>) authorProps.getOrDefault("numOfPaperReferees", DEFAULT_LIST)).get(0);
-        int numOfPaperReferers = ((List<Integer>) authorProps.getOrDefault("numOfPaperReferers", DEFAULT_LIST)).get(0);
+        int numOfPaperReferees = ((List<Integer>) authorProps.getOrDefault("numOfPaperReferees", DEFAULT_INT_LIST)).get(0);
+        int numOfPaperReferers = ((List<Integer>) authorProps.getOrDefault("numOfPaperReferers", DEFAULT_INT_LIST)).get(0);
 
-        int numOfCoauthors = ((List<Integer>) authorProps.getOrDefault("numOfCoworkers", DEFAULT_LIST)).get(0);
+        int numOfCoauthors = ((List<Integer>) authorProps.getOrDefault("numOfCoworkers", DEFAULT_INT_LIST)).get(0);
 
         AuthorResponse res = new AuthorResponse(name, id, numOfPapers, numOfReferees, numOfReferers,
             numOfPaperReferees, numOfPaperReferers, numOfCoauthors);
@@ -139,9 +142,15 @@ public class GraphController {
         if (getEdges) {
             List<PaperResponse> papers = g.V(author).out("writes").limit(limit).toList()
                 .stream()
-                .map(v -> new PaperResponse((String) v.id(),
-                    (String) g.V(v).values("title").next(),
-                    (Integer) g.V(v).values("year").next()))
+                .map(v -> {
+                    Map<Object, Object> props = g.V(v).valueMap().next();
+                    return new PaperResponse((String) v.id(),
+                        ((List<String>) props.getOrDefault("title", DEFAULT_STRING_LIST)).get(0),
+                        ((List<Integer>) props.getOrDefault("year", DEFAULT_STRING_LIST)).get(0),
+                        ((List<Integer>) props.getOrDefault("numOfPaperReferees", DEFAULT_INT_LIST)).get(0),
+                        ((List<Integer>) props.getOrDefault("numOfPaperReferers", DEFAULT_INT_LIST)).get(0)
+                    );
+                })
                 .collect(Collectors.toList());
             res.setPapers(papers);
 

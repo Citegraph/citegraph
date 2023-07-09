@@ -28,6 +28,14 @@ public class PaperResponse {
         this.year = year;
     }
 
+    public PaperResponse(String id, String title, int year, int numOfReferees, int numOfReferers) {
+        this.id = id;
+        this.title = title;
+        this.year = year;
+        this.numOfReferees = numOfReferees;
+        this.numOfReferers = numOfReferers;
+    }
+
     public int getNumOfReferees() {
         return numOfReferees;
     }
