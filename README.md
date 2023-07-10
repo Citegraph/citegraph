@@ -6,6 +6,10 @@ CiteGraph is an open-source online visualizer of citation networks. It was initi
 of [JanusGraph](https://janusgraph.org), a distributed graph database. The tech stack includes JanusGraph,
 Spring Boot, Nginx, React, Remix (Server Side Rendering), Lucene, Cassandra, and Spark.
 
+<img width="1851" alt="Screenshot 2023-07-09 at 10 11 51 PM" src="https://github.com/Citegraph/citegraph/assets/25746010/c5956ea8-36e2-48ed-bd66-1cd9e20a92c5">
+<img width="1838" alt="Screenshot 2023-07-09 at 10 10 42 PM" src="https://github.com/Citegraph/citegraph/assets/25746010/09b84fd9-9977-4546-92eb-d2889e07ad21">
+
+
 ## Quick Start
 
 Of course, only if you want to launch CiteGraph on your own. Otherwise, just visit [CiteGraph](https://www.citegraph.io) and have fun!
