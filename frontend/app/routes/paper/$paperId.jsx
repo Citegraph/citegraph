@@ -4,8 +4,10 @@ import React, { useEffect, useState } from "react";
 import { resetLayout } from "../../common/layout";
 import { GraphPanel } from "../../common/graph";
 import { DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from "../../apis/commons";
+import { BulbTwoTone } from "@ant-design/icons";
 import {
   Breadcrumb,
+  Button,
   Descriptions,
   Divider,
   Tabs,
@@ -304,7 +306,21 @@ export default function Paper() {
         />
       </div>
       <div id="desc">
-        <Descriptions title="Paper Info" layout="vertical">
+        <Descriptions
+          title="Paper Info"
+          layout="vertical"
+          extra={
+            <a
+              href={"/visualizer/" + paper.id}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Button icon={<BulbTwoTone />}>
+                Open Interactive Visualization
+              </Button>
+            </a>
+          }
+        >
           <Descriptions.Item label="Title">{paper.title}</Descriptions.Item>
           <Descriptions.Item label="Citations">
             {paper.numOfReferers}
