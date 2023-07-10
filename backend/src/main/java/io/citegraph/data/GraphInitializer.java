@@ -20,23 +20,39 @@ public class GraphInitializer {
             System.exit(0);
         }
         JanusGraphManagement mgmt = graph.openManagement();
-        System.out.println("Current schema is...");
-        mgmt.printSchema();
 
-        mgmt.makePropertyKey("numOfPaperReferees").dataType(Integer.class).make();
-        mgmt.makePropertyKey("numOfPaperReferers").dataType(Integer.class).make();
-        mgmt.makePropertyKey("numOfAuthorReferees").dataType(Integer.class).make();
-        mgmt.makePropertyKey("numOfAuthorReferers").dataType(Integer.class).make();
-        mgmt.makePropertyKey("numOfCoworkers").dataType(Integer.class).make();
-        mgmt.makePropertyKey("numOfPapers").dataType(Integer.class).make();
-        PropertyKey name = mgmt.makePropertyKey("name").dataType(String.class).make();
-        PropertyKey title = mgmt.makePropertyKey("title").dataType(String.class).make();
-        PropertyKey refCount = mgmt.makePropertyKey("refCount").dataType(Integer.class).make();
-        mgmt.buildIndex("nameIdx", Vertex.class).addKey(name).buildMixedIndex("search");
-        mgmt.buildIndex("titleIdx", Vertex.class).addKey(title).buildMixedIndex("search");
-        mgmt.makeEdgeLabel("writes").make();
-        mgmt.makeEdgeLabel("cites").make();
-        mgmt.makeEdgeLabel("refers").make();
+        if (mgmt.getPropertyKey("numOfPaperReferees") == null)
+            mgmt.makePropertyKey("numOfPaperReferees").dataType(Integer.class).make();
+        if (mgmt.getPropertyKey("numOfPaperReferers") == null)
+            mgmt.makePropertyKey("numOfPaperReferers").dataType(Integer.class).make();
+        if (mgmt.getPropertyKey("numOfAuthorReferees") == null)
+            mgmt.makePropertyKey("numOfAuthorReferees").dataType(Integer.class).make();
+        if (mgmt.getPropertyKey("numOfAuthorReferers") == null)
+            mgmt.makePropertyKey("numOfAuthorReferers").dataType(Integer.class).make();
+        if (mgmt.getPropertyKey("numOfCoworkers") == null)
+            mgmt.makePropertyKey("numOfCoworkers").dataType(Integer.class).make();
+        if (mgmt.getPropertyKey("numOfPapers") == null)
+            mgmt.makePropertyKey("numOfPapers").dataType(Integer.class).make();
+        PropertyKey name = mgmt.getPropertyKey("name");
+        if (name == null)
+            name = mgmt.makePropertyKey("name").dataType(String.class).make();
+        PropertyKey title = mgmt.getPropertyKey("title");
+        if (title == null)
+            title = mgmt.makePropertyKey("title").dataType(String.class).make();
+        PropertyKey refCount = mgmt.getPropertyKey("refCount");
+        if (refCount == null)
+            mgmt.makePropertyKey("refCount").dataType(Integer.class).make();
+        PropertyKey collaborateCount = mgmt.getPropertyKey("collaborateCount");
+        if (collaborateCount == null)
+            mgmt.makePropertyKey("collaborateCount").dataType(Integer.class).make();
+        if (mgmt.getGraphIndex("nameIdx") == null)
+            mgmt.buildIndex("nameIdx", Vertex.class).addKey(name).buildMixedIndex("search");
+        if (mgmt.getGraphIndex("titleIdx") == null)
+            mgmt.buildIndex("titleIdx", Vertex.class).addKey(title).buildMixedIndex("search");
+        mgmt.getOrCreateEdgeLabel("writes");
+        mgmt.getOrCreateEdgeLabel("cites");
+        mgmt.getOrCreateEdgeLabel("refers");
+        mgmt.getOrCreateEdgeLabel("collaborates");
 
         mgmt.commit();
         System.out.println("Schema created");
