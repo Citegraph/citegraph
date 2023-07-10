@@ -195,10 +195,13 @@ export default function Paper() {
     year: p.year,
   }));
 
-  const refererGraph = [{ data: { id: paper.id, label: paper.title } }].concat(
+  const refererGraph = [
+    { data: { id: paper.id, label: paper.title, type: "paper" } },
+  ].concat(
     paper.referers.map((p) => ({
       data: {
         id: p.id,
+        type: "paper",
         label: p.title,
       },
     })),
@@ -207,14 +210,18 @@ export default function Paper() {
         source: p.id,
         target: paper.id,
         label: "cites",
+        type: "cites",
       },
     }))
   );
 
-  const refereeGraph = [{ data: { id: paper.id, label: paper.title } }].concat(
+  const refereeGraph = [
+    { data: { id: paper.id, label: paper.title, type: "paper" } },
+  ].concat(
     paper.referees.map((p) => ({
       data: {
         id: p.id,
+        type: "paper",
         label: p.title,
       },
     })),
@@ -223,6 +230,7 @@ export default function Paper() {
         source: paper.id,
         target: p.id,
         label: "cites",
+        type: "cites",
       },
     }))
   );

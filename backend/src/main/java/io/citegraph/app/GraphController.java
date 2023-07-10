@@ -212,17 +212,24 @@ public class GraphController {
     }
 
     @GetMapping("/graph/vertex/{vid}")
-    public Map<String, Object> getVertexById(@PathVariable String vid, @RequestParam int limit) {
-        return g.V(vid)
-            .project("self", "neighbors")
-            .by(__.elementMap())
-            .by(
-                __.bothE().limit(limit).as("edge")
-                    .otherV().as("vertex")
-                    .select("edge", "vertex")
-                    .by(__.elementMap())
-                    .fold()
-            ).next();
+    public Map<String, Object> getVertexById(@PathVariable String vid, @RequestParam int limit, @RequestParam boolean getEdges) {
+        if (getEdges) {
+            return g.V(vid)
+                .project("self", "neighbors")
+                .by(__.elementMap())
+                .by(
+                    __.bothE().limit(limit).as("edge")
+                        .otherV().as("vertex")
+                        .select("edge", "vertex")
+                        .by(__.elementMap())
+                        .fold()
+                ).next();
+        } else {
+            return g.V(vid)
+                .project("self")
+                .by(__.elementMap())
+                .next();
+        }
     }
 
     private void buildNameMap(Map<String, String> idNameMap, List<Vertex> authors) {

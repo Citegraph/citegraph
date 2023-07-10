@@ -5,8 +5,10 @@ import { resetLayout } from "../../common/layout";
 import { GraphPanel } from "../../common/graph";
 import React, { useEffect, useState } from "react";
 import { DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from "../../apis/commons";
+import { BulbTwoTone } from "@ant-design/icons";
 import {
   Breadcrumb,
+  Button,
   Descriptions,
   Divider,
   Tabs,
@@ -277,11 +279,12 @@ export default function Author() {
   }));
 
   const publicationGraph = [
-    { data: { id: author.id, label: author.name } },
+    { data: { id: author.id, label: author.name, type: "author" } },
   ].concat(
     author.papers.map((p) => ({
       data: {
         id: p.id,
+        type: "paper",
         label:
           p.title && p.title.length > 100
             ? p.title.substring(0, 100) + "..."
@@ -293,14 +296,18 @@ export default function Author() {
         source: author.id,
         target: p.id,
         label: "writes",
+        type: "writes",
       },
     }))
   );
 
-  const refererGraph = [{ data: { id: author.id, label: author.name } }].concat(
+  const refererGraph = [
+    { data: { id: author.id, label: author.name, type: "author" } },
+  ].concat(
     author.referers.map((p) => ({
       data: {
         id: p.author.id,
+        type: "author",
         label: p.author.name,
       },
     })),
@@ -309,14 +316,18 @@ export default function Author() {
         source: p.author.id,
         target: author.id,
         label: "cites",
+        type: "cites",
       },
     }))
   );
 
-  const refereeGraph = [{ data: { id: author.id, label: author.name } }].concat(
+  const refereeGraph = [
+    { data: { id: author.id, label: author.name, type: "author" } },
+  ].concat(
     author.referees.map((p) => ({
       data: {
         id: p.author.id,
+        type: "author",
         label: p.author.name,
       },
     })),
@@ -325,6 +336,7 @@ export default function Author() {
         source: author.id,
         target: p.author.id,
         label: "cites",
+        type: "cites",
       },
     }))
   );
@@ -428,7 +440,21 @@ export default function Author() {
         />
       </div>
       <div id="desc">
-        <Descriptions title="Author Info" layout="vertical">
+        <Descriptions
+          title="Author Info"
+          layout="vertical"
+          extra={
+            <a
+              href={"/visualizer/" + author.id}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Button icon={<BulbTwoTone />}>
+                Open Interactive Visualization
+              </Button>
+            </a>
+          }
+        >
           <Descriptions.Item label="Name">
             {author.name.toUpperCase()}
           </Descriptions.Item>

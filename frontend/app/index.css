@@ -116,6 +116,7 @@ form[action$="destroy"] button {
 }
 
 #footer {
+  padding: 0.8rem;
   margin-left: 22rem; /* This should be the same width as your sidebar */
   text-align: center;
 }
