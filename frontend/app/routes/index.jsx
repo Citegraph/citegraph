@@ -29,10 +29,10 @@ export default function Welcome() {
           <Text>Citegraph contains 16+ million authorship relationships</Text>
         </Card>
         <Card>
-          <Title level={4}>Author ---cites--&gt; Author relationships</Title>
+          <Title level={4}>Author ---refers--&gt; Author relationships</Title>
           <Text>
             Citegraph contains 224+ million author citation relationships. We
-            deduce the relationship that A cites B if A has ever (co)authored a
+            deduce the relationship that A refers B if A has ever authored a
             paper which cites another paper written by B. For example,{" "}
             <Link to={`/author/53f366a7dabfae4b3499c6fe`}>Geoffrey Hinton</Link>{" "}
             has ever cited 1.8k people, and more than 65k people have cited him.
