@@ -27,9 +27,10 @@ Run `DblpParser` to load the vertices and edges.
 You could run `AuthorRefEdgeLoader` Spark
 program to add edges between any two pair of authors if one has ever cited the other's works.
 
-### VertexCountRunner
+### VertexEdgeCountRunner
 
-You could run `VertexCountRunner` Spark program to count the number of vertices in the graph.
+You could run `VertexEdgeCountRunner` Spark program to count the number of vertices and edges
+by their types in the graph.
 
 ### VertexPropertyEnricher
 
@@ -37,6 +38,11 @@ You could run `VertexPropertyEnricher` to pre-compute some common traversals
 and store the results as vertex properties. `AuthorRefEdgeLoader` is the prerequisite
 of this program since it leverages the edges written by `AuthorRefEdgeLoader`. See
 JavaDoc to see more details.
+
+### CoworkerEdgeLoader
+
+You could run `CoworkerEdgeLoader` to add edges between any two pair of authors
+if they ever coauthored the same paper.
 
 ### SitemapGenerator
 

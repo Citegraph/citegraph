@@ -8,9 +8,10 @@ import org.apache.tinkerpop.gremlin.structure.util.GraphFactory;
 import static io.citegraph.data.spark.Utils.getSparkGraphConfig;
 
 /**
- * This Spark application counts number of vertices stored in the graph
+ * This Spark application counts number of vertices and edges stored in the graph
+ * by their types
  */
-public class VertexCountRunner {
+public class VertexEdgeCountRunner {
     public static void main(String[] args) throws Exception {
         Graph graph = GraphFactory.open(getSparkGraphConfig());
         GraphTraversalSource g = graph.traversal().withComputer(SparkGraphComputer.class);
