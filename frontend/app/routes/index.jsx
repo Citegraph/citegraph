@@ -14,7 +14,7 @@ export default function Welcome() {
           <Text>
             Citegraph is an open-source online visualizer of 5+ million papers,
             4+ million authors, and various relationships. In total, Citegraph
-            has 9.4 million vertices and 274 million edges. At the moment,
+            has 9.4 million vertices and 312 million edges. At the moment,
             Citegraph only has computer science bibliography.
           </Text>
         </Card>
@@ -36,6 +36,14 @@ export default function Welcome() {
             paper which cites another paper written by B. For example,{" "}
             <Link to={`/author/53f366a7dabfae4b3499c6fe`}>Geoffrey Hinton</Link>{" "}
             has ever cited 1.8k people, and more than 65k people have cited him.
+          </Text>
+        </Card>
+        <Card>
+          <Title level={4}>
+            Author ---collaborates with--&gt; Author relationships
+          </Title>
+          <Text>
+            Citegraph contains 37+ million author collaboration relationships.
           </Text>
         </Card>
       </Space>
