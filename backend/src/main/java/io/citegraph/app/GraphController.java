@@ -179,6 +179,9 @@ public class GraphController {
                 CitationResponse citationResponse = new CitationResponse(new AuthorResponse(refererName, refererId), refCount);
                 refererResponse.add(citationResponse);
             }
+
+            // TODO: finish this
+            // List<Edge> coauthors = g.V(author).bothE("")
             res.setReferees(refereeResponse);
             res.setReferers(refererResponse);
         }

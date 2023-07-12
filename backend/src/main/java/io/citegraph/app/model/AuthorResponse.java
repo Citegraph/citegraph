@@ -21,6 +21,9 @@ public class AuthorResponse {
     // authors that cite this author
     private List<CitationResponse> referers;
 
+    // authors that collaborate with this author
+    private List<AuthorResponse> coauthors;
+
     public AuthorResponse(String name, String id) {
         this.name = name;
         this.id = id;
@@ -124,5 +127,13 @@ public class AuthorResponse {
 
     public void setNumOfCoauthors(int numOfCoauthors) {
         this.numOfCoauthors = numOfCoauthors;
+    }
+
+    public List<AuthorResponse> getCoauthors() {
+        return coauthors;
+    }
+
+    public void setCoauthors(List<AuthorResponse> coauthors) {
+        this.coauthors = coauthors;
     }
 }
