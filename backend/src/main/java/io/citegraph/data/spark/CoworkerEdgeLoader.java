@@ -77,7 +77,7 @@ public class CoworkerEdgeLoader {
                             for (Vertex coworker : coworkers) {
                                 coworkerToCounter.put(coworker, coworkerToCounter.getOrDefault(coworker, 0) + 1);
                             }
-                            System.out.println("Author " + v.id() + " coworks with " + coworkers.size() + " authors, after dedup = " + coworkerToCounter.size());
+                            // System.out.println("Author " + v.id() + " coworks with " + coworkers.size() + " authors, after dedup = " + coworkerToCounter.size());
                             Vertex fromV = g.V(v.id()).next();
                             for (Map.Entry<Vertex, Integer> entry : coworkerToCounter.entrySet()) {
                                 if (!g.V(fromV).outE().where(__.otherV().is(entry.getKey())).hasNext()) {
