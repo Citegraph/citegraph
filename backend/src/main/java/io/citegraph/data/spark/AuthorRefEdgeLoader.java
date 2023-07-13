@@ -79,6 +79,7 @@ public class AuthorRefEdgeLoader {
                                 if (!g.V(fromV).outE().where(__.otherV().is(entry.getKey())).hasNext()) {
                                     g.addE("refers").from(fromV).to(entry.getKey())
                                         .property("refCount", entry.getValue())
+                                        // TODO: we shouldn't record this as edge prop
                                         .property("name", name)
                                         .next();
                                 }
