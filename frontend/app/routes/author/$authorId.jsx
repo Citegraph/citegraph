@@ -25,15 +25,7 @@ const { Text } = Typography;
 export async function loader({ params, request }) {
   const limit =
     new URL(request.url).searchParams.get("limit") || DEFAULT_SEARCH_LIMIT;
-  let author = {
-    name: "N/A",
-  };
-  try {
-    author = await getAuthor(params.authorId, limit);
-  } catch (error) {
-    // TODO: return 404
-    console.error("Failed to fetch author " + params.authorId, error);
-  }
+  const author = await getAuthor(params.authorId, limit);
   return { author };
 }
 

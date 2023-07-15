@@ -24,13 +24,7 @@ const { Text } = Typography;
 export async function loader({ request, params }) {
   const limit =
     new URL(request.url).searchParams.get("limit") || DEFAULT_SEARCH_LIMIT;
-  let paper = { title: "N/A" };
-  try {
-    paper = await getPaper(params.paperId, limit);
-  } catch (error) {
-    // TODO: return 404
-    console.error("Failed to fetch paper " + params.paperId, error);
-  }
+  const paper = await getPaper(params.paperId, limit);
   return { paper };
 }
 
