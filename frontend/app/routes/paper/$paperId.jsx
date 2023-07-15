@@ -24,7 +24,13 @@ const { Text } = Typography;
 export async function loader({ request, params }) {
   const limit =
     new URL(request.url).searchParams.get("limit") || DEFAULT_SEARCH_LIMIT;
-  const paper = await getPaper(params.paperId, limit);
+  let paper = { title: "N/A" };
+  try {
+    paper = await getPaper(params.paperId, limit);
+  } catch (error) {
+    // TODO: return 404
+    console.error("Failed to fetch paper " + params.paperId, error);
+  }
   return { paper };
 }
 
@@ -185,56 +191,70 @@ export default function Paper() {
     },
   ];
 
-  const referers = paper.referers.map((p) => ({
-    key: p.id,
-    title: p.title,
-    year: p.year,
-  }));
+  const referers =
+    paper && paper.referers
+      ? paper.referers.map((p) => ({
+          key: p.id,
+          title: p.title,
+          year: p.year,
+        }))
+      : [];
 
-  const referees = paper.referees.map((p) => ({
-    key: p.id,
-    title: p.title,
-    year: p.year,
-  }));
+  const referees =
+    paper && paper.referees
+      ? paper.referees.map((p) => ({
+          key: p.id,
+          title: p.title,
+          year: p.year,
+        }))
+      : [];
 
   const refererGraph = [
     { data: { id: paper.id, label: paper.title, type: "paper" } },
   ].concat(
-    paper.referers.map((p) => ({
-      data: {
-        id: p.id,
-        type: "paper",
-        label: p.title,
-      },
-    })),
-    paper.referers.map((p) => ({
-      data: {
-        source: p.id,
-        target: paper.id,
-        label: "cites",
-        type: "cites",
-      },
-    }))
+    paper && paper.referers
+      ? paper.referers.map((p) => ({
+          data: {
+            id: p.id,
+            type: "paper",
+            label: p.title,
+          },
+        }))
+      : [],
+    paper && paper.referers
+      ? paper.referers.map((p) => ({
+          data: {
+            source: p.id,
+            target: paper.id,
+            label: "cites",
+            type: "cites",
+          },
+        }))
+      : []
   );
 
   const refereeGraph = [
     { data: { id: paper.id, label: paper.title, type: "paper" } },
   ].concat(
-    paper.referees.map((p) => ({
-      data: {
-        id: p.id,
-        type: "paper",
-        label: p.title,
-      },
-    })),
-    paper.referees.map((p) => ({
-      data: {
-        source: paper.id,
-        target: p.id,
-        label: "cites",
-        type: "cites",
-      },
-    }))
+    paper && paper.referees
+      ? paper.referees.map((p) => ({
+          data: {
+            id: p.id,
+            type: "paper",
+            label: p.title,
+          },
+        }))
+      : [],
+    paper && paper.referees
+      ? paper.referees.map((p) => ({
+          data: {
+            source: paper.id,
+            target: p.id,
+            label: "cites",
+            type: "cites",
+          },
+        }))
+      : []
   );
 
   const tabs = [
@@ -329,14 +349,16 @@ export default function Paper() {
             {paper.numOfReferees}
           </Descriptions.Item>
           <Descriptions.Item label="Authors">
-            {paper.authors.map((author, index) => (
-              <span
-                key={index}
-                style={{ paddingLeft: index !== 0 ? "10px" : "0" }}
-              >
-                <Link to={`/author/${author.id}`}>{author.name}</Link>
-              </span>
-            ))}
+            {paper && paper.authors
+              ? paper.authors.map((author, index) => (
+                  <span
+                    key={index}
+                    style={{ paddingLeft: index !== 0 ? "10px" : "0" }}
+                  >
+                    <Link to={`/author/${author.id}`}>{author.name}</Link>
+                  </span>
+                ))
+              : []}
           </Descriptions.Item>
         </Descriptions>
       </div>

@@ -38,7 +38,12 @@ export const meta = () => {
 };
 
 export async function loader() {
-  const authors = await getHotAuthors();
+  let authors = [];
+  try {
+    authors = await getHotAuthors();
+  } catch (error) {
+    console.error("Failed to fetch popular authors", error);
+  }
   return { authors };
 }
 

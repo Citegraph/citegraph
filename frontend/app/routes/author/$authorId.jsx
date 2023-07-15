@@ -25,7 +25,15 @@ const { Text } = Typography;
 export async function loader({ params, request }) {
   const limit =
     new URL(request.url).searchParams.get("limit") || DEFAULT_SEARCH_LIMIT;
-  const author = await getAuthor(params.authorId, limit);
+  let author = {
+    name: "N/A",
+  };
+  try {
+    author = await getAuthor(params.authorId, limit);
+  } catch (error) {
+    // TODO: return 404
+    console.error("Failed to fetch author " + params.authorId, error);
+  }
   return { author };
 }
 
@@ -287,12 +295,15 @@ export default function Author() {
     },
   ];
 
-  const papers = author.papers.map((p) => ({
-    key: p.id,
-    title: p.title,
-    citations: p.numOfReferers,
-    year: p.year,
-  }));
+  const papers =
+    author && author.papers
+      ? author.papers.map((p) => ({
+          key: p.id,
+          title: p.title,
+          citations: p.numOfReferers,
+          year: p.year,
+        }))
+      : [];
 
   const authorCols = [
     {
@@ -313,105 +324,130 @@ export default function Author() {
     },
   ];
 
-  const coauthors = author.coauthors.map((p) => ({
-    key: p.author.id,
-    name: p.author.name,
-    count: p.count,
-  }));
+  const coauthors =
+    author && author.coauthors
+      ? author.coauthors.map((p) => ({
+          key: p.author.id,
+          name: p.author.name,
+          count: p.count,
+        }))
+      : [];
 
-  const referers = author.referers.map((p) => ({
-    key: p.author.id,
-    name: p.author.name,
-    count: p.count,
-  }));
+  const referers =
+    author && author.referers
+      ? author.referers.map((p) => ({
+          key: p.author.id,
+          name: p.author.name,
+          count: p.count,
+        }))
+      : [];
 
-  const referees = author.referees.map((p) => ({
-    key: p.author.id,
-    name: p.author.name,
-    count: p.count,
-  }));
+  const referees =
+    author && author.referees
+      ? author.referees.map((p) => ({
+          key: p.author.id,
+          name: p.author.name,
+          count: p.count,
+        }))
+      : [];
 
   const publicationGraph = [
     { data: { id: author.id, label: author.name, type: "author" } },
   ].concat(
-    author.papers.map((p) => ({
-      data: {
-        id: p.id,
-        type: "paper",
-        label:
-          p.title && p.title.length > 100
-            ? p.title.substring(0, 100) + "..."
-            : p.title,
-      },
-    })),
-    author.papers.map((p) => ({
-      data: {
-        source: author.id,
-        target: p.id,
-        label: "writes",
-        type: "writes",
-      },
-    }))
+    author && author.papers
+      ? author.papers.map((p) => ({
+          data: {
+            id: p.id,
+            type: "paper",
+            label:
+              p.title && p.title.length > 100
+                ? p.title.substring(0, 100) + "..."
+                : p.title,
+          },
+        }))
+      : [],
+    author && author.papers
+      ? author.papers.map((p) => ({
+          data: {
+            source: author.id,
+            target: p.id,
+            label: "writes",
+            type: "writes",
+          },
+        }))
+      : []
   );
 
   const coauthorGraph = [
     { data: { id: author.id, label: author.name, type: "author" } },
   ].concat(
-    author.coauthors.map((p) => ({
-      data: {
-        id: p.author.id,
-        type: "author",
-        label: p.author.name,
-      },
-    })),
-    author.coauthors.map((p) => ({
-      data: {
-        source: author.id,
-        target: p.author.id,
-        label: "collaborates",
-        type: "collaborates",
-      },
-    }))
+    author && author.coauthors
+      ? author.coauthors.map((p) => ({
+          data: {
+            id: p.author.id,
+            type: "author",
+            label: p.author.name,
+          },
+        }))
+      : [],
+    author && author.coauthors
+      ? author.coauthors.map((p) => ({
+          data: {
+            source: author.id,
+            target: p.author.id,
+            label: "collaborates",
+            type: "collaborates",
+          },
+        }))
+      : []
   );
 
   const refererGraph = [
     { data: { id: author.id, label: author.name, type: "author" } },
   ].concat(
-    author.referers.map((p) => ({
-      data: {
-        id: p.author.id,
-        type: "author",
-        label: p.author.name,
-      },
-    })),
-    author.referers.map((p) => ({
-      data: {
-        source: p.author.id,
-        target: author.id,
-        label: "cites",
-        type: "cites",
-      },
-    }))
+    author && author.referers
+      ? author.referers.map((p) => ({
+          data: {
+            id: p.author.id,
+            type: "author",
+            label: p.author.name,
+          },
+        }))
+      : [],
+    author && author.referers
+      ? author.referers.map((p) => ({
+          data: {
+            source: p.author.id,
+            target: author.id,
+            label: "cites",
+            type: "cites",
+          },
+        }))
+      : []
   );
 
   const refereeGraph = [
     { data: { id: author.id, label: author.name, type: "author" } },
   ].concat(
-    author.referees.map((p) => ({
-      data: {
-        id: p.author.id,
-        type: "author",
-        label: p.author.name,
-      },
-    })),
-    author.referees.map((p) => ({
-      data: {
-        source: author.id,
-        target: p.author.id,
-        label: "cites",
-        type: "cites",
-      },
-    }))
+    author && author.referees
+      ? author.referees.map((p) => ({
+          data: {
+            id: p.author.id,
+            type: "author",
+            label: p.author.name,
+          },
+        }))
+      : [],
+    author && author.referees
+      ? author.referees.map((p) => ({
+          data: {
+            source: author.id,
+            target: p.author.id,
+            label: "cites",
+            type: "cites",
+          },
+        }))
+      : []
   );
   const tabs = [
     {
