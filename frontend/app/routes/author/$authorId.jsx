@@ -49,17 +49,21 @@ export default function Author() {
   const [cyRefPub, setCyRefPub] = useState(null);
   const [cyRefReferer, setCyRefReferer] = useState(null);
   const [cyRefReferee, setCyRefReferee] = useState(null);
+  const [cyRefCoauthor, setCyRefCoauthor] = useState(null);
   const [selectedPub, setSelectedPub] = useState(null);
   const [selectedReferer, setSelectedReferer] = useState(null);
   const [selectedReferee, setSelectedReferee] = useState(null);
+  const [selectedCoauthor, setSelectedCoauthor] = useState(null);
 
   const resetGraph = () => {
     resetLayout(cyRefPub);
     resetLayout(cyRefReferer);
     resetLayout(cyRefReferee);
+    resetLayout(cyRefCoauthor);
     setSelectedPub(null);
     setSelectedReferer(null);
     setSelectedReferee(null);
+    setSelectedCoauthor(null);
   };
 
   const onLimitChange = (newValue) => {
@@ -113,6 +117,49 @@ export default function Author() {
       };
     }
   }, [cyRefPub, selectedPub]);
+
+  useEffect(() => {
+    if (cyRefCoauthor) {
+      const nodeHandler = async (event) => {
+        const target = event.target;
+        if (
+          (selectedCoauthor && selectedCoauthor.id === target.data().id) ||
+          author.id === target.data().id
+        ) {
+          setSelectedCoauthor(null);
+        } else {
+          try {
+            const data = await getAuthor(
+              target.data().id,
+              DEFAULT_SEARCH_LIMIT,
+              false
+            );
+            setSelectedCoauthor(data);
+          } catch (error) {
+            console.error("Failed to fetch author data", error);
+          }
+        }
+      };
+      const canvasHandler = (event) => {
+        if (event.target === cyRefCoauthor) {
+          // If the canvas was clicked, "unselect" any selected node
+          setSelectedCoauthor(null);
+        }
+      };
+      const edgeHandler = () => {
+        // if an edge is clicked, unselect any selected node
+        setSelectedCoauthor(null);
+      };
+      cyRefCoauthor.on("tap", "node", nodeHandler);
+      cyRefCoauthor.on("tap", "edge", edgeHandler);
+      cyRefCoauthor.on("tap", canvasHandler);
+      return () => {
+        cyRefCoauthor.off("tap", "node", nodeHandler);
+        cyRefCoauthor.off("tap", "edge", edgeHandler);
+        cyRefCoauthor.off("tap", canvasHandler);
+      };
+    }
+  }, [cyRefCoauthor, selectedCoauthor]);
 
   useEffect(() => {
     if (cyRefReferer) {
@@ -266,6 +313,12 @@ export default function Author() {
     },
   ];
 
+  const coauthors = author.coauthors.map((p) => ({
+    key: p.author.id,
+    name: p.author.name,
+    count: p.count,
+  }));
+
   const referers = author.referers.map((p) => ({
     key: p.author.id,
     name: p.author.name,
@@ -297,6 +350,26 @@ export default function Author() {
         target: p.id,
         label: "writes",
         type: "writes",
+      },
+    }))
+  );
+
+  const coauthorGraph = [
+    { data: { id: author.id, label: author.name, type: "author" } },
+  ].concat(
+    author.coauthors.map((p) => ({
+      data: {
+        id: p.author.id,
+        type: "author",
+        label: p.author.name,
+      },
+    })),
+    author.coauthors.map((p) => ({
+      data: {
+        source: author.id,
+        target: p.author.id,
+        label: "collaborates",
+        type: "collaborates",
       },
     }))
   );
@@ -362,6 +435,29 @@ export default function Author() {
     },
     {
       key: "2",
+      label: `Collaborators (${(coauthors && coauthors.length) || 0} rows)`,
+      children:
+        coauthors && coauthors.length > 0 ? (
+          <div>
+            <GraphPanel
+              activeKey={activeKey}
+              setActiveKey={setActiveKey}
+              setCyRef={setCyRefCoauthor}
+              graphElements={coauthorGraph}
+              selectedNode={selectedCoauthor}
+            />
+            <Table
+              columns={authorCols}
+              dataSource={coauthors}
+              loading={loading}
+            />
+          </div>
+        ) : (
+          "N/A"
+        ),
+    },
+    {
+      key: "3",
       label: `Referers (${(referers && referers.length) || 0} rows)`,
       children:
         referers && referers.length > 0 ? (
@@ -384,7 +480,7 @@ export default function Author() {
         ),
     },
     {
-      key: "3",
+      key: "4",
       label: `Referees (${(referees && referees.length) || 0} rows)`,
       children:
         referees && referees.length > 0 ? (
@@ -413,6 +509,7 @@ export default function Author() {
     Math.max(
       author.numOfPapers || 0,
       author.numOfReferees || 0,
+      author.numOfCoauthors || 0,
       author.numOfReferers || 0
     )
   );
