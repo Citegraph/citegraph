@@ -1,20 +1,20 @@
 package io.citegraph.app.model;
 
 public class CollaborationResponse {
-    private AuthorResponse coworker;
+    private AuthorResponse author;
     private int count;
 
-    public CollaborationResponse(AuthorResponse coworker, int count) {
-        this.coworker = coworker;
+    public CollaborationResponse(AuthorResponse author, int count) {
+        this.author = author;
         this.count = count;
     }
 
-    public AuthorResponse getCoworker() {
-        return coworker;
+    public AuthorResponse getAuthor() {
+        return author;
     }
 
-    public void setCoworker(AuthorResponse coworker) {
-        this.coworker = coworker;
+    public void setAuthor(AuthorResponse author) {
+        this.author = author;
     }
 
     public int getCount() {
