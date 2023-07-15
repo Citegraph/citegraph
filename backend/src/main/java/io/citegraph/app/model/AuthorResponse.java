@@ -22,7 +22,7 @@ public class AuthorResponse {
     private List<CitationResponse> referers;
 
     // authors that collaborate with this author
-    private List<AuthorResponse> coauthors;
+    private List<CollaborationResponse> coauthors;
 
     public AuthorResponse(String name, String id) {
         this.name = name;
@@ -129,11 +129,11 @@ public class AuthorResponse {
         this.numOfCoauthors = numOfCoauthors;
     }
 
-    public List<AuthorResponse> getCoauthors() {
+    public List<CollaborationResponse> getCoauthors() {
         return coauthors;
     }
 
-    public void setCoauthors(List<AuthorResponse> coauthors) {
+    public void setCoauthors(List<CollaborationResponse> coauthors) {
         this.coauthors = coauthors;
     }
 }

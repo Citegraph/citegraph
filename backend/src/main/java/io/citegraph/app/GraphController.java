@@ -3,6 +3,7 @@ package io.citegraph.app;
 import com.github.benmanes.caffeine.cache.Cache;
 import io.citegraph.app.model.AuthorResponse;
 import io.citegraph.app.model.CitationResponse;
+import io.citegraph.app.model.CollaborationResponse;
 import io.citegraph.app.model.PaperResponse;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
@@ -157,11 +158,14 @@ public class GraphController {
             res.setPapers(papers);
 
             Map<String, String> idNameMap = new HashMap<>();
-            buildNameMap(idNameMap, g.V(author).out("refers").limit(limit).toList());
-            buildNameMap(idNameMap, g.V(author).in("refers").limit(limit).toList());
+            buildNameMap(idNameMap, g.V(author).union(
+                __.out("refers").limit(limit),
+                __.in("refers").limit(limit),
+                __.both("collaborates").limit(limit)
+            ).toList());
 
             List<Edge> referees = g.V(author).outE("refers").limit(limit).toList();
-            List<CitationResponse> refereeResponse = new ArrayList<>();
+            List<CitationResponse> refereeResponse = new ArrayList<>(referees.size());
             for (Edge referee : referees) {
                 int refCount = (Integer) g.E(referee).values("refCount").next();
                 String refereeId = (String) referee.inVertex().id();
@@ -171,7 +175,7 @@ public class GraphController {
             }
 
             List<Edge> referers = g.V(author).inE("refers").limit(limit).toList();
-            List<CitationResponse> refererResponse = new ArrayList<>();
+            List<CitationResponse> refererResponse = new ArrayList<>(referers.size());
             for (Edge referer : referers) {
                 int refCount = (Integer) g.E(referer).values("refCount").tryNext().orElse(1);
                 String refererId = (String) referer.outVertex().id();
@@ -180,10 +184,20 @@ public class GraphController {
                 refererResponse.add(citationResponse);
             }
 
-            // TODO: finish this
-            // List<Edge> coauthors = g.V(author).bothE("")
+            List<Edge> coauthors = g.V(author).bothE("collaborates").limit(limit).toList();
+            List<CollaborationResponse> coauthorResponse = new ArrayList<>(coauthors.size());
+            for (Edge edge : coauthors) {
+                int collaborationCount = (Integer) g.E(edge).values("collaborateCount").tryNext().orElse(1);
+                Vertex otherVertex = edge.outVertex().equals(author) ? edge.inVertex() : edge.outVertex();
+                String coauthorId = (String) otherVertex.id();
+                String coauthorName = idNameMap.get(coauthorId);
+                CollaborationResponse collaborationResponse = new CollaborationResponse(new AuthorResponse(coauthorName, coauthorId), collaborationCount);
+                coauthorResponse.add(collaborationResponse);
+            }
+
             res.setReferees(refereeResponse);
             res.setReferers(refererResponse);
+            res.setCoauthors(coauthorResponse);
         }
 
         return res;

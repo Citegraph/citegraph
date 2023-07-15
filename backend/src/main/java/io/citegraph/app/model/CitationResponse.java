@@ -1,7 +1,5 @@
 package io.citegraph.app.model;
 
-import io.citegraph.data.model.Author;
-
 public class CitationResponse {
     // depends on the context, this might be referer or referee
     private AuthorResponse author;
