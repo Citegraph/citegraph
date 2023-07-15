@@ -111,7 +111,7 @@ export default function Graph() {
         <Breadcrumb
           items={[
             {
-              title: "Home",
+              title: <Link to="/">Home</Link>,
             },
             {
               title: "Visualization",

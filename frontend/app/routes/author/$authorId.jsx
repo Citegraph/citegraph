@@ -525,7 +525,7 @@ export default function Author() {
         <Breadcrumb
           items={[
             {
-              title: "Home",
+              title: <Link to="/">Home</Link>,
             },
             {
               title: "Author",

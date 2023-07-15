@@ -294,7 +294,7 @@ export default function Paper() {
         <Breadcrumb
           items={[
             {
-              title: "Home",
+              title: <Link to="/">Home</Link>,
             },
             {
               title: "Paper",
