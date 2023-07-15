@@ -29,6 +29,10 @@ import static io.citegraph.app.GraphConfiguration.GRAPH_CONFIG_NAME;
 import static io.citegraph.data.spark.Utils.getSparkGraphConfig;
 import static org.apache.tinkerpop.gremlin.process.traversal.P.neq;
 
+/**
+ * Draw an edge between two authors if they every coauthored the
+ * same paper. This Spark program is idempotent.
+ */
 public class CoworkerEdgeLoader {
     public static void main(String[] args) {
         SparkConf sparkConf = new SparkConf().setAppName("Spark Graph")
@@ -63,7 +67,6 @@ public class CoworkerEdgeLoader {
                             GraphTraversalSource g = finalGraph.traversal();
                             StarGraph.StarVertex v = vertexWritable.get();
                             if (!Objects.equals(v.value("type"), "author")) return;
-                            String name = v.value("name");
                             List<Vertex> coworkers = g.V(v.id()).as("start")
                                 .out("writes")
                                 .in("writes")
@@ -77,7 +80,7 @@ public class CoworkerEdgeLoader {
                             // System.out.println("Author " + v.id() + " coworks with " + coworkers.size() + " authors, after dedup = " + coworkerToCounter.size());
                             Vertex fromV = g.V(v.id()).next();
                             for (Map.Entry<Vertex, Integer> entry : coworkerToCounter.entrySet()) {
-                                if (!g.V(fromV).bothE().where(__.otherV().is(entry.getKey())).hasNext()) {
+                                if (!g.V(fromV).bothE("collaborates").where(__.otherV().is(entry.getKey())).hasNext()) {
                                     g.addE("collaborates").from(fromV).to(entry.getKey())
                                         .property("collaborateCount", entry.getValue())
                                         .next();
