@@ -36,7 +36,7 @@ export function AuthorInfoPanel({ author }) {
           {author.numOfPaperReferers}
         </Descriptions.Item>
         <Descriptions.Item label="Referers" span={3}>
-          {author.numOfAuthorReferers}
+          {author.numOfReferers || author.numOfAuthorReferers}
         </Descriptions.Item>
       </Descriptions>
     </div>
