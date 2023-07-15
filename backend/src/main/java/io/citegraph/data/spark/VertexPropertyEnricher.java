@@ -77,6 +77,7 @@ public class VertexPropertyEnricher {
                                 long numOfPaperReferers = g.V(v).out("writes").in("cites").count().next();
                                 long numOfAuthorReferees = g.V(v).out("refers").count().next();
                                 long numOfAuthorReferers = g.V(v).in("refers").count().next();
+                                // FIXME: this does not exclude the author themself
                                 long numOfCoworkers = g.V(v).out("writes").in("writes").dedup().count().next();
                                 long numOfPapers = g.V(v).out("writes").count().next();
                                 g.V(v).property("numOfPaperReferees", numOfPaperReferees)
