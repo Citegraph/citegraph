@@ -235,10 +235,24 @@ public class GraphController {
                 .project("self", "neighbors")
                 .by(__.elementMap())
                 .by(
-                    __.bothE().limit(limit).as("edge")
-                        .otherV().as("vertex")
-                        .select("edge", "vertex")
-                        .by(__.elementMap())
+                    __.union(
+                            __.bothE("collaborates").limit(limit).as("edge")
+                                .otherV().as("vertex")
+                                .select("edge", "vertex")
+                                .by(__.elementMap()),
+                            __.bothE("cites").limit(limit).as("edge")
+                                .otherV().as("vertex")
+                                .select("edge", "vertex")
+                                .by(__.elementMap()),
+                            __.bothE("refers").limit(limit).as("edge")
+                                .otherV().as("vertex")
+                                .select("edge", "vertex")
+                                .by(__.elementMap()),
+                            __.bothE("writes").limit(limit).as("edge")
+                                .otherV().as("vertex")
+                                .select("edge", "vertex")
+                                .by(__.elementMap())
+                        )
                         .fold()
                 ).next();
         } else {
