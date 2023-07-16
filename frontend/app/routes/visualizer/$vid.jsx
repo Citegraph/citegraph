@@ -4,7 +4,15 @@ import React, { useState, useEffect } from "react";
 import { getVertex } from "../../apis/graph";
 import { resetLayout } from "../../common/layout";
 import { GraphContainer } from "../../common/graph";
-import { Breadcrumb, Row, Col, Slider, Spin, InputNumber } from "antd";
+import {
+  Breadcrumb,
+  Checkbox,
+  Row,
+  Col,
+  Slider,
+  Spin,
+  InputNumber,
+} from "antd";
 
 export async function loader({ params, request }) {
   const limit =
@@ -35,7 +43,15 @@ export default function Graph() {
   const fetcher = useFetcher();
   const initialData = useLoaderData().vertex;
   const [vertex, setVertex] = useState(initialData);
-
+  const [checked, setChecked] = useState([
+    "Publications",
+    "Collaborators",
+    "Referers",
+    "Referees",
+    "Authors",
+    "Cited by",
+    "References",
+  ]);
   const [limitValue, setLimitValue] = useState(DEFAULT_SEARCH_LIMIT);
   const [loading, setLoading] = useState(false);
   const [cyRef, setCyRef] = useState(null);
@@ -105,6 +121,25 @@ export default function Graph() {
     }
   }, [cyRef, selected]);
 
+  const isAuthor = vertex.self.numOfPapers > 0;
+  const neighbors = vertex.neighbors.filter((elem) => {
+    if (elem.edge.label == "collaborates") {
+      return checked.includes("Collaborators");
+    } else if (elem.edge.label == "writes") {
+      return isAuthor
+        ? checked.includes("Publications")
+        : checked.includes("Authors");
+    } else if (elem.edge.label == "cites") {
+      return elem.edge.OUT.id == vertex.self.id
+        ? checked.includes("References")
+        : checked.includes("Cited by");
+    } else if (elem.edge.label == "refers") {
+      return elem.edge.OUT.id == vertex.self.id
+        ? checked.includes("Referees")
+        : checked.includes("Referers");
+    }
+  });
+
   const elements = [
     {
       data: {
@@ -114,21 +149,38 @@ export default function Graph() {
       },
     },
   ].concat(
-    vertex.neighbors.map((elem) => ({
+    neighbors.map((elem) => ({
       data: {
         id: elem.vertex.id,
         label: getVertexName(elem.vertex),
         type: elem.vertex.type,
       },
     })),
-    vertex.neighbors.map((elem) => ({
-      data: {
-        source: elem.edge.OUT.id,
-        target: elem.edge.IN.id,
-        label: elem.edge.label,
-        type: elem.edge.label,
-      },
-    }))
+    neighbors.map((elem) => {
+      // collaborates edges are treated as undirectional
+      if (elem.edge.label == "collaborates") {
+        return {
+          data: {
+            source: vertex.self.id,
+            target:
+              elem.edge.OUT.id == vertex.self.id
+                ? elem.edge.IN.id
+                : elem.edge.OUT.id,
+            label: elem.edge.label,
+            type: elem.edge.label,
+          },
+        };
+      } else {
+        return {
+          data: {
+            source: elem.edge.OUT.id,
+            target: elem.edge.IN.id,
+            label: elem.edge.label,
+            type: elem.edge.label,
+          },
+        };
+      }
+    })
   );
 
   const maxSearchLimit = Math.min(
@@ -143,11 +195,62 @@ export default function Graph() {
     )
   );
 
-  const sliderMarks = {
-    [0]: 0,
-    [DEFAULT_SEARCH_LIMIT]: DEFAULT_SEARCH_LIMIT,
-    [maxSearchLimit]: maxSearchLimit,
+  const cappedLimitValue = Math.min(maxSearchLimit, limitValue);
+
+  const sliderMarks =
+    maxSearchLimit > DEFAULT_SEARCH_LIMIT
+      ? {
+          [0]: 0,
+          [DEFAULT_SEARCH_LIMIT]: DEFAULT_SEARCH_LIMIT,
+          [maxSearchLimit]: maxSearchLimit,
+        }
+      : {
+          [0]: 0,
+          [maxSearchLimit]: maxSearchLimit,
+        };
+
+  const checkBoxOnChange = (checkedValues) => {
+    setChecked(checkedValues);
+    resetGraph();
   };
+
+  const checkBoxDefaultValues = isAuthor
+    ? ["Publications", "Collaborators", "Referers", "Referees"]
+    : ["Authors", "Cited by", "References"];
+
+  const checkBoxOptions = isAuthor
+    ? [
+        {
+          label: "Publications",
+          value: "Publications",
+        },
+        {
+          label: "Collaborators",
+          value: "Collaborators",
+        },
+        {
+          label: "Referers",
+          value: "Referers",
+        },
+        {
+          label: "Referees",
+          value: "Referees",
+        },
+      ]
+    : [
+        {
+          label: "Authors",
+          value: "Authors",
+        },
+        {
+          label: "Cited by",
+          value: "Cited by",
+        },
+        {
+          label: "References",
+          value: "References",
+        },
+      ];
 
   return (
     <div id="vertex">
@@ -170,39 +273,44 @@ export default function Graph() {
           ]}
         />
       </div>
-      {maxSearchLimit > DEFAULT_SEARCH_LIMIT && (
-        <div id="searchLimitConfig">
-          <Row>
-            <Col span={8}>
-              <Slider
-                min={0}
-                max={maxSearchLimit}
-                defaultValue={DEFAULT_SEARCH_LIMIT}
-                marks={sliderMarks}
-                onChange={onLimitChange}
-                disabled={fetcher.state !== "idle"}
-                step={100}
-                value={
-                  typeof limitValue === "number"
-                    ? limitValue
-                    : DEFAULT_SEARCH_LIMIT
-                }
-              />
-            </Col>
-            <Col span={4}>
-              <InputNumber
-                min={0}
-                max={maxSearchLimit}
-                style={{ margin: "0 16px" }}
-                value={limitValue}
-                disabled={fetcher.state !== "idle"}
-                onChange={onLimitChange}
-                step={100}
-              />
-            </Col>
-          </Row>
-        </div>
-      )}
+      <div id="searchLimitConfig">
+        <Row>
+          <Col span={8}>
+            <Slider
+              min={0}
+              max={maxSearchLimit}
+              defaultValue={DEFAULT_SEARCH_LIMIT}
+              marks={sliderMarks}
+              onChange={onLimitChange}
+              disabled={fetcher.state !== "idle"}
+              step={10}
+              value={
+                typeof cappedLimitValue === "number"
+                  ? limitValue
+                  : DEFAULT_SEARCH_LIMIT
+              }
+            />
+          </Col>
+          <Col span={4}>
+            <InputNumber
+              min={0}
+              max={maxSearchLimit}
+              style={{ margin: "0 16px" }}
+              value={cappedLimitValue}
+              disabled={fetcher.state !== "idle"}
+              onChange={onLimitChange}
+              step={10}
+            />
+          </Col>
+          <Col span={8}>
+            <Checkbox.Group
+              options={checkBoxOptions}
+              defaultValue={checkBoxDefaultValues}
+              onChange={checkBoxOnChange}
+            />
+          </Col>
+        </Row>
+      </div>
 
       {loading ? (
         <div
