@@ -244,7 +244,11 @@ public class GraphController {
                                 .otherV().as("vertex")
                                 .select("edge", "vertex")
                                 .by(__.elementMap()),
-                            __.bothE("refers").limit(limit).as("edge")
+                            __.outE("refers").limit(limit).as("edge")
+                                .otherV().as("vertex")
+                                .select("edge", "vertex")
+                                .by(__.elementMap()),
+                            __.inE("refers").limit(limit).as("edge")
                                 .otherV().as("vertex")
                                 .select("edge", "vertex")
                                 .by(__.elementMap()),
