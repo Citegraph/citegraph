@@ -1,13 +1,15 @@
-import { Link, useLoaderData } from "@remix-run/react";
-import { DEFAULT_SEARCH_LIMIT } from "../../apis/commons";
+import { Link, useLoaderData, useFetcher } from "@remix-run/react";
+import { DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from "../../apis/commons";
 import React, { useState, useEffect } from "react";
 import { getVertex } from "../../apis/graph";
 import { resetLayout } from "../../common/layout";
 import { GraphContainer } from "../../common/graph";
-import { Breadcrumb } from "antd";
+import { Breadcrumb, Row, Col, Slider, Spin, InputNumber } from "antd";
 
-export async function loader({ params }) {
-  const vertex = await getVertex(params.vid, DEFAULT_SEARCH_LIMIT);
+export async function loader({ params, request }) {
+  const limit =
+    new URL(request.url).searchParams.get("limit") || DEFAULT_SEARCH_LIMIT;
+  const vertex = await getVertex(params.vid, limit);
   return { vertex };
 }
 
@@ -30,14 +32,38 @@ export const meta = ({ data }) => {
 };
 
 export default function Graph() {
-  const vertex = useLoaderData().vertex;
+  const fetcher = useFetcher();
+  const initialData = useLoaderData().vertex;
+  const [vertex, setVertex] = useState(initialData);
 
+  const [limitValue, setLimitValue] = useState(DEFAULT_SEARCH_LIMIT);
+  const [loading, setLoading] = useState(false);
   const [cyRef, setCyRef] = useState(null);
   const [selected, setSelected] = useState(null);
 
   const resetGraph = () => {
-    resetLayout(setCyRef);
+    resetLayout(cyRef);
+    setSelected(null);
   };
+
+  const onLimitChange = (newValue) => {
+    if (fetcher.state === "idle") {
+      setLimitValue(newValue);
+      setLoading(true);
+      fetcher.load(
+        `/visualizer/${vertex.self.id}?limit=${newValue}&getEdges=true`
+      );
+    }
+  };
+
+  // invoked when search limit changed
+  useEffect(() => {
+    if (fetcher.data) {
+      setVertex(fetcher.data.vertex);
+      setLoading(false);
+      resetGraph();
+    }
+  }, [fetcher.data, setLoading]);
 
   useEffect(() => {
     if (cyRef) {
@@ -105,6 +131,24 @@ export default function Graph() {
     }))
   );
 
+  const maxSearchLimit = Math.min(
+    MAX_SEARCH_LIMIT,
+    Math.max(
+      vertex.self.numOfPaperReferees || 0,
+      vertex.self.numOfPaperReferers || 0,
+      vertex.self.numOfAuthorReferees || 0,
+      vertex.self.numOfAuthorReferers || 0,
+      vertex.self.numOfCoworkers || 0,
+      vertex.self.numOfPapers || 0
+    )
+  );
+
+  const sliderMarks = {
+    [0]: 0,
+    [DEFAULT_SEARCH_LIMIT]: DEFAULT_SEARCH_LIMIT,
+    [maxSearchLimit]: maxSearchLimit,
+  };
+
   return (
     <div id="vertex">
       <div id="navigation">
@@ -126,12 +170,59 @@ export default function Graph() {
           ]}
         />
       </div>
-      <GraphContainer
-        setCyRef={setCyRef}
-        graphElements={elements}
-        selectedNode={selected}
-        height="800px"
-      />
+      {maxSearchLimit > DEFAULT_SEARCH_LIMIT && (
+        <div id="searchLimitConfig">
+          <Row>
+            <Col span={8}>
+              <Slider
+                min={0}
+                max={maxSearchLimit}
+                defaultValue={DEFAULT_SEARCH_LIMIT}
+                marks={sliderMarks}
+                onChange={onLimitChange}
+                disabled={fetcher.state !== "idle"}
+                step={100}
+                value={
+                  typeof limitValue === "number"
+                    ? limitValue
+                    : DEFAULT_SEARCH_LIMIT
+                }
+              />
+            </Col>
+            <Col span={4}>
+              <InputNumber
+                min={0}
+                max={maxSearchLimit}
+                style={{ margin: "0 16px" }}
+                value={limitValue}
+                disabled={fetcher.state !== "idle"}
+                onChange={onLimitChange}
+                step={100}
+              />
+            </Col>
+          </Row>
+        </div>
+      )}
+
+      {loading ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "800px",
+          }}
+        >
+          <Spin size="large" />
+        </div>
+      ) : (
+        <GraphContainer
+          setCyRef={setCyRef}
+          graphElements={elements}
+          selectedNode={selected}
+          height={"800px"}
+        />
+      )}
     </div>
   );
 }
