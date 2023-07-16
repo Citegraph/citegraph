@@ -240,7 +240,11 @@ public class GraphController {
                                 .otherV().as("vertex")
                                 .select("edge", "vertex")
                                 .by(__.elementMap()),
-                            __.bothE("cites").limit(limit).as("edge")
+                            __.outE("cites").limit(limit).as("edge")
+                                .otherV().as("vertex")
+                                .select("edge", "vertex")
+                                .by(__.elementMap()),
+                            __.inE("cites").limit(limit).as("edge")
                                 .otherV().as("vertex")
                                 .select("edge", "vertex")
                                 .by(__.elementMap()),
