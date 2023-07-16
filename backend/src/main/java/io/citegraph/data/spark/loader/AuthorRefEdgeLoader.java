@@ -1,4 +1,4 @@
-package io.citegraph.data.spark;
+package io.citegraph.data.spark.loader;
 
 import io.citegraph.data.GraphInitializer;
 import org.apache.commons.configuration2.Configuration;
@@ -27,13 +27,8 @@ import java.util.Objects;
 
 import static io.citegraph.app.GraphConfiguration.GRAPH_CONFIG_NAME;
 import static io.citegraph.data.spark.Utils.getSparkGraphConfig;
-import static org.apache.tinkerpop.gremlin.process.traversal.P.neq;
 
-/**
- * Draw an edge between two authors if they every coauthored the
- * same paper. This Spark program is idempotent.
- */
-public class CoworkerEdgeLoader {
+public class AuthorRefEdgeLoader {
     public static void main(String[] args) {
         SparkConf sparkConf = new SparkConf().setAppName("Spark Graph")
             .set(SparkLauncher.SPARK_MASTER, "local[*]")
@@ -67,22 +62,25 @@ public class CoworkerEdgeLoader {
                             GraphTraversalSource g = finalGraph.traversal();
                             StarGraph.StarVertex v = vertexWritable.get();
                             if (!Objects.equals(v.value("type"), "author")) return;
-                            List<Vertex> coworkers = g.V(v.id()).as("start")
-                                .out("writes")
-                                .in("writes")
-                                .where(neq("start")) // exclude start vertex itself
-                                .toList();
-                            if (coworkers.isEmpty()) return;
-                            Map<Vertex, Integer> coworkerToCounter = new HashMap<>();
-                            for (Vertex coworker : coworkers) {
-                                coworkerToCounter.put(coworker, coworkerToCounter.getOrDefault(coworker, 0) + 1);
+                            if (g.V(v).outE("refers").limit(1).hasNext()) {
+                                // already processed, skip (don't do this if the graph has been updated)
+                                return;
                             }
-                            // System.out.println("Author " + v.id() + " coworks with " + coworkers.size() + " authors, after dedup = " + coworkerToCounter.size());
+                            String name = v.value("name");
+                            List<Vertex> referees = g.V(v.id()).out("writes").out("cites").in("writes").toList();
+                            if (referees.isEmpty()) return;
+                            Map<Vertex, Integer> refereeToCounter = new HashMap<>();
+                            for (Vertex referee : referees) {
+                                refereeToCounter.put(referee, refereeToCounter.getOrDefault(referee, 0) + 1);
+                            }
+                            // System.out.println("Author " + v.id() + " cites " + referees.size() + " authors, after dedup = " + refereeToCounter.size());
                             Vertex fromV = g.V(v.id()).next();
-                            for (Map.Entry<Vertex, Integer> entry : coworkerToCounter.entrySet()) {
-                                if (!g.V(fromV).bothE("collaborates").where(__.otherV().is(entry.getKey())).hasNext()) {
-                                    g.addE("collaborates").from(fromV).to(entry.getKey())
-                                        .property("collaborateCount", entry.getValue())
+                            for (Map.Entry<Vertex, Integer> entry : refereeToCounter.entrySet()) {
+                                if (!g.V(fromV).outE().where(__.otherV().is(entry.getKey())).hasNext()) {
+                                    g.addE("refers").from(fromV).to(entry.getKey())
+                                        .property("refCount", entry.getValue())
+                                        // TODO: we shouldn't record this as edge prop
+                                        .property("name", name)
                                         .next();
                                 }
                             }

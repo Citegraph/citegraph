@@ -1,11 +1,11 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="VertexPropertyEnricher" type="Application" factoryName="Application" nameIsGenerated="true">
-    <option name="MAIN_CLASS_NAME" value="io.citegraph.data.spark.VertexPropertyEnricher" />
+    <option name="MAIN_CLASS_NAME" value="io.citegraph.data.spark.loader.VertexPropertyEnricher" />
     <module name="app" />
     <option name="VM_PARAMETERS" value="-DJANUSGRAPH_RELATION_DELIMITER=@" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="io.citegraph.data.spark.*" />
+        <option name="PATTERN" value="io.citegraph.data.spark.olap.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>

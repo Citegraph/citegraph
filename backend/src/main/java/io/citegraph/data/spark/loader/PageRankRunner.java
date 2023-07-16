@@ -1,4 +1,4 @@
-package io.citegraph.data.spark;
+package io.citegraph.data.spark.loader;
 
 import org.apache.tinkerpop.gremlin.process.computer.ComputerResult;
 import org.apache.tinkerpop.gremlin.process.computer.ranking.pagerank.PageRankVertexProgram;

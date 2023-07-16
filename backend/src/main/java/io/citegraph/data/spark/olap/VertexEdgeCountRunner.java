@@ -1,4 +1,4 @@
-package io.citegraph.data.spark;
+package io.citegraph.data.spark.olap;
 
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.spark.process.computer.SparkGraphComputer;
