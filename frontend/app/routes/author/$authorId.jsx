@@ -587,7 +587,8 @@ export default function Author() {
             {author.numOfPapers}
           </Descriptions.Item>
           <Descriptions.Item label="Collaborators">
-            {author.numOfCoauthors}
+            {/* Due to a bug in numOfCoauthors ingestion, we wrongly counted author themself, so we need to subtract one here */}
+            {Math.max(author.numOfCoauthors - 1, 0)}
           </Descriptions.Item>
           <Descriptions.Item label="Citations">
             {author.numOfPaperReferers}
