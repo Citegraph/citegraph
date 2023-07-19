@@ -570,9 +570,7 @@ export default function Author() {
               target="_blank"
               rel="noreferrer"
             >
-              <Button icon={<BulbTwoTone />}>
-                Open Interactive Visualization
-              </Button>
+              <Button icon={<BulbTwoTone />}>Open Visualization</Button>
             </a>
           }
         >
