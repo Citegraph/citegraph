@@ -362,6 +362,10 @@ i {
   height: 600px;
 }
 
+.footer-component {
+  display: none;
+}
+
 @media (min-width: 768px) {
   .graph-container {
     flex-direction: row; /* Put the info panel to the side on desktop */
@@ -375,5 +379,9 @@ i {
 
   .cytoscape-component {
     width: calc(100% - 200px);
+  }
+
+  .footer-component {
+    display: block;
   }
 }

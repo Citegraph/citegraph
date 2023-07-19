@@ -205,7 +205,7 @@ export default function Root() {
             <div id="detail">
               <Outlet />
             </div>
-            <Footer id="footer">
+            <Footer id="footer" className="footer-component">
               CiteGraph is open-sourced on{" "}
               <a
                 href="https://github.com/li-boxuan/citegraph"
