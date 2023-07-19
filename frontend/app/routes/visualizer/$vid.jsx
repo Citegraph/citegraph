@@ -275,7 +275,7 @@ export default function Graph() {
       </div>
       <div id="searchLimitConfig">
         <Row>
-          <Col span={8}>
+          <Col xs={24} md={8} style={{ marginRight: "16px" }}>
             <Slider
               min={0}
               max={maxSearchLimit}
@@ -291,18 +291,17 @@ export default function Graph() {
               }
             />
           </Col>
-          <Col span={4}>
+          <Col xs={0} md={4}>
             <InputNumber
               min={0}
               max={maxSearchLimit}
-              style={{ margin: "0 16px" }}
               value={cappedLimitValue}
               disabled={fetcher.state !== "idle"}
               onChange={onLimitChange}
               step={10}
             />
           </Col>
-          <Col span={8}>
+          <Col xs={24} md={8}>
             <Checkbox.Group
               options={checkBoxOptions}
               defaultValue={checkBoxDefaultValues}
