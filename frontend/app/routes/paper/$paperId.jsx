@@ -3,7 +3,11 @@ import { getPaper } from "../../apis/papers";
 import React, { useEffect, useState } from "react";
 import { resetLayout } from "../../common/layout";
 import { GraphPanel } from "../../common/graph";
-import { DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from "../../apis/commons";
+import {
+  DEFAULT_SEARCH_LIMIT,
+  MAX_SEARCH_LIMIT,
+  getEntity,
+} from "../../apis/commons";
 import { BulbTwoTone } from "@ant-design/icons";
 import {
   Breadcrumb,
@@ -69,21 +73,19 @@ export default function Paper() {
     if (cyRefReferer) {
       const nodeHandler = async (event) => {
         const target = event.target;
-        if (
-          (selectedReferer && selectedReferer.id === target.data().id) ||
-          paper.id === target.data().id
-        ) {
+        if (selectedReferer && selectedReferer.id === target.data().id) {
           setSelectedReferer(null);
         } else {
           try {
-            const data = await getPaper(
+            const data = await getEntity(
               target.data().id,
               DEFAULT_SEARCH_LIMIT,
+              target.data().type == "author",
               false
             );
             setSelectedReferer(data);
           } catch (error) {
-            console.error("Failed to fetch author data", error);
+            console.error("Failed to fetch data on referer tab", error);
           }
         }
       };
@@ -112,21 +114,19 @@ export default function Paper() {
     if (cyRefReferee) {
       const nodeHandler = async (event) => {
         const target = event.target;
-        if (
-          (selectedReferee && selectedReferee.id === target.data().id) ||
-          paper.id === target.data().id
-        ) {
+        if (selectedReferee && selectedReferee.id === target.data().id) {
           setSelectedReferee(null);
         } else {
           try {
-            const data = await getPaper(
+            const data = await getEntity(
               target.data().id,
               DEFAULT_SEARCH_LIMIT,
+              target.data().type == "author",
               false
             );
             setSelectedReferee(data);
           } catch (error) {
-            console.error("Failed to fetch author data", error);
+            console.error("Failed to fetch data on referee tab", error);
           }
         }
       };

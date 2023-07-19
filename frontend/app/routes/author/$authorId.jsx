@@ -4,7 +4,11 @@ import { getPaper } from "../../apis/papers";
 import { resetLayout } from "../../common/layout";
 import { GraphPanel } from "../../common/graph";
 import React, { useEffect, useState } from "react";
-import { DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from "../../apis/commons";
+import {
+  DEFAULT_SEARCH_LIMIT,
+  MAX_SEARCH_LIMIT,
+  getEntity,
+} from "../../apis/commons";
 import { BulbTwoTone } from "@ant-design/icons";
 import {
   Breadcrumb,
@@ -79,21 +83,19 @@ export default function Author() {
     if (cyRefPub) {
       const nodeHandler = async (event) => {
         const target = event.target;
-        if (
-          (selectedPub && selectedPub.id === target.data().id) ||
-          author.id === target.data().id
-        ) {
+        if (selectedPub && selectedPub.id === target.data().id) {
           setSelectedPub(null);
         } else {
           try {
-            const data = await getPaper(
+            const data = await getEntity(
               target.data().id,
               DEFAULT_SEARCH_LIMIT,
+              target.data().type == "author",
               false
             );
             setSelectedPub(data);
           } catch (error) {
-            console.error("Failed to fetch paper data", error);
+            console.error("Failed to fetch data on publication tab", error);
           }
         }
       };
@@ -122,21 +124,19 @@ export default function Author() {
     if (cyRefCoauthor) {
       const nodeHandler = async (event) => {
         const target = event.target;
-        if (
-          (selectedCoauthor && selectedCoauthor.id === target.data().id) ||
-          author.id === target.data().id
-        ) {
+        if (selectedCoauthor && selectedCoauthor.id === target.data().id) {
           setSelectedCoauthor(null);
         } else {
           try {
-            const data = await getAuthor(
+            const data = await getEntity(
               target.data().id,
               DEFAULT_SEARCH_LIMIT,
+              target.data().type == "author",
               false
             );
             setSelectedCoauthor(data);
           } catch (error) {
-            console.error("Failed to fetch author data", error);
+            console.error("Failed to fetch data on coauthor tab", error);
           }
         }
       };
@@ -165,21 +165,19 @@ export default function Author() {
     if (cyRefReferer) {
       const nodeHandler = async (event) => {
         const target = event.target;
-        if (
-          (selectedReferer && selectedReferer.id === target.data().id) ||
-          author.id === target.data().id
-        ) {
+        if (selectedReferer && selectedReferer.id === target.data().id) {
           setSelectedReferer(null);
         } else {
           try {
-            const data = await getAuthor(
+            const data = await getEntity(
               target.data().id,
               DEFAULT_SEARCH_LIMIT,
+              target.data().type == "author",
               false
             );
             setSelectedReferer(data);
           } catch (error) {
-            console.error("Failed to fetch author data", error);
+            console.error("Failed to fetch data on referer tab", error);
           }
         }
       };
@@ -208,21 +206,19 @@ export default function Author() {
     if (cyRefReferee) {
       const nodeHandler = async (event) => {
         const target = event.target;
-        if (
-          (selectedReferee && selectedReferee.id === target.data().id) ||
-          author.id === target.data().id
-        ) {
+        if (selectedReferee && selectedReferee.id === target.data().id) {
           setSelectedReferee(null);
         } else {
           try {
-            const data = await getAuthor(
+            const data = await getEntity(
               target.data().id,
               DEFAULT_SEARCH_LIMIT,
+              target.data().type == "author",
               false
             );
             setSelectedReferee(data);
           } catch (error) {
-            console.error("Failed to fetch author data", error);
+            console.error("Failed to fetch data on referee tab", error);
           }
         }
       };
