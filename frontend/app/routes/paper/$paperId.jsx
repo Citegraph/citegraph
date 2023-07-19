@@ -336,6 +336,7 @@ export default function Paper() {
           }
         >
           <Descriptions.Item label="Title">{paper.title}</Descriptions.Item>
+          <Descriptions.Item label="Year">{paper.year}</Descriptions.Item>
           <Descriptions.Item label="Citations">
             {paper.numOfReferers}
           </Descriptions.Item>
