@@ -178,6 +178,12 @@ export default function Paper() {
       render: (text, record) => <Link to={"/paper/" + record.key}>{text}</Link>,
     },
     {
+      title: "Citations",
+      dataIndex: "citations",
+      sorter: (a, b) => a.citations - b.citations,
+      sortDirections: ["descend", "ascend", "descend"],
+    },
+    {
       title: "Year",
       dataIndex: "year",
       sorter: (a, b) => a.year - b.year,
@@ -191,6 +197,7 @@ export default function Paper() {
       ? paper.referers.map((p) => ({
           key: p.id,
           title: p.title,
+          citations: p.numOfReferers,
           year: p.year,
         }))
       : [];
@@ -200,6 +207,7 @@ export default function Paper() {
       ? paper.referees.map((p) => ({
           key: p.id,
           title: p.title,
+          citations: p.numOfReferers,
           year: p.year,
         }))
       : [];
