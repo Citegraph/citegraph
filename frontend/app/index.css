@@ -382,4 +382,8 @@ i {
   .footer-component {
     display: none;
   }
+
+  .ant-tabs-nav {
+    overflow-x: auto;
+  }
 }
