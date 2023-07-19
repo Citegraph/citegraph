@@ -88,19 +88,29 @@ public class GraphController {
         if (getEdges) {
             List<PaperResponse> referees = g.V(paper).out("cites").limit(limit).toList()
                 .stream()
-                .map(v -> new PaperResponse(
-                    (String) v.id(),
-                    (String) g.V(v).values("title").next(),
-                    (Integer) g.V(v).values("year").next()))
+                .map(v -> {
+                    Map<Object, Object> props = g.V(v).elementMap().next();
+                    return new PaperResponse(
+                        (String) v.id(),
+                        (String) props.getOrDefault("title", "N/A"),
+                        (Integer) props.getOrDefault("year", "N/A"),
+                        (Integer) props.getOrDefault("numOfPaperReferees", 0),
+                        (Integer) props.getOrDefault("numOfPaperReferers", 0));
+                })
                 .collect(Collectors.toList());
             paperResponse.setReferees(referees);
 
             List<PaperResponse> referers = g.V(paper).in("cites").limit(limit).toList()
                 .stream()
-                .map(v -> new PaperResponse(
-                    (String) v.id(),
-                    (String) g.V(v).values("title").next(),
-                    (Integer) g.V(v).values("year").next()))
+                .map(v -> {
+                    Map<Object, Object> props = g.V(v).elementMap().next();
+                    return new PaperResponse(
+                        (String) v.id(),
+                        (String) props.getOrDefault("title", "N/A"),
+                        (Integer) props.getOrDefault("year", "N/A"),
+                        (Integer) props.getOrDefault("numOfPaperReferees", 0),
+                        (Integer) props.getOrDefault("numOfPaperReferers", 0));
+                })
                 .collect(Collectors.toList());
             paperResponse.setReferers(referers);
         }
