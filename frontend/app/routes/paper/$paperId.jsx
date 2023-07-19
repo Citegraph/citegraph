@@ -16,6 +16,7 @@ import {
   Divider,
   Tabs,
   Typography,
+  Tooltip,
   Table,
   Col,
   InputNumber,
@@ -338,10 +339,16 @@ export default function Paper() {
           <Descriptions.Item label="Title">{paper.title}</Descriptions.Item>
           <Descriptions.Item label="Year">{paper.year}</Descriptions.Item>
           <Descriptions.Item label="Citations">
-            {paper.numOfReferers}
+            <Tooltip title={`Cited by ${paper.numOfReferers} papers`}>
+              {paper.numOfReferers}
+            </Tooltip>
           </Descriptions.Item>
-          <Descriptions.Item label="References (which the paper has cited)">
-            {paper.numOfReferees}
+          <Descriptions.Item label="References">
+            <Tooltip
+              title={`This paper has cited ${paper.numOfReferees} papers`}
+            >
+              {paper.numOfReferees}
+            </Tooltip>
           </Descriptions.Item>
           <Descriptions.Item label="Authors">
             {paper && paper.authors

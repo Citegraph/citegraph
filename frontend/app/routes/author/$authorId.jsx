@@ -1,6 +1,5 @@
 import { Link, useLoaderData, useFetcher } from "@remix-run/react";
 import { getAuthor } from "../../apis/authors";
-import { getPaper } from "../../apis/papers";
 import { resetLayout } from "../../common/layout";
 import { GraphPanel } from "../../common/graph";
 import React, { useEffect, useState } from "react";
@@ -16,6 +15,7 @@ import {
   Descriptions,
   Divider,
   Tabs,
+  Tooltip,
   Typography,
   Table,
   Col,
@@ -587,16 +587,28 @@ export default function Author() {
             {Math.max(author.numOfCoauthors - 1, 0)}
           </Descriptions.Item>
           <Descriptions.Item label="Citations">
-            {author.numOfPaperReferers}
+            <Tooltip title={`Cited by ${author.numOfPaperReferers} papers`}>
+              {author.numOfPaperReferers}
+            </Tooltip>
           </Descriptions.Item>
-          <Descriptions.Item label="Referers (who have cited the author)">
-            {author.numOfReferers}
+          <Descriptions.Item label="Referers">
+            <Tooltip title={`Cited by ${author.numOfReferers} people`}>
+              {author.numOfReferers}
+            </Tooltip>
           </Descriptions.Item>
-          <Descriptions.Item label="Referees (whom the author has cited)">
-            {author.numOfReferees}
+          <Descriptions.Item label="Referees">
+            <Tooltip
+              title={`This author has cited ${author.numOfReferees} people`}
+            >
+              {author.numOfReferees}
+            </Tooltip>
           </Descriptions.Item>
-          <Descriptions.Item label="References (papers the author has cited)">
-            {author.numOfPaperReferees}
+          <Descriptions.Item label="References">
+            <Tooltip
+              title={`This author has cited ${author.numOfPaperReferees} papers`}
+            >
+              {author.numOfPaperReferees}
+            </Tooltip>
           </Descriptions.Item>
         </Descriptions>
       </div>
