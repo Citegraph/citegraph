@@ -109,11 +109,21 @@ form[action$="destroy"] button {
 
 #detail {
   margin-left: 22rem; /* This should be the same width as your sidebar */
+  padding: 2rem 4rem;
   max-width: calc(100vw - 22rem);
   overflow-x: hidden; 
-  background-color: inherit;
+  background-color: #fff;
   box-sizing: border-box;
+  flex: 1;
+  width: 100%;
 }
+
+#detail.loading {
+  opacity: 0.25;
+  transition: opacity 200ms;
+  transition-delay: 200ms;
+}
+
 
 #footer {
   padding: 0.8rem;
@@ -163,6 +173,7 @@ form[action$="destroy"] button {
 @media screen and (max-width: 768px) {
   #detail {
     margin-left: 0;
+    padding: 2rem 1rem;
     max-width: 100vw;
   }
 
@@ -297,19 +308,6 @@ i {
   color: hsl(224, 98%, 58%);
 }
 
-#detail {
-  flex: 1;
-  padding: 2rem 4rem;
-  width: 100%;
-  background-color: #fff;
-}
-
-#detail.loading {
-  opacity: 0.25;
-  transition: opacity 200ms;
-  transition-delay: 200ms;
-}
-
 #navigation {
   margin-bottom: 2rem;
 }
@@ -348,7 +346,7 @@ i {
 
 .graph-container {
   display: flex;
-  flex-direction: column; /* Put the Author Info panel at the bottom on mobile */
+  flex-direction: column-reverse; /* Put the Author Info panel at the top on mobile */
   align-items: stretch; /* Stretch the children to take up the full width on mobile */
 }
 
@@ -361,6 +359,7 @@ i {
 
 .cytoscape-component {
   width: 100%;
+  height: 600px;
 }
 
 @media (min-width: 768px) {
