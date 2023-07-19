@@ -12,10 +12,10 @@ export function PaperInfoPanel({ paper }) {
           {paper.year}
         </Descriptions.Item>
         <Descriptions.Item label="Citations" span={3}>
-          {paper.numOfReferers || paper.numOfPaperReferers}
+          {paper.numOfReferers || paper.numOfPaperReferers || 0}
         </Descriptions.Item>
         <Descriptions.Item label="References">
-          {paper.numOfReferees || paper.numOfPaperReferees}
+          {paper.numOfReferees || paper.numOfPaperReferees || 0}
         </Descriptions.Item>
       </Descriptions>
     </div>
@@ -30,13 +30,13 @@ export function AuthorInfoPanel({ author }) {
           <Link to={"/author/" + author.id}>{author.name}</Link>
         </Descriptions.Item>
         <Descriptions.Item label="Collaborators" span={3}>
-          {author.numOfCoauthors || author.numOfCoworkers}
+          {author.numOfCoauthors || author.numOfCoworkers || 0}
         </Descriptions.Item>
         <Descriptions.Item label="Citations" span={3}>
-          {author.numOfPaperReferers}
+          {author.numOfPaperReferers || 0}
         </Descriptions.Item>
         <Descriptions.Item label="Referers" span={3}>
-          {author.numOfReferers || author.numOfAuthorReferers}
+          {author.numOfReferers || author.numOfAuthorReferers || 0}
         </Descriptions.Item>
       </Descriptions>
     </div>
