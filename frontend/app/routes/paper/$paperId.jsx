@@ -375,7 +375,7 @@ export default function Paper() {
         <div id="searchLimitConfig">
           <Text>Search Limit</Text>
           <Row>
-            <Col span={8}>
+            <Col xs={24} md={8}>
               <Slider
                 min={DEFAULT_SEARCH_LIMIT}
                 max={maxSearchLimit}
@@ -391,7 +391,7 @@ export default function Paper() {
                 }
               />
             </Col>
-            <Col span={4}>
+            <Col xs={0} md={4}>
               <InputNumber
                 min={DEFAULT_SEARCH_LIMIT}
                 max={maxSearchLimit}
