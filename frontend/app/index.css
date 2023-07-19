@@ -348,12 +348,33 @@ i {
 
 .graph-container {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column; /* Put the Author Info panel at the bottom on mobile */
+  align-items: stretch; /* Stretch the children to take up the full width on mobile */
 }
 
 .node-info-panel {
-  width: 200px; /* Adjust width as necessary */
+  width: 100%; /* Full width on mobile */
   padding: 20px;
-  border-left: 1px solid #ddd; /* Optional: add a border between the graph and the panel */
-  overflow-y: auto; /* Optional: add scrolling if the panel content becomes too tall */
+  border-top: 1px solid #ddd; /* Border at the top on mobile */
+  overflow-y: auto;
+}
+
+.cytoscape-component {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .graph-container {
+    flex-direction: row; /* Put the info panel to the side on desktop */
+  }
+
+  .node-info-panel {
+    width: 200px; /* Adjust width as necessary */
+    border-left: 1px solid #ddd; /* Border on the left on desktop */
+    border-top: none; /* Remove the border at the top on desktop */
+  }
+
+  .cytoscape-component {
+    width: calc(100% - 200px);
+  }
 }

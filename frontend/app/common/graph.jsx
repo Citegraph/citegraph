@@ -50,7 +50,8 @@ export function GraphContainer({
         layout={DEFAULT_LAYOUT}
         minZoom={0.1}
         maxZoom={2}
-        style={{ width: "calc(100% - 200px)", height: h }}
+        className="cytoscape-component"
+        style={{ height: h }}
       />
       {selectedNode &&
         (selectedNode.name ? (
