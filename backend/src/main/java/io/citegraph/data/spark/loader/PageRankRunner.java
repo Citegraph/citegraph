@@ -1,15 +1,20 @@
 package io.citegraph.data.spark.loader;
 
+import org.apache.commons.configuration2.Configuration;
+import org.apache.spark.launcher.SparkLauncher;
+import org.apache.tinkerpop.gremlin.hadoop.Constants;
+import org.apache.tinkerpop.gremlin.hadoop.structure.io.graphson.GraphSONOutputFormat;
 import org.apache.tinkerpop.gremlin.process.computer.ComputerResult;
+import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
 import org.apache.tinkerpop.gremlin.process.computer.ranking.pagerank.PageRankVertexProgram;
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.spark.process.computer.SparkGraphComputer;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.util.GraphFactory;
 
 import static io.citegraph.data.spark.Utils.getSparkGraphConfig;
-import static org.apache.tinkerpop.gremlin.process.traversal.AnonymousTraversalSource.traversal;
+import static org.apache.tinkerpop.gremlin.hadoop.Constants.GREMLIN_HADOOP_GRAPH_WRITER;
+import static org.apache.tinkerpop.gremlin.hadoop.Constants.GREMLIN_HADOOP_OUTPUT_LOCATION;
 
 /**
  * This Spark application runs page rank algorithm to calculate
@@ -19,12 +24,22 @@ import static org.apache.tinkerpop.gremlin.process.traversal.AnonymousTraversalS
  */
 public class PageRankRunner {
     public static void main(String[] args) throws Exception {
-        Graph graph = GraphFactory.open(getSparkGraphConfig());
+        Configuration sparkGraphConfiguration = getSparkGraphConfig();
+        sparkGraphConfiguration.setProperty(Constants.GREMLIN_SPARK_GRAPH_STORAGE_LEVEL, "DISK_ONLY");
+        sparkGraphConfiguration.setProperty(GREMLIN_HADOOP_GRAPH_WRITER, GraphSONOutputFormat.class.getCanonicalName());
+        sparkGraphConfiguration.setProperty(GREMLIN_HADOOP_OUTPUT_LOCATION, "/Users/liboxuan/workspace/sparkgraph/");
+        sparkGraphConfiguration.setProperty(SparkLauncher.EXECUTOR_MEMORY, "1g");
+        Graph graph = GraphFactory.open(sparkGraphConfiguration);
+
         long startTime = System.currentTimeMillis();
-        ComputerResult result = graph.compute(SparkGraphComputer.class).program(
-            PageRankVertexProgram.build().edges(__.outE("refers").asAdmin()).create()
-        ).submit().get();
-        GraphTraversalSource g = traversal().withEmbedded(result.graph());
+        ComputerResult result = graph.compute(SparkGraphComputer.class)
+            .vertices(__.has("type", "paper"))
+            .persist(GraphComputer.Persist.VERTEX_PROPERTIES)
+            .program(PageRankVertexProgram.build()
+                .edges(__.outE("cites").asAdmin())
+                .create())
+            .submit()
+            .get();
         long duration = (System.currentTimeMillis() - startTime) / 1000;
         System.out.println("finished PageRank computation, elapsed time = " + duration + " seconds.");
         graph.close();
