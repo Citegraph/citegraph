@@ -397,15 +397,18 @@ public final class SparkGraphComputer extends AbstractHadoopGraphComputer {
                         JavaPairRDD<Object, ViewIncomingPayload<Object>> viewIncomingRDD = null;
                         memory.broadcastMemory(sparkContext);
                         // execute the vertex program
+                        int iteration = 0;
                         while (true) {
                             if (Thread.interrupted()) {
                                 sparkContext.cancelAllJobs();
                                 throw new TraversalInterruptedException();
                             }
                             memory.setInExecute(true);
-                            logger.info("###### READY TO START VERTEX PROGRAM ######");
+                            logger.info("###### ITER {}: READY TO START VERTEX PROGRAM ######", iteration);
                             viewIncomingRDD = SparkExecutor.executeVertexProgramIteration(loadedGraphRDD, viewIncomingRDD, memory, graphComputerConfiguration, vertexProgramConfiguration);
-                            logger.info("###### FINISH ITERATION OF VERTEX PROGRAM ######");
+                            viewIncomingRDD.persist(StorageLevel.fromString(hadoopConfiguration.get(GREMLIN_SPARK_GRAPH_STORAGE_LEVEL, "MEMORY_ONLY")));
+                            logger.info("###### ITER {}: FINISH ITERATION OF VERTEX PROGRAM ######", iteration);
+                            iteration++;
                             memory.setInExecute(false);
                             if (this.vertexProgram.terminate(memory))
                                 break;
