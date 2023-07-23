@@ -1,15 +1,23 @@
 package io.citegraph.data.spark.loader;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.citegraph.data.GraphInitializer;
 import io.citegraph.data.model.GraphSONVertex;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
+import org.janusgraph.core.JanusGraph;
+import org.janusgraph.core.JanusGraphFactory;
 
 import java.io.IOException;
+import java.net.URL;
+
+import static io.citegraph.app.GraphConfiguration.GRAPH_CONFIG_NAME;
 
 /**
  * Read GraphSON files and load specified property to the graph
+ * For now, it's only used to load pagerank property
  */
 public class GraphSONVertexPropertyLoader {
 
@@ -32,17 +40,42 @@ public class GraphSONVertexPropertyLoader {
             }
         });
 
+        // pageranks are normalized so that they sum up to 1.
+        // Multiply page rank by data count so that average pagerank becomes 1.
+        long multiplyFactor = data.count();
+
+        URL resource = GraphInitializer.class.getClassLoader().getResource(GRAPH_CONFIG_NAME);
+
         data.foreachPartition(partition -> {
             // open JG instance
+            JanusGraph graph;
+            try {
+                graph = JanusGraphFactory.open(resource.toURI().getPath());
+            } catch (Exception ex) {
+                System.out.println(ex);
+                return;
+            }
+
+            JanusGraph finalGraph = graph;
             partition.forEachRemaining(vertex -> {
-                String vid = vertex.getId();
-                double pagerank = vertex.getProperties().getPageRank().get(0).getValue().getValue();
-                if (pagerank > 1e-4) {
-                    System.out.println("########## vid: " + vid + ", pagerank: " + pagerank);
+                for (int i = 0; i < 3; i++) {
+                    try {
+                        String vid = vertex.getId();
+                        double pagerank = vertex.getProperties().getPageRank().get(0).getValue().getValue() * multiplyFactor;
+                        GraphTraversalSource g = finalGraph.traversal();
+                        if (g.V(vid).values("pagerank").hasNext()) {
+                            return;
+                        }
+                        g.V(vid).property("pagerank", pagerank).next();
+                        g.tx().commit();
+                        return;
+                    } catch (Exception ex) {
+                        System.out.println("Commit failed, retry count = " + i);
+                    }
                 }
             });
+            System.out.println("Partition finished");
+            graph.close();
         });
-
-        System.out.println("number of vertices: " + data.count());
     }
 }

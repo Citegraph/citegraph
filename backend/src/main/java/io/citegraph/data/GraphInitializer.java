@@ -33,6 +33,8 @@ public class GraphInitializer {
             mgmt.makePropertyKey("numOfCoworkers").dataType(Integer.class).make();
         if (mgmt.getPropertyKey("numOfPapers") == null)
             mgmt.makePropertyKey("numOfPapers").dataType(Integer.class).make();
+        if (mgmt.getPropertyKey("pagerank") == null)
+            mgmt.makePropertyKey("pagerank").dataType(Double.class).make();
         PropertyKey name = mgmt.getPropertyKey("name");
         if (name == null)
             name = mgmt.makePropertyKey("name").dataType(String.class).make();

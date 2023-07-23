@@ -37,7 +37,7 @@ public class GraphSONVertex {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Properties {
 
-        @JsonProperty("gremlin.pageRankVertexProgram.pageRank")
+        @JsonProperty("pagerank")
         private List<PageRank> pageRank;
 
         // Getters and setters
