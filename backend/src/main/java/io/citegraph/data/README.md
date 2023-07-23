@@ -32,12 +32,19 @@ program to add edges between any two pair of authors if one has ever cited the o
 You could run `VertexEdgeCountRunner` Spark program to count the number of vertices and edges
 by their types in the graph.
 
+### PageRankRunner
+
+You could run `PageRankRunner` Spark program to calculate the pageranks of papers. It generates
+pagerank values and dumps them into a specified folder in GraphSON format. You could then use
+`GraphSONVertexPropertyLoader` to read those files and load them into graph.
+
 ### VertexPropertyEnricher
 
 You could run `VertexPropertyEnricher` to pre-compute some common traversals
 and store the results as vertex properties. `AuthorRefEdgeLoader` is the prerequisite
-of this program since it leverages the edges written by `AuthorRefEdgeLoader`. See
-JavaDoc to see more details.
+of this program since it leverages the edges written by `AuthorRefEdgeLoader`.
+`PageRankRunner` is also a prerequisite since it leverages the pageranks of paper
+nodes to calculate pageranks of author nodes. See JavaDoc to see more details.
 
 ### CoworkerEdgeLoader
 

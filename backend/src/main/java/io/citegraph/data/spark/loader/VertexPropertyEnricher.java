@@ -37,6 +37,7 @@ import static io.citegraph.data.spark.Utils.getSparkGraphConfig;
  * 4) numOfAuthorReferers: How many authors have cited the current paper/author
  * 5) numOfCoworkers: How many authors the current author has collaborated with
  * 6) numOfPapers: How many papers the current author has written
+ * 7) pagerank: Pagerank of an author is sum of pagerank of its papers
  */
 public class VertexPropertyEnricher {
     public static void main(String[] args) {
@@ -77,14 +78,16 @@ public class VertexPropertyEnricher {
                                 long numOfPaperReferers = g.V(v).out("writes").in("cites").count().next();
                                 long numOfAuthorReferees = g.V(v).out("refers").count().next();
                                 long numOfAuthorReferers = g.V(v).in("refers").count().next();
-                                // FIXME: this does not exclude the author themself
-                                long numOfCoworkers = g.V(v).out("writes").in("writes").dedup().count().next();
+                                long numOfCoworkers = Math.max(0, g.V(v).out("writes").in("writes").dedup().count().next() - 1);
+                                double pagerank = (Double) g.V(v).out("writes").values("pagerank").sum().next();
                                 long numOfPapers = g.V(v).out("writes").count().next();
-                                g.V(v).property("numOfPaperReferees", numOfPaperReferees)
+                                g.V(v)
+                                    .property("numOfPaperReferees", numOfPaperReferees)
                                     .property("numOfPaperReferers", numOfPaperReferers)
                                     .property("numOfAuthorReferees", numOfAuthorReferees)
                                     .property("numOfAuthorReferers", numOfAuthorReferers)
                                     .property("numOfCoworkers", numOfCoworkers)
+                                    .property("pagerank", pagerank)
                                     .property("numOfPapers", numOfPapers)
                                     .next();
                             } else if (Objects.equals(v.value("type"), "paper")) {
