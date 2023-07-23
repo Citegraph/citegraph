@@ -581,8 +581,7 @@ export default function Author() {
             {author.numOfPapers}
           </Descriptions.Item>
           <Descriptions.Item label="Collaborators">
-            {/* Due to a bug in numOfCoauthors ingestion, we wrongly counted author themself, so we need to subtract one here */}
-            {Math.max(author.numOfCoauthors - 1, 0)}
+            {author.numOfCoauthors}
           </Descriptions.Item>
           <Descriptions.Item label="Citations">
             <Tooltip title={`Cited by ${author.numOfPaperReferers} papers`}>
