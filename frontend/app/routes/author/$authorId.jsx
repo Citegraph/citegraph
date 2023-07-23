@@ -8,7 +8,7 @@ import {
   MAX_SEARCH_LIMIT,
   getEntity,
 } from "../../apis/commons";
-import { BulbTwoTone } from "@ant-design/icons";
+import { BulbTwoTone, InfoCircleOutlined } from "@ant-design/icons";
 import {
   Breadcrumb,
   Button,
@@ -599,34 +599,69 @@ export default function Author() {
           <Descriptions.Item label="Collaborators">
             {author.numOfCoauthors}
           </Descriptions.Item>
-          <Descriptions.Item label="Citations">
-            <Tooltip title={`Cited by ${author.numOfPaperReferers} papers`}>
-              {author.numOfPaperReferers}
-            </Tooltip>
+          <Descriptions.Item
+            label={
+              <span>
+                Citations&nbsp;
+                <Tooltip title={`Cited by ${author.numOfPaperReferers} papers`}>
+                  <InfoCircleOutlined />
+                </Tooltip>
+              </span>
+            }
+          >
+            {author.numOfPaperReferers}
           </Descriptions.Item>
-          <Descriptions.Item label="PageRank">
-            <Tooltip title={`Sum of pageranks of this author's papers`}>
-              {author.pagerank.toFixed(2)}
-            </Tooltip>
+          <Descriptions.Item
+            label={
+              <span>
+                PageRank&nbsp;
+                <Tooltip title={`Sum of pageranks of this author's papers`}>
+                  <InfoCircleOutlined />
+                </Tooltip>
+              </span>
+            }
+          >
+            {author.pagerank.toFixed(2)}
           </Descriptions.Item>
-          <Descriptions.Item label="Referers">
-            <Tooltip title={`Cited by ${author.numOfReferers} people`}>
-              {author.numOfReferers}
-            </Tooltip>
+          <Descriptions.Item
+            label={
+              <span>
+                Referers&nbsp;
+                <Tooltip title={`Cited by ${author.numOfReferers} people`}>
+                  <InfoCircleOutlined />
+                </Tooltip>
+              </span>
+            }
+          >
+            {author.numOfReferers}
           </Descriptions.Item>
-          <Descriptions.Item label="Referees">
-            <Tooltip
-              title={`This author has cited ${author.numOfReferees} people`}
-            >
-              {author.numOfReferees}
-            </Tooltip>
+          <Descriptions.Item
+            label={
+              <span>
+                Referees&nbsp;
+                <Tooltip
+                  title={`This author has cited ${author.numOfReferees} people`}
+                >
+                  <InfoCircleOutlined />
+                </Tooltip>
+              </span>
+            }
+          >
+            {author.numOfReferees}
           </Descriptions.Item>
-          <Descriptions.Item label="References">
-            <Tooltip
-              title={`This author has cited ${author.numOfPaperReferees} papers`}
-            >
-              {author.numOfPaperReferees}
-            </Tooltip>
+          <Descriptions.Item
+            label={
+              <span>
+                References&nbsp;
+                <Tooltip
+                  title={`This author has cited ${author.numOfPaperReferees} papers`}
+                >
+                  <InfoCircleOutlined />
+                </Tooltip>
+              </span>
+            }
+          >
+            {author.numOfPaperReferees}
           </Descriptions.Item>
         </Descriptions>
       </div>

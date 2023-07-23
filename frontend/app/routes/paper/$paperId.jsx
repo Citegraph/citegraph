@@ -8,7 +8,7 @@ import {
   MAX_SEARCH_LIMIT,
   getEntity,
 } from "../../apis/commons";
-import { BulbTwoTone } from "@ant-design/icons";
+import { BulbTwoTone, InfoCircleOutlined } from "@ant-design/icons";
 import {
   Breadcrumb,
   Button,
@@ -352,20 +352,45 @@ export default function Paper() {
         >
           <Descriptions.Item label="Title">{paper.title}</Descriptions.Item>
           <Descriptions.Item label="Year">{paper.year}</Descriptions.Item>
-          <Descriptions.Item label="Citations">
-            <Tooltip title={`Cited by ${paper.numOfReferers} papers`}>
-              {paper.numOfReferers}
-            </Tooltip>
+          <Descriptions.Item
+            label={
+              <span>
+                Citations&nbsp;
+                <Tooltip title={`Cited by ${paper.numOfReferers} papers`}>
+                  <InfoCircleOutlined />
+                </Tooltip>
+              </span>
+            }
+          >
+            {paper.numOfReferers}
           </Descriptions.Item>
-          <Descriptions.Item label="PageRank">
+          <Descriptions.Item
+            label={
+              <span>
+                PageRank&nbsp;
+                <Tooltip
+                  title={`Calculated based on citation edges using PageRank algorithm (average value: 1.0)`}
+                >
+                  <InfoCircleOutlined />
+                </Tooltip>
+              </span>
+            }
+          >
             {paper.pagerank.toFixed(2)}
           </Descriptions.Item>
-          <Descriptions.Item label="References">
-            <Tooltip
-              title={`This paper has cited ${paper.numOfReferees} papers`}
-            >
-              {paper.numOfReferees}
-            </Tooltip>
+          <Descriptions.Item
+            label={
+              <span>
+                References&nbsp;
+                <Tooltip
+                  title={`This paper has cited ${paper.numOfReferees} papers`}
+                >
+                  <InfoCircleOutlined />
+                </Tooltip>
+              </span>
+            }
+          >
+            {paper.numOfReferees}
           </Descriptions.Item>
           <Descriptions.Item label="Authors">
             {paper && paper.authors
