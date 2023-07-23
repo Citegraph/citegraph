@@ -79,11 +79,14 @@ public class GraphController {
             paperResponse.setAuthors(authors);
         }
 
+        // collect pagerank
+        double pagerank = (Double) paperProps.getOrDefault("pagerank", 0.0);
         // collect paper citations
         int numOfReferees = (Integer) paperProps.getOrDefault("numOfPaperReferees", 0);
         int numOfReferers = (Integer) paperProps.getOrDefault("numOfPaperReferers", 0);
         paperResponse.setNumOfReferees(numOfReferees);
         paperResponse.setNumOfReferers(numOfReferers);
+        paperResponse.setPagerank(pagerank);
 
         if (getEdges) {
             List<PaperResponse> referees = g.V(paper).out("cites").limit(limit).toList()
@@ -95,7 +98,8 @@ public class GraphController {
                         (String) props.getOrDefault("title", "N/A"),
                         (Integer) props.getOrDefault("year", "N/A"),
                         (Integer) props.getOrDefault("numOfPaperReferees", 0),
-                        (Integer) props.getOrDefault("numOfPaperReferers", 0));
+                        (Integer) props.getOrDefault("numOfPaperReferers", 0),
+                        (Double) props.getOrDefault("pagerank", 0.0));
                 })
                 .collect(Collectors.toList());
             paperResponse.setReferees(referees);
@@ -109,7 +113,8 @@ public class GraphController {
                         (String) props.getOrDefault("title", "N/A"),
                         (Integer) props.getOrDefault("year", "N/A"),
                         (Integer) props.getOrDefault("numOfPaperReferees", 0),
-                        (Integer) props.getOrDefault("numOfPaperReferers", 0));
+                        (Integer) props.getOrDefault("numOfPaperReferers", 0),
+                        (Double) props.getOrDefault("pagerank", 0.0));
                 })
                 .collect(Collectors.toList());
             paperResponse.setReferers(referers);
@@ -137,6 +142,8 @@ public class GraphController {
 
         authorCache.get(id, k -> name);
 
+        // collect pagerank
+        double pagerank = (Double) authorProps.getOrDefault("pagerank", 0.0);
         // collect papers
         int numOfPapers = (Integer) authorProps.getOrDefault("numOfPapers", 0);
 
@@ -150,7 +157,7 @@ public class GraphController {
         int numOfCoauthors = (Integer) authorProps.getOrDefault("numOfCoworkers", 0);
 
         AuthorResponse res = new AuthorResponse(name, id, numOfPapers, numOfReferees, numOfReferers,
-            numOfPaperReferees, numOfPaperReferers, numOfCoauthors);
+            numOfPaperReferees, numOfPaperReferers, numOfCoauthors, pagerank);
 
         if (getEdges) {
             List<PaperResponse> papers = g.V(author).out("writes").limit(limit).toList()
@@ -161,14 +168,15 @@ public class GraphController {
                         (String) props.getOrDefault("title", "N/A"),
                         (Integer) props.getOrDefault("year", 0),
                         (Integer) props.getOrDefault("numOfPaperReferees", 0),
-                        (Integer) props.getOrDefault("numOfPaperReferers", 0)
+                        (Integer) props.getOrDefault("numOfPaperReferers", 0),
+                        (Double) props.getOrDefault("pagerank", 0.0)
                     );
                 })
                 .collect(Collectors.toList());
             res.setPapers(papers);
 
-            Map<String, String> idNameMap = new HashMap<>();
-            buildNameMap(idNameMap, g.V(author).union(
+            Map<String, Map<Object, Object>> idPropMap = new HashMap<>();
+            buildPropMap(idPropMap, g.V(author).union(
                 __.out("refers").limit(limit),
                 __.in("refers").limit(limit),
                 __.both("collaborates").limit(limit)
@@ -179,8 +187,9 @@ public class GraphController {
             for (Edge referee : referees) {
                 int refCount = (Integer) g.E(referee).values("refCount").next();
                 String refereeId = (String) referee.inVertex().id();
-                String refereeName = idNameMap.get(refereeId);
-                CitationResponse citationResponse = new CitationResponse(new AuthorResponse(refereeName, refereeId), refCount);
+                String refereeName = (String) idPropMap.get(refereeId).get("name");
+                double refereePagerank = (Double) idPropMap.get(refereeId).get("pagerank");
+                CitationResponse citationResponse = new CitationResponse(new AuthorResponse(refereeName, refereeId, refereePagerank), refCount);
                 refereeResponse.add(citationResponse);
             }
 
@@ -189,8 +198,9 @@ public class GraphController {
             for (Edge referer : referers) {
                 int refCount = (Integer) g.E(referer).values("refCount").tryNext().orElse(1);
                 String refererId = (String) referer.outVertex().id();
-                String refererName = idNameMap.get(refererId);
-                CitationResponse citationResponse = new CitationResponse(new AuthorResponse(refererName, refererId), refCount);
+                String refererName = (String) idPropMap.get(refererId).get("name");
+                double refererPagerank = (Double) idPropMap.get(refererId).get("pagerank");
+                CitationResponse citationResponse = new CitationResponse(new AuthorResponse(refererName, refererId, refererPagerank), refCount);
                 refererResponse.add(citationResponse);
             }
 
@@ -200,8 +210,9 @@ public class GraphController {
                 int collaborationCount = (Integer) g.E(edge).values("collaborateCount").tryNext().orElse(1);
                 Vertex otherVertex = edge.outVertex().equals(author) ? edge.inVertex() : edge.outVertex();
                 String coauthorId = (String) otherVertex.id();
-                String coauthorName = idNameMap.get(coauthorId);
-                CollaborationResponse collaborationResponse = new CollaborationResponse(new AuthorResponse(coauthorName, coauthorId), collaborationCount);
+                String coauthorName = (String) idPropMap.get(coauthorId).get("name");
+                double coauthorPagerank = (Double) idPropMap.get(coauthorId).get("pagerank");
+                CollaborationResponse collaborationResponse = new CollaborationResponse(new AuthorResponse(coauthorName, coauthorId, coauthorPagerank), collaborationCount);
                 coauthorResponse.add(collaborationResponse);
             }
 
@@ -281,9 +292,10 @@ public class GraphController {
         }
     }
 
-    private void buildNameMap(Map<String, String> idNameMap, List<Vertex> authors) {
+    private void buildPropMap(Map<String, Map<Object, Object>> idPropMap, List<Vertex> authors) {
         for (Vertex v : authors) {
-            idNameMap.putIfAbsent((String) v.id(), (String) g.V(v).values("name").tryNext().orElse("unknown"));
+            Map<Object, Object> props = g.V(v).elementMap("name", "pagerank").next();
+            idPropMap.putIfAbsent((String) v.id(), props);
         }
     }
 }

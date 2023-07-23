@@ -10,6 +10,7 @@ public class PaperResponse {
     private int numOfReferees;
 
     private int numOfReferers;
+    private double pagerank;
 
     private List<AuthorResponse> authors;
 
@@ -28,12 +29,13 @@ public class PaperResponse {
         this.year = year;
     }
 
-    public PaperResponse(String id, String title, int year, int numOfReferees, int numOfReferers) {
+    public PaperResponse(String id, String title, int year, int numOfReferees, int numOfReferers, double pagerank) {
         this.id = id;
         this.title = title;
         this.year = year;
         this.numOfReferees = numOfReferees;
         this.numOfReferers = numOfReferers;
+        this.pagerank = pagerank;
     }
 
     public int getNumOfReferees() {
@@ -98,5 +100,13 @@ public class PaperResponse {
 
     public void setYear(int year) {
         this.year = year;
+    }
+
+    public double getPagerank() {
+        return pagerank;
+    }
+
+    public void setPagerank(double pagerank) {
+        this.pagerank = pagerank;
     }
 }

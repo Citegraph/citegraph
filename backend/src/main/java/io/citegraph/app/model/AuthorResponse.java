@@ -11,6 +11,7 @@ public class AuthorResponse {
     private int numOfPaperReferees;
     private int numOfPaperReferers;
     private int numOfCoauthors;
+    private double pagerank;
 
     // paper written by this author
     private List<PaperResponse> papers;
@@ -29,8 +30,14 @@ public class AuthorResponse {
         this.id = id;
     }
 
+    public AuthorResponse(String name, String id, double pagerank) {
+        this.name = name;
+        this.id = id;
+        this.pagerank = pagerank;
+    }
+
     public AuthorResponse(String name, String id, int numOfPapers, int numOfReferees, int numOfReferers,
-                          int numOfPaperReferees, int numOfPaperReferers, int numOfCoauthors) {
+                          int numOfPaperReferees, int numOfPaperReferers, int numOfCoauthors, double pagerank) {
         this.name = name;
         this.id = id;
         this.numOfPapers = numOfPapers;
@@ -39,6 +46,7 @@ public class AuthorResponse {
         this.numOfPaperReferees = numOfPaperReferees;
         this.numOfPaperReferers = numOfPaperReferers;
         this.numOfCoauthors = numOfCoauthors;
+        this.pagerank = pagerank;
     }
 
     public List<PaperResponse> getPapers() {
@@ -127,6 +135,14 @@ public class AuthorResponse {
 
     public void setNumOfCoauthors(int numOfCoauthors) {
         this.numOfCoauthors = numOfCoauthors;
+    }
+
+    public double getPagerank() {
+        return pagerank;
+    }
+
+    public void setPagerank(double pagerank) {
+        this.pagerank = pagerank;
     }
 
     public List<CollaborationResponse> getCoauthors() {
