@@ -404,9 +404,7 @@ public final class SparkGraphComputer extends AbstractHadoopGraphComputer {
                                 throw new TraversalInterruptedException();
                             }
                             memory.setInExecute(true);
-                            logger.info("###### ITER {}: READY TO START VERTEX PROGRAM ######", iteration);
                             viewIncomingRDD = SparkExecutor.executeVertexProgramIteration(loadedGraphRDD, viewIncomingRDD, memory, graphComputerConfiguration, vertexProgramConfiguration);
-                            logger.info("###### ITER {}: FINISH ITERATION OF VERTEX PROGRAM ######", iteration);
                             iteration++;
                             memory.setInExecute(false);
                             if (this.vertexProgram.terminate(memory))

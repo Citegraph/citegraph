@@ -18,7 +18,10 @@ import static org.apache.tinkerpop.gremlin.hadoop.Constants.GREMLIN_HADOOP_OUTPU
 
 /**
  * This Spark application runs page rank algorithm to calculate
- * a score for each paper/author
+ * a score for each paper
+ *
+ * NOTE: on a single machine with 8 cores and 16GB memory, this
+ * program always gets OOM for authors but not for papers
  */
 public class PageRankRunner {
     public static void main(String[] args) throws Exception {
