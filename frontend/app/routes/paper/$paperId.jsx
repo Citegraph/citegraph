@@ -184,6 +184,12 @@ export default function Paper() {
       sortDirections: ["descend", "ascend", "descend"],
     },
     {
+      title: "PageRank",
+      dataIndex: "pagerank",
+      sorter: (a, b) => a.citations - b.citations,
+      sortDirections: ["descend", "ascend", "descend"],
+    },
+    {
       title: "Year",
       dataIndex: "year",
       sorter: (a, b) => a.year - b.year,
@@ -198,6 +204,7 @@ export default function Paper() {
           key: p.id,
           title: p.title,
           citations: p.numOfReferers,
+          pagerank: p.pagerank.toFixed(2),
           year: p.year,
         }))
       : [];
@@ -208,6 +215,7 @@ export default function Paper() {
           key: p.id,
           title: p.title,
           citations: p.numOfReferers,
+          pagerank: p.pagerank.toFixed(2),
           year: p.year,
         }))
       : [];
@@ -348,6 +356,9 @@ export default function Paper() {
             <Tooltip title={`Cited by ${paper.numOfReferers} papers`}>
               {paper.numOfReferers}
             </Tooltip>
+          </Descriptions.Item>
+          <Descriptions.Item label="PageRank">
+            {paper.pagerank.toFixed(2)}
           </Descriptions.Item>
           <Descriptions.Item label="References">
             <Tooltip

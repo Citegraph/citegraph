@@ -8,6 +8,9 @@ export function PaperInfoPanel({ paper }) {
         <Descriptions.Item label="Title" span={3}>
           <Link to={"/paper/" + paper.id}>{paper.title}</Link>
         </Descriptions.Item>
+        <Descriptions.Item label="PageRank" span={3}>
+          {paper.pagerank.toFixed(2)}
+        </Descriptions.Item>
         <Descriptions.Item label="Year" span={3}>
           {paper.year}
         </Descriptions.Item>
@@ -28,6 +31,9 @@ export function AuthorInfoPanel({ author }) {
       <Descriptions title="Author Info" layout="vertical">
         <Descriptions.Item label="Name" span={3}>
           <Link to={"/author/" + author.id}>{author.name}</Link>
+        </Descriptions.Item>
+        <Descriptions.Item label="PageRank" span={3}>
+          {author.pagerank.toFixed(2)}
         </Descriptions.Item>
         <Descriptions.Item label="Collaborators" span={3}>
           {author.numOfCoauthors || author.numOfCoworkers || 0}

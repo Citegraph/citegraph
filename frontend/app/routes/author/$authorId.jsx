@@ -275,6 +275,12 @@ export default function Author() {
       sortDirections: ["descend", "ascend", "descend"],
     },
     {
+      title: "PageRank",
+      dataIndex: "pagerank",
+      sorter: (a, b) => a.pagerank - b.pagerank,
+      sortDirections: ["descend", "ascend", "descend"],
+    },
+    {
       title: "Year",
       dataIndex: "year",
       sorter: (a, b) => a.year - b.year,
@@ -289,6 +295,7 @@ export default function Author() {
           key: p.id,
           title: p.title,
           citations: p.numOfReferers,
+          pagerank: p.pagerank.toFixed(2),
           year: p.year,
         }))
       : [];
@@ -304,6 +311,12 @@ export default function Author() {
       ),
     },
     {
+      title: "PageRank",
+      dataIndex: "pagerank",
+      sorter: (a, b) => a.pagerank - b.pagerank,
+      sortDirections: ["descend", "ascend", "descend"],
+    },
+    {
       title: "Occurrences",
       dataIndex: "count",
       sorter: (a, b) => a.count - b.count,
@@ -317,6 +330,7 @@ export default function Author() {
       ? author.coauthors.map((p) => ({
           key: p.author.id,
           name: p.author.name,
+          pagerank: p.author.pagerank.toFixed(2),
           count: p.count,
         }))
       : [];
@@ -326,6 +340,7 @@ export default function Author() {
       ? author.referers.map((p) => ({
           key: p.author.id,
           name: p.author.name,
+          pagerank: p.author.pagerank.toFixed(2),
           count: p.count,
         }))
       : [];
@@ -335,6 +350,7 @@ export default function Author() {
       ? author.referees.map((p) => ({
           key: p.author.id,
           name: p.author.name,
+          pagerank: p.author.pagerank.toFixed(2),
           count: p.count,
         }))
       : [];
@@ -586,6 +602,11 @@ export default function Author() {
           <Descriptions.Item label="Citations">
             <Tooltip title={`Cited by ${author.numOfPaperReferers} papers`}>
               {author.numOfPaperReferers}
+            </Tooltip>
+          </Descriptions.Item>
+          <Descriptions.Item label="PageRank">
+            <Tooltip title={`Sum of pageranks of this author's papers`}>
+              {author.pagerank.toFixed(2)}
             </Tooltip>
           </Descriptions.Item>
           <Descriptions.Item label="Referers">
