@@ -27,14 +27,18 @@ import org.apache.tinkerpop.gremlin.process.traversal.util.TraversalHelper;
 import org.apache.tinkerpop.gremlin.process.traversal.util.TraversalUtil;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.checkerframework.checker.units.qual.A;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -81,6 +85,7 @@ public final class GraphFilter implements Cloneable, Serializable {
 
     private Traversal.Admin<Vertex, Vertex> vertexFilter = null;
     private Traversal.Admin<Vertex, Edge> edgeFilter = null;
+    private Traversal.Admin<Vertex, ? extends Property> propertyFilter = null;
     private Map<Direction, Map<String, Legal>> edgeLegality = new EnumMap<>(Direction.class);
     private boolean allowNoEdges = false;
 
@@ -182,6 +187,10 @@ public final class GraphFilter implements Cloneable, Serializable {
         }
     }
 
+    public void setPropertyFilter(final Traversal<Vertex, ? extends Property> propertyFilter) {
+        this.propertyFilter = propertyFilter.asAdmin().clone();
+    }
+
     /**
      * Returns true if the provided vertex meets the vertex-filter criteria.
      * If no vertex filter is provided, then the vertex is considered legal.
@@ -206,6 +215,12 @@ public final class GraphFilter implements Cloneable, Serializable {
             TraversalUtil.applyAll(vertex, this.edgeFilter);
     }
 
+    public Iterator<? extends Property> legalProperties(final Vertex vertex) {
+        return null == this.propertyFilter ?
+            vertex.properties() :
+            TraversalUtil.applyAll(vertex, this.propertyFilter);
+    }
+
     /**
      * Get the vertex filter associated with this graph filter.
      *
@@ -222,6 +237,10 @@ public final class GraphFilter implements Cloneable, Serializable {
      */
     public final Traversal.Admin<Vertex, Edge> getEdgeFilter() {
         return this.edgeFilter;
+    }
+
+    public final Traversal.Admin<Vertex, ? extends Property> getPropertyFilter() {
+        return this.propertyFilter;
     }
 
     /**
@@ -249,6 +268,10 @@ public final class GraphFilter implements Cloneable, Serializable {
      */
     public boolean hasVertexFilter() {
         return this.vertexFilter != null;
+    }
+
+    public boolean hasPropertyFilter() {
+        return this.propertyFilter != null;
     }
 
     /**
@@ -311,20 +334,23 @@ public final class GraphFilter implements Cloneable, Serializable {
     }
 
     @Override
-    public int hashCode() {
-        return (null == this.edgeFilter ? 111 : this.edgeFilter.hashCode()) ^ (null == this.vertexFilter ? 222 : this.vertexFilter.hashCode());
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        GraphFilter that = (GraphFilter) o;
+
+        if (!Objects.equals(vertexFilter, that.vertexFilter)) return false;
+        if (!Objects.equals(edgeFilter, that.edgeFilter)) return false;
+        return Objects.equals(propertyFilter, that.propertyFilter);
     }
 
     @Override
-    public boolean equals(final Object object) {
-        if (!(object instanceof GraphFilter))
-            return false;
-        else if (((GraphFilter) object).hasVertexFilter() && !((GraphFilter) object).vertexFilter.equals(this.vertexFilter))
-            return false;
-        else if (((GraphFilter) object).hasEdgeFilter() && !((GraphFilter) object).edgeFilter.equals(this.edgeFilter))
-            return false;
-        else
-            return true;
+    public int hashCode() {
+        int result = vertexFilter != null ? vertexFilter.hashCode() : 0;
+        result = 31 * result + (edgeFilter != null ? edgeFilter.hashCode() : 0);
+        result = 31 * result + (propertyFilter != null ? propertyFilter.hashCode() : 0);
+        return result;
     }
 
     @Override
@@ -335,6 +361,8 @@ public final class GraphFilter implements Cloneable, Serializable {
                 clone.vertexFilter = this.vertexFilter.clone();
             if (null != this.edgeFilter)
                 clone.edgeFilter = this.edgeFilter.clone();
+            if (null != this.propertyFilter)
+                clone.propertyFilter = this.propertyFilter.clone();
             return clone;
         } catch (final CloneNotSupportedException e) {
             throw new IllegalStateException(e.getMessage(), e);
@@ -345,11 +373,25 @@ public final class GraphFilter implements Cloneable, Serializable {
     public String toString() {
         if (!this.hasFilter())
             return "graphfilter[none]";
-        else if (this.hasVertexFilter() && this.hasEdgeFilter())
-            return "graphfilter[" + this.vertexFilter + "," + this.edgeFilter + "]";
-        else if (this.hasVertexFilter())
-            return "graphfilter[" + this.vertexFilter + "]";
-        else
-            return "graphfilter[" + this.edgeFilter + "]";
+        StringBuilder builder = new StringBuilder("graphfilter[");
+        boolean needDelimiter = false;
+        if (this.hasVertexFilter()) {
+            builder.append(this.vertexFilter);
+            needDelimiter = true;
+        }
+        if (this.hasEdgeFilter()) {
+            if (needDelimiter) {
+                builder.append(",");
+            }
+            builder.append(this.edgeFilter);
+            needDelimiter = true;
+        }
+        if (this.hasPropertyFilter()) {
+            if (needDelimiter) {
+                builder.append(",");
+            }
+            builder.append(this.propertyFilter);
+        }
+        return builder.append("]").toString();
     }
 }

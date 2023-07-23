@@ -30,6 +30,7 @@ import org.apache.tinkerpop.gremlin.process.computer.GraphComputer.Exceptions;
 import org.apache.tinkerpop.gremlin.process.computer.util.GraphComputerHelper;
 import org.apache.tinkerpop.gremlin.process.traversal.Traversal;
 import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import org.apache.tinkerpop.gremlin.util.Gremlin;
@@ -60,6 +61,11 @@ public abstract class AbstractHadoopGraphComputer implements GraphComputer {
 
     public GraphComputer edges(final Traversal<Vertex, Edge> edgeFilter) {
         this.graphFilter.setEdgeFilter(edgeFilter);
+        return this;
+    }
+
+    public GraphComputer properties(final Traversal<Vertex, ? extends Property> propertyFilter) {
+        this.graphFilter.setPropertyFilter(propertyFilter);
         return this;
     }
 

@@ -22,6 +22,7 @@ import org.apache.tinkerpop.gremlin.process.computer.util.DefaultComputerResult;
 import org.apache.tinkerpop.gremlin.process.traversal.Traversal;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Graph;
+import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 
 import java.util.concurrent.Future;
@@ -134,6 +135,8 @@ public interface GraphComputer {
      * @throws IllegalArgumentException if the provided traversal attempts to access adjacent vertices
      */
     public GraphComputer edges(final Traversal<Vertex, Edge> edgeFilter) throws IllegalArgumentException;
+
+    public GraphComputer properties(final Traversal<Vertex, ? extends Property> propertyFilter) throws IllegalArgumentException;
 
     /**
      * Set an arbitrary configuration key/value for the underlying {@code Configuration} in the {@link GraphComputer}.
