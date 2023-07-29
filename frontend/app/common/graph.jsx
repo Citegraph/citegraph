@@ -1,9 +1,61 @@
+import React, { useEffect, useState } from "react";
 import { Collapse } from "antd";
+import Graph from "graphology";
 import CytoscapeComponent from "react-cytoscapejs";
 import { DEFAULT_LAYOUT } from "./layout";
 import { AuthorInfoPanel, PaperInfoPanel } from "./infoPanel";
+import '@react-sigma/core/lib/react-sigma.min.css';
 
 export function GraphContainer({
+  setCyRef,
+  graphElements,
+  selectedNode,
+  height,
+}) {
+  const [SigmaContainer, setSigmaContainer] = useState(null);
+  const [useLoadGraph, setUseLoadGraph] = useState(null);
+
+  useEffect(() => {
+    import('@react-sigma/core')
+      .then((sigmaModule) => {
+        setSigmaContainer(() => sigmaModule.SigmaContainer);
+        setUseLoadGraph(() => sigmaModule.useLoadGraph);
+      })
+      .catch((error) => console.error('Error loading module', error));
+  }, []);
+
+  if (!SigmaContainer || !useLoadGraph) {
+    return <div className="graph-container">N/A</div>;
+  }
+
+  const LoadGraph = () => {
+    const loadGraph = useLoadGraph();
+
+    useEffect(() => {
+      const graph = new Graph();
+      graph.addNode("first", {
+        x: 0,
+        y: 0,
+        size: 10,
+        label: "My first node",
+        color: "#FA4F40",
+      });
+      loadGraph(graph);
+    }, [loadGraph]);
+
+    return null;
+  };
+
+  return (
+    <div className="graph-container">
+      <SigmaContainer style={{ width: "100%" }}>
+        <LoadGraph />
+      </SigmaContainer>
+    </div>
+  );
+}
+
+export function GraphContainerCytoScape({
   setCyRef,
   graphElements,
   selectedNode,

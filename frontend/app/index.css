@@ -332,6 +332,11 @@ i {
   height: 600px;
 }
 
+.sigma-container {
+  width: calc(100% - 200px);
+  height: 600px;
+}
+
 .footer-component {
   display: block;
 }
@@ -376,6 +381,10 @@ i {
   }
 
   .cytoscape-component {
+    width: 100%;
+  }
+
+  .sigma-container {
     width: 100%;
   }
 
