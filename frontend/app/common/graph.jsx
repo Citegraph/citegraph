@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Collapse } from "antd";
-import Graph from "graphology";
+import { MultiDirectedGraph } from "graphology";
 import CytoscapeComponent from "react-cytoscapejs";
 import { DEFAULT_LAYOUT } from "./layout";
 import { AuthorInfoPanel, PaperInfoPanel } from "./infoPanel";
@@ -14,12 +14,18 @@ export function GraphContainer({
 }) {
   const [SigmaContainer, setSigmaContainer] = useState(null);
   const [useLoadGraph, setUseLoadGraph] = useState(null);
+  const [useLayout, setUseLayout] = useState(null);
 
   useEffect(() => {
     import('@react-sigma/core')
       .then((sigmaModule) => {
         setSigmaContainer(() => sigmaModule.SigmaContainer);
         setUseLoadGraph(() => sigmaModule.useLoadGraph);
+      })
+      .catch((error) => console.error('Error loading module', error));
+    import('@react-sigma/layout-random')
+      .then((sigmaModule) => {
+        setUseLayout(() => sigmaModule.useLayoutRandom);
       })
       .catch((error) => console.error('Error loading module', error));
   }, []);
@@ -30,25 +36,39 @@ export function GraphContainer({
 
   const LoadGraph = () => {
     const loadGraph = useLoadGraph();
+    const { positions, assign } = useLayout();
 
     useEffect(() => {
-      const graph = new Graph();
-      graph.addNode("first", {
-        x: 0,
-        y: 0,
-        size: 10,
-        label: "My first node",
-        color: "#FA4F40",
+      const graph = new MultiDirectedGraph();
+      graphElements.forEach(element => {
+        const data = element.data;
+        if (data.id) {
+          graph.mergeNode(data.id, {
+            x: 0,
+            y: 0,
+            size: 10,
+            label: data.label,
+            color: data.type == "author" ? "red" : "purple",
+          })
+        } else {
+          graph.addDirectedEdge(data.source, data.target, {
+            label: data.label
+          });
+        }
       });
       loadGraph(graph);
-    }, [loadGraph]);
+      assign();
+    }, [assign, loadGraph]);
 
     return null;
   };
 
   return (
     <div className="graph-container">
-      <SigmaContainer style={{ width: "100%" }}>
+      <SigmaContainer
+        graph={MultiDirectedGraph}
+        settings={{ renderEdgeLabels: true, defaultEdgeType: "arrow" }}
+        style={{ width: "100%" }}>
         <LoadGraph />
       </SigmaContainer>
     </div>
@@ -133,7 +153,7 @@ export function GraphPanel({
           key: "publicationGraph",
           label: "Show graph visualization",
           children: (
-            <GraphContainer
+            <GraphContainerCytoScape
               setCyRef={setCyRef}
               graphElements={graphElements}
               selectedNode={selectedNode}
