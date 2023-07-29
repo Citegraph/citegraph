@@ -108,9 +108,9 @@ form[action$="destroy"] button {
 }
 
 #detail {
-  margin-left: 22rem; /* This should be the same width as your sidebar */
-  padding: 2rem 4rem;
-  max-width: calc(100vw - 22rem);
+  margin-left: 20rem; /* This should be the same width as your sidebar */
+  padding: 2rem 2rem;
+  max-width: calc(100vw - 20rem);
   overflow-x: hidden; 
   background-color: #fff;
   box-sizing: border-box;
@@ -127,7 +127,7 @@ form[action$="destroy"] button {
 
 #footer {
   padding: 0.8rem;
-  margin-left: 22rem; /* This should be the same width as your sidebar */
+  margin-left: 20rem; /* This should be the same width as your sidebar */
   text-align: center;
 }
 
@@ -137,7 +137,7 @@ form[action$="destroy"] button {
   flex-direction: column;
   align-items: flex-start;
   height: 100vh;
-  width: 22rem;
+  width: 20rem;
   z-index: 2; /* A value higher than other elements */
 }
 
@@ -333,7 +333,6 @@ i {
 }
 
 .sigma-container {
-  border: 1px black solid;
   width: 100%;
   height: 700px;
 }
@@ -360,7 +359,7 @@ i {
   }
 
   #sidebar-container.active {
-    width: 22rem;
+    width: 20rem;
   }
 
   .hamburger {
