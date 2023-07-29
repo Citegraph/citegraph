@@ -31,7 +31,7 @@ export function GraphContainer({
   }, []);
 
   if (!SigmaContainer || !useLoadGraph) {
-    return <div className="graph-container">N/A</div>;
+    return <div className="graph-container">Loading...</div>;
   }
 
   const LoadGraph = () => {
@@ -40,13 +40,24 @@ export function GraphContainer({
 
     useEffect(() => {
       const graph = new MultiDirectedGraph();
+      const scores = graphElements
+        .filter(element => element.data.id)
+        .map(element => element.data.pagerank);
+      const minScore = Math.min(...scores);
+      const maxScore = Math.max(...scores);
+      console.log("Graph", graphElements, "Scores", scores, "Max score", maxScore, "Min score", minScore);
+      const MIN_NODE_SIZE = 5;
+      const MAX_NODE_SIZE = 20;
+
       graphElements.forEach(element => {
         const data = element.data;
         if (data.id) {
           graph.mergeNode(data.id, {
             x: 0,
             y: 0,
-            size: 10,
+            size: ((data.pagerank - minScore) / (maxScore - minScore)) *
+            (MAX_NODE_SIZE - MIN_NODE_SIZE) +
+            MIN_NODE_SIZE,
             label: data.label,
             color: data.type == "author" ? "red" : "purple",
           })

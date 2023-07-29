@@ -143,6 +143,7 @@ export default function Graph() {
   const elements = [
     {
       data: {
+        ...vertex.self,
         id: vertex.self.id,
         label: getVertexName(vertex.self),
         type: vertex.self.type,
@@ -151,6 +152,7 @@ export default function Graph() {
   ].concat(
     neighbors.map((elem) => ({
       data: {
+        ...elem.vertex,
         id: elem.vertex.id,
         label: getVertexName(elem.vertex),
         type: elem.vertex.type,
