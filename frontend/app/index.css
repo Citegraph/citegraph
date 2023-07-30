@@ -102,11 +102,6 @@ form[action$="destroy"] button {
   width: 100%;
 }
 
-.main-layout {
-  min-height: 100vh;
-  box-sizing: border-box;
-}
-
 #detail {
   margin-left: 20rem; /* This should be the same width as your sidebar */
   padding: 2rem 2rem;
@@ -122,13 +117,6 @@ form[action$="destroy"] button {
   opacity: 0.25;
   transition: opacity 200ms;
   transition-delay: 200ms;
-}
-
-
-#footer {
-  padding: 0.8rem;
-  margin-left: 20rem; /* This should be the same width as your sidebar */
-  text-align: center;
 }
 
 #sidebar-container {
@@ -337,19 +325,10 @@ i {
   height: 800px;
 }
 
-.footer-component {
-  display: block;
-}
-
 @media screen and (max-width: 768px) {
   #detail {
     margin-left: 0;
     padding: 2rem 1rem;
-    max-width: 100vw;
-  }
-
-  #footer {
-    margin-left: 0;
     max-width: 100vw;
   }
 
@@ -386,10 +365,6 @@ i {
 
   .sigma-container {
     width: 100%;
-  }
-
-  .footer-component {
-    display: none;
   }
 
   .ant-tabs-nav {
