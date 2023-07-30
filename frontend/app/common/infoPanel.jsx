@@ -6,7 +6,7 @@ export function PaperInfoPanel({ paper, detailPage = true }) {
     <div className="node-info-panel">
       <Descriptions title="Paper Info" layout="vertical">
         <Descriptions.Item label="Title" span={3}>
-          <Link to={detailPage ? "/paper/" : "/visualizer/" + paper.id}>
+          <Link to={(detailPage ? "/paper/" : "/visualizer/") + paper.id}>
             {paper.title}
           </Link>
         </Descriptions.Item>
@@ -32,7 +32,7 @@ export function AuthorInfoPanel({ author, detailPage = true }) {
     <div className="node-info-panel">
       <Descriptions title="Author Info" layout="vertical">
         <Descriptions.Item label="Name" span={3}>
-          <Link to={detailPage ? "/author/" : "/visualizer/" + author.id}>
+          <Link to={(detailPage ? "/author/" : "/visualizer/") + author.id}>
             {author.name}
           </Link>
         </Descriptions.Item>
