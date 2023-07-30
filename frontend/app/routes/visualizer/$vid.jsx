@@ -1,8 +1,13 @@
 import { Link, useLoaderData, useFetcher } from "@remix-run/react";
 import { DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from "../../apis/commons";
-import React, { useState, useEffect } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { getVertex } from "../../apis/graph";
-import { resetLayout } from "../../common/layout";
 import { GraphContainerSigma } from "../../common/graph";
 import {
   Breadcrumb,
@@ -54,11 +59,9 @@ export default function Graph() {
   ]);
   const [limitValue, setLimitValue] = useState(DEFAULT_SEARCH_LIMIT);
   const [loading, setLoading] = useState(false);
-  const [cyRef, setCyRef] = useState(null);
   const [selected, setSelected] = useState(null);
 
   const resetGraph = () => {
-    resetLayout(cyRef);
     setSelected(null);
   };
 
@@ -89,9 +92,12 @@ export default function Graph() {
     }
   }, [fetcher.data, setLoading]);
 
-  const nodeHandler = async (event) => {
+  const selectedRef = useRef();
+  selectedRef.current = selected;
+
+  const nodeHandler = useCallback(async (event) => {
     const id = event.node;
-    if (selected && selected.id === id) {
+    if (selectedRef.current && selectedRef.current.id === id) {
       setSelected(null);
     } else {
       try {
@@ -101,16 +107,17 @@ export default function Graph() {
         console.error("Failed to fetch vertex data", error);
       }
     }
-  };
-  const canvasHandler = () => {
+  }, []);
+
+  const canvasHandler = useCallback(() => {
     // If the canvas is clicked, "unselect" any selected node
     setSelected(null);
-  };
+  }, []);
 
-  const edgeHandler = () => {
+  const edgeHandler = useCallback(() => {
     // if an edge is clicked, unselect any selected node
     setSelected(null);
-  };
+  }, []);
 
   const isAuthor = vertex.self.numOfPapers > 0;
   const neighbors = vertex.neighbors.filter((elem) => {
@@ -131,50 +138,52 @@ export default function Graph() {
     }
   });
 
-  const elements = [
-    {
-      data: {
-        ...vertex.self,
-        id: vertex.self.id,
-        label: getVertexName(vertex.self),
-        type: vertex.self.type,
+  const elements = useMemo(() => {
+    return [
+      {
+        data: {
+          ...vertex.self,
+          id: vertex.self.id,
+          label: getVertexName(vertex.self),
+          type: vertex.self.type,
+        },
       },
-    },
-  ].concat(
-    neighbors.map((elem) => ({
-      data: {
-        ...elem.vertex,
-        id: elem.vertex.id,
-        label: getVertexName(elem.vertex),
-        type: elem.vertex.type,
-      },
-    })),
-    neighbors.map((elem) => {
-      // collaborates edges are treated as undirectional
-      if (elem.edge.label == "collaborates") {
-        return {
-          data: {
-            source: vertex.self.id,
-            target:
-              elem.edge.OUT.id == vertex.self.id
-                ? elem.edge.IN.id
-                : elem.edge.OUT.id,
-            label: elem.edge.label,
-            type: elem.edge.label,
-          },
-        };
-      } else {
-        return {
-          data: {
-            source: elem.edge.OUT.id,
-            target: elem.edge.IN.id,
-            label: elem.edge.label,
-            type: elem.edge.label,
-          },
-        };
-      }
-    })
-  );
+    ].concat(
+      neighbors.map((elem) => ({
+        data: {
+          ...elem.vertex,
+          id: elem.vertex.id,
+          label: getVertexName(elem.vertex),
+          type: elem.vertex.type,
+        },
+      })),
+      neighbors.map((elem) => {
+        // collaborates edges are treated as undirectional
+        if (elem.edge.label == "collaborates") {
+          return {
+            data: {
+              source: vertex.self.id,
+              target:
+                elem.edge.OUT.id == vertex.self.id
+                  ? elem.edge.IN.id
+                  : elem.edge.OUT.id,
+              label: elem.edge.label,
+              type: elem.edge.label,
+            },
+          };
+        } else {
+          return {
+            data: {
+              source: elem.edge.OUT.id,
+              target: elem.edge.IN.id,
+              label: elem.edge.label,
+              type: elem.edge.label,
+            },
+          };
+        }
+      })
+    );
+  }, [vertex, checked]);
 
   const maxSearchLimit = Math.min(
     MAX_SEARCH_LIMIT,
@@ -317,7 +326,6 @@ export default function Graph() {
         </div>
       ) : (
         <GraphContainerSigma
-          setCyRef={setCyRef}
           graphElements={elements}
           selectedNode={selected}
           nodeClickHandler={nodeHandler}

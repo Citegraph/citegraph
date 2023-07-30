@@ -6,12 +6,11 @@ import { DEFAULT_LAYOUT } from "./layout";
 import { AuthorInfoPanel, PaperInfoPanel } from "./infoPanel";
 import '@react-sigma/core/lib/react-sigma.min.css';
 
-export function GraphContainerSigma({
+const SigmaGraph = React.memo(function SigmaGraph({
   graphElements,
-  selectedNode,
   nodeClickHandler,
   edgeClickHandler,
-  canvasClickHandler,
+  canvasClickHandler
 }) {
   const [SigmaContainer, setSigmaContainer] = useState(null);
   const [useLoadGraph, setUseLoadGraph] = useState(null);
@@ -34,12 +33,12 @@ export function GraphContainerSigma({
   }, []);
 
   if (!SigmaContainer || !useLoadGraph) {
-    return <div className="graph-container">Loading...</div>;
+    return <div>Loading...</div>;
   }
 
   const LoadGraph = () => {
     const loadGraph = useLoadGraph();
-    const { positions, assign } = useLayout();
+    const { assign } = useLayout();
 
     useEffect(() => {
       const graph = new MultiDirectedGraph();
@@ -91,14 +90,30 @@ export function GraphContainerSigma({
   };
 
   return (
+    <SigmaContainer
+      graph={MultiDirectedGraph}
+      settings={{ renderEdgeLabels: true, defaultEdgeType: "arrow" }}
+      style={{ width: "100%" }}>
+      <LoadGraph />
+      <GraphEvents />
+    </SigmaContainer>
+  );
+});
+
+export function GraphContainerSigma({
+  graphElements,
+  selectedNode,
+  nodeClickHandler,
+  edgeClickHandler,
+  canvasClickHandler,
+}) {
+  return (
     <div className="graph-container">
-      <SigmaContainer
-        graph={MultiDirectedGraph}
-        settings={{ renderEdgeLabels: true, defaultEdgeType: "arrow" }}
-        style={{ width: "100%" }}>
-        <LoadGraph />
-        <GraphEvents />
-      </SigmaContainer>
+      <SigmaGraph
+        graphElements={graphElements}
+        nodeClickHandler={nodeClickHandler}
+        edgeClickHandler={edgeClickHandler}
+        canvasClickHandler={canvasClickHandler}/>
       {selectedNode &&
         (selectedNode.name ? (
           <AuthorInfoPanel author={selectedNode} detailPage={false} />
