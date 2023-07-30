@@ -124,6 +124,24 @@ form[action$="destroy"] button {
   transition-delay: 200ms;
 }
 
+#header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: solid 1px #e3e3e3;
+  background-color: #f7f7f7;
+  align-items: center;
+  height: 64px;
+  padding: 0 40px;
+}
+
+#header.search {
+  align-self: center;
+}
+
+#header.menu-items {
+  /* Style as needed */
+}
+
 #sidebar-container {
   position: fixed;
   display: flex;
@@ -137,7 +155,6 @@ form[action$="destroy"] button {
 #sidebar {
   width: 100%;
   height: 100%;
-  background-color: #f7f7f7;
   border-right: solid 1px #e3e3e3;
   display: flex;
   flex-direction: column;
