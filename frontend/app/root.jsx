@@ -14,7 +14,7 @@ import stylesheetUrl from "./index.css";
 import { API_URL } from "./apis/commons";
 import { Divider } from "antd";
 import { MenuOutlined } from "@ant-design/icons";
-import { Select, Input, Space } from "antd";
+import { Select, Input, Space, Menu } from "antd";
 
 const { Option } = Select;
 const { Search } = Input;
@@ -92,6 +92,20 @@ export default function Root() {
     setSidebarActive(!isSidebarActive);
   };
 
+  const items = [
+    {
+      label: "Navigation One",
+      key: "mail",
+    },
+    {
+      label: "Navigation Two",
+      key: "app",
+      disabled: true,
+    },
+  ];
+
+  const [current, setCurrent] = useState("mail");
+
   return (
     <html lang="en">
       <head>
@@ -117,6 +131,7 @@ export default function Root() {
       </head>
       <body>
         <Scripts />
+        <Menu selectedKeys={[current]} mode="horizontal" items={items} />
         <div id="root">
           <div id="hamburger-container">
             <button className="hamburger" onClick={toggleSidebar}>
@@ -199,35 +214,6 @@ export default function Root() {
           <div id="detail">
             <Outlet />
           </div>
-          {/* <Footer id="footer" className="footer-component">
-            CiteGraph is open-sourced on{" "}
-            <a
-              href="https://github.com/li-boxuan/citegraph"
-              target="_blank"
-              rel="noreferrer"
-              className="no-underline"
-            >
-              GitHub
-            </a>
-            , powered by{" "}
-            <a
-              href="https://janusgraph.org/"
-              target="_blank"
-              rel="noreferrer"
-              className="no-underline"
-            >
-              JanusGraph
-            </a>{" "}
-            and{" "}
-            <a
-              href="https://www.aminer.org/citation/"
-              target="_blank"
-              rel="noreferrer"
-              className="no-underline"
-            >
-              DBLP-Citation-network V14
-            </a>
-          </Footer> */}
         </div>
       </body>
     </html>
