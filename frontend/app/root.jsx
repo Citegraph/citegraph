@@ -9,12 +9,12 @@ import {
 import React, { useState } from "react";
 import { debounce } from "lodash";
 import { getHotAuthors } from "./apis/authors";
-import logo from "./assets/logo.svg";
 import stylesheetUrl from "./index.css";
 import { API_URL } from "./apis/commons";
 import { Divider } from "antd";
 import { MenuOutlined } from "@ant-design/icons";
-import { Select, Input, Space, Menu } from "antd";
+import { Select, Input, Space } from "antd";
+import Header from "./header";
 
 const { Option } = Select;
 const { Search } = Input;
@@ -92,18 +92,6 @@ export default function Root() {
     setSidebarActive(!isSidebarActive);
   };
 
-  const items = [
-    {
-      label: "Navigation One",
-      key: "mail",
-    },
-    {
-      label: "Navigation Two",
-      key: "app",
-      disabled: true,
-    },
-  ];
-
   const [current, setCurrent] = useState("mail");
 
   return (
@@ -131,7 +119,7 @@ export default function Root() {
       </head>
       <body>
         <Scripts />
-        <Menu selectedKeys={[current]} mode="horizontal" items={items} />
+        <Header />
         <div id="root">
           <div id="hamburger-container">
             <button className="hamburger" onClick={toggleSidebar}>
@@ -143,9 +131,6 @@ export default function Root() {
             className={isSidebarActive ? "active" : ""}
           >
             <div id="sidebar">
-              <Link to="/">
-                <img src={logo} id="logo" alt="Logo" />
-              </Link>
               <div>
                 <form id="search-form" role="search">
                   <Space.Compact>
