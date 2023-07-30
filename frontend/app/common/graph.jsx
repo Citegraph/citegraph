@@ -6,21 +6,24 @@ import { DEFAULT_LAYOUT } from "./layout";
 import { AuthorInfoPanel, PaperInfoPanel } from "./infoPanel";
 import '@react-sigma/core/lib/react-sigma.min.css';
 
-export function GraphContainer({
-  setCyRef,
+export function GraphContainerSigma({
   graphElements,
   selectedNode,
-  height,
+  nodeClickHandler,
+  edgeClickHandler,
+  canvasClickHandler,
 }) {
   const [SigmaContainer, setSigmaContainer] = useState(null);
   const [useLoadGraph, setUseLoadGraph] = useState(null);
   const [useLayout, setUseLayout] = useState(null);
+  const [useRegisterEvents, setUseRegisterEvents] = useState(null);
 
   useEffect(() => {
     import('@react-sigma/core')
       .then((sigmaModule) => {
         setSigmaContainer(() => sigmaModule.SigmaContainer);
         setUseLoadGraph(() => sigmaModule.useLoadGraph);
+        setUseRegisterEvents(() => sigmaModule.useRegisterEvents);
       })
       .catch((error) => console.error('Error loading module', error));
     import('@react-sigma/layout-random')
@@ -45,7 +48,6 @@ export function GraphContainer({
         .map(element => element.data.pagerank);
       const minScore = Math.min(...scores);
       const maxScore = Math.max(...scores);
-      console.log("Graph", graphElements, "Scores", scores, "Max score", maxScore, "Min score", minScore);
       const MIN_NODE_SIZE = 5;
       const MAX_NODE_SIZE = 20;
 
@@ -74,6 +76,20 @@ export function GraphContainer({
     return null;
   };
 
+  const GraphEvents = () => {
+    const registerEvents = useRegisterEvents();
+
+    useEffect(() => {
+      registerEvents({
+        clickNode: nodeClickHandler,
+        clickEdge: edgeClickHandler,
+        clickStage: canvasClickHandler,
+      });
+    }, [registerEvents]);
+
+    return null;
+  };
+
   return (
     <div className="graph-container">
       <SigmaContainer
@@ -81,7 +97,14 @@ export function GraphContainer({
         settings={{ renderEdgeLabels: true, defaultEdgeType: "arrow" }}
         style={{ width: "100%" }}>
         <LoadGraph />
+        <GraphEvents />
       </SigmaContainer>
+      {selectedNode &&
+        (selectedNode.name ? (
+          <AuthorInfoPanel author={selectedNode} detailPage={false} />
+        ) : (
+          <PaperInfoPanel paper={selectedNode} detailPage={false} />
+        ))}
     </div>
   );
 }

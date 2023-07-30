@@ -3,7 +3,7 @@ import { DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from "../../apis/commons";
 import React, { useState, useEffect } from "react";
 import { getVertex } from "../../apis/graph";
 import { resetLayout } from "../../common/layout";
-import { GraphContainer } from "../../common/graph";
+import { GraphContainerSigma } from "../../common/graph";
 import {
   Breadcrumb,
   Checkbox,
@@ -62,6 +62,14 @@ export default function Graph() {
     setSelected(null);
   };
 
+  // invoked when new page is loaded
+  useEffect(() => {
+    setVertex(initialData);
+    setLimitValue(DEFAULT_SEARCH_LIMIT);
+    setLoading(false);
+    resetGraph();
+  }, [initialData]);
+
   const onLimitChange = (newValue) => {
     if (fetcher.state === "idle") {
       setLimitValue(newValue);
@@ -81,45 +89,28 @@ export default function Graph() {
     }
   }, [fetcher.data, setLoading]);
 
-  useEffect(() => {
-    if (cyRef) {
-      const nodeHandler = async (event) => {
-        const target = event.target;
-        if (selected && selected.id === target.data().id) {
-          setSelected(null);
-        } else {
-          try {
-            const data = await getVertex(
-              target.data().id,
-              DEFAULT_SEARCH_LIMIT,
-              false
-            );
-            setSelected(data.self);
-          } catch (error) {
-            console.error("Failed to fetch vertex data", error);
-          }
-        }
-      };
-      const canvasHandler = (event) => {
-        if (event.target === cyRef) {
-          // If the canvas is clicked, "unselect" any selected node
-          setSelected(null);
-        }
-      };
-      const edgeHandler = () => {
-        // if an edge is clicked, unselect any selected node
-        setSelected(null);
-      };
-      cyRef.on("tap", "node", nodeHandler);
-      cyRef.on("tap", "edge", edgeHandler);
-      cyRef.on("tap", canvasHandler);
-      return () => {
-        cyRef.off("tap", "node", nodeHandler);
-        cyRef.off("tap", "edge", edgeHandler);
-        cyRef.off("tap", canvasHandler);
-      };
+  const nodeHandler = async (event) => {
+    const id = event.node;
+    if (selected && selected.id === id) {
+      setSelected(null);
+    } else {
+      try {
+        const data = await getVertex(id, DEFAULT_SEARCH_LIMIT, false);
+        setSelected(data.self);
+      } catch (error) {
+        console.error("Failed to fetch vertex data", error);
+      }
     }
-  }, [cyRef, selected]);
+  };
+  const canvasHandler = () => {
+    // If the canvas is clicked, "unselect" any selected node
+    setSelected(null);
+  };
+
+  const edgeHandler = () => {
+    // if an edge is clicked, unselect any selected node
+    setSelected(null);
+  };
 
   const isAuthor = vertex.self.numOfPapers > 0;
   const neighbors = vertex.neighbors.filter((elem) => {
@@ -325,11 +316,13 @@ export default function Graph() {
           <Spin size="large" />
         </div>
       ) : (
-        <GraphContainer
+        <GraphContainerSigma
           setCyRef={setCyRef}
           graphElements={elements}
           selectedNode={selected}
-          height={"800px"}
+          nodeClickHandler={nodeHandler}
+          edgeClickHandler={edgeHandler}
+          canvasClickHandler={canvasHandler}
         />
       )}
     </div>

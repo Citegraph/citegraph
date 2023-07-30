@@ -1,12 +1,14 @@
 import { Link } from "@remix-run/react";
 import { Descriptions } from "antd";
 
-export function PaperInfoPanel({ paper }) {
+export function PaperInfoPanel({ paper, detailPage = true }) {
   return (
     <div className="node-info-panel">
       <Descriptions title="Paper Info" layout="vertical">
         <Descriptions.Item label="Title" span={3}>
-          <Link to={"/paper/" + paper.id}>{paper.title}</Link>
+          <Link to={detailPage ? "/paper/" : "/visualizer/" + paper.id}>
+            {paper.title}
+          </Link>
         </Descriptions.Item>
         <Descriptions.Item label="PageRank" span={3}>
           {paper.pagerank.toFixed(2)}
@@ -25,12 +27,14 @@ export function PaperInfoPanel({ paper }) {
   );
 }
 
-export function AuthorInfoPanel({ author }) {
+export function AuthorInfoPanel({ author, detailPage = true }) {
   return (
     <div className="node-info-panel">
       <Descriptions title="Author Info" layout="vertical">
         <Descriptions.Item label="Name" span={3}>
-          <Link to={"/author/" + author.id}>{author.name}</Link>
+          <Link to={detailPage ? "/author/" : "/visualizer/" + author.id}>
+            {author.name}
+          </Link>
         </Descriptions.Item>
         <Descriptions.Item label="PageRank" span={3}>
           {author.pagerank.toFixed(2)}
