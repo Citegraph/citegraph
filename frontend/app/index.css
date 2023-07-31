@@ -138,6 +138,12 @@ form[action$="destroy"] button {
   align-self: center;
 }
 
+#header #search .ant-input {
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
 #header.menu-items {
   /* Style as needed */
 }
@@ -222,12 +228,6 @@ form[action$="destroy"] button {
 #sidebar > div form {
   width: 100%;
   position: relative;
-}
-
-#search-form .ant-input {
-  border: none;
-  outline: none;
-  box-shadow: none;
 }
 
 #sidebar nav {
