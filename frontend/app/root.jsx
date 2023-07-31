@@ -7,10 +7,8 @@ import {
   useLoaderData,
 } from "@remix-run/react";
 import React, { useState } from "react";
-import { debounce } from "lodash";
 import { getHotAuthors } from "./apis/authors";
 import stylesheetUrl from "./index.css";
-import { API_URL } from "./apis/commons";
 import { MenuOutlined } from "@ant-design/icons";
 import Header from "./header";
 
@@ -43,46 +41,6 @@ export async function loader() {
 
 export default function Root() {
   const { authors } = useLoaderData();
-
-  const [loading, setLoading] = useState(false);
-  const [searchResults, setSearchResults] = useState([]);
-  const [query, setQuery] = useState("");
-
-  const [searchType, setSearchType] = useState("author");
-  const [placeholder, setPlaceholder] = useState("Search author name");
-
-  const handleSearchTypeChange = (value) => {
-    setSearchType(value);
-    if (value === "author") {
-      setPlaceholder("Search author name");
-      setSearchResults([]);
-    } else {
-      setPlaceholder("Search paper title");
-      setSearchResults([]);
-    }
-  };
-
-  const handleSearch = debounce((event) => {
-    const query = event.target ? event.target.value : event;
-    setQuery(query);
-    if (!query) {
-      setSearchResults([]);
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    fetch(`${API_URL}/search/${searchType}/${query}`)
-      .then((response) => response.json())
-      .then((data) => {
-        setSearchResults(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching search results: ", error);
-        setLoading(false);
-      });
-  }, 500);
-
   const [isSidebarActive, setSidebarActive] = useState(false);
 
   const toggleSidebar = () => {
