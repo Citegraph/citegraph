@@ -3,6 +3,7 @@ import {
   Scripts,
   Link,
   Links,
+  useNavigation,
   Meta,
   useLoaderData,
 } from "@remix-run/react";
@@ -10,6 +11,7 @@ import React, { useState } from "react";
 import { getHotAuthors } from "./apis/authors";
 import stylesheetUrl from "./index.css";
 import { MenuOutlined } from "@ant-design/icons";
+import { Skeleton } from "antd";
 import Header from "./header";
 
 export const links = () => {
@@ -46,6 +48,8 @@ export default function Root() {
   const toggleSidebar = () => {
     setSidebarActive(!isSidebarActive);
   };
+
+  const navigation = useNavigation();
 
   return (
     <html lang="en">
@@ -105,7 +109,7 @@ export default function Root() {
             </div>
           </div>
           <div id="detail">
-            <Outlet />
+            {navigation.state == "loading" ? <Skeleton active /> : <Outlet />}
           </div>
         </div>
       </body>
