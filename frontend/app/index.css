@@ -144,8 +144,21 @@ form[action$="destroy"] button {
   box-shadow: none;
 }
 
-#header.menu-items {
-  /* Style as needed */
+#header .menu-item {
+  text-decoration: none;
+  padding: 10px 15px;
+  color: black;
+  transition: background .12s ease-out;
+  border-radius: 8px 8px;
+}
+
+#header .menu-item:hover {
+  color: black;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+#header .menu-item .external-link-icon {
+  margin-left: 5px;
 }
 
 #sidebar-container {
