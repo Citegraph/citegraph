@@ -11,13 +11,8 @@ import { debounce } from "lodash";
 import { getHotAuthors } from "./apis/authors";
 import stylesheetUrl from "./index.css";
 import { API_URL } from "./apis/commons";
-import { Divider } from "antd";
 import { MenuOutlined } from "@ant-design/icons";
-import { Select, Input, Space } from "antd";
 import Header from "./header";
-
-const { Option } = Select;
-const { Search } = Input;
 
 export const links = () => {
   return [
