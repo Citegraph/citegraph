@@ -103,7 +103,7 @@ form[action$="destroy"] button {
 
 #root {
   display: flex;
-  height: 100%;
+  height: calc(100vh - 64px); /* height of header */
   width: 100%;
 }
 
