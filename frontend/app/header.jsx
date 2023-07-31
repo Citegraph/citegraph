@@ -100,6 +100,9 @@ export default function Header() {
         <Link to="/about" className="menu-item">
           About
         </Link>
+        <Link to="/faq" className="menu-item">
+          FAQ
+        </Link>
         <a
           href="https://github.com/Citegraph/citegraph"
           target="_blank"
