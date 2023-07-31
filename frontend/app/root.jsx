@@ -10,7 +10,6 @@ import {
 import React, { useState } from "react";
 import { getHotAuthors } from "./apis/authors";
 import stylesheetUrl from "./index.css";
-import { MenuOutlined } from "@ant-design/icons";
 import { Skeleton } from "antd";
 import Header from "./header";
 
@@ -43,11 +42,6 @@ export async function loader() {
 
 export default function Root() {
   const { authors } = useLoaderData();
-  const [isSidebarActive, setSidebarActive] = useState(false);
-
-  const toggleSidebar = () => {
-    setSidebarActive(!isSidebarActive);
-  };
 
   const navigation = useNavigation();
 
@@ -78,15 +72,7 @@ export default function Root() {
         <Scripts />
         <Header />
         <div id="root">
-          <div id="hamburger-container">
-            <button className="hamburger" onClick={toggleSidebar}>
-              <MenuOutlined />
-            </button>
-          </div>
-          <div
-            id="sidebar-container"
-            className={isSidebarActive ? "active" : ""}
-          >
+          <div id="sidebar-container">
             <div id="sidebar">
               <nav>
                 <p>

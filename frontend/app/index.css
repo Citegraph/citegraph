@@ -180,21 +180,6 @@ form[action$="destroy"] button {
   transition: width 0.3s ease-in-out;
 }
 
-#hamburger-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 3; /* Value higher than #sidebar-container */
-}
-
-.hamburger {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  z-index: 3; /* Value higher than #sidebar-container */
-  display: none;
-}
-
 .desktop-collapse {
   display: block;
 }
@@ -374,10 +359,6 @@ i {
 
   #sidebar-container.active {
     width: 20rem;
-  }
-
-  .hamburger {
-    display: block;
   }
 
   .desktop-collapse {
