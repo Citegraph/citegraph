@@ -60,8 +60,10 @@ export default function Root() {
     setSearchType(value);
     if (value === "author") {
       setPlaceholder("Search author name");
+      setSearchResults([]);
     } else {
       setPlaceholder("Search paper title");
+      setSearchResults([]);
     }
   };
 
@@ -91,8 +93,6 @@ export default function Root() {
   const toggleSidebar = () => {
     setSidebarActive(!isSidebarActive);
   };
-
-  const [current, setCurrent] = useState("mail");
 
   return (
     <html lang="en">
@@ -131,52 +131,7 @@ export default function Root() {
             className={isSidebarActive ? "active" : ""}
           >
             <div id="sidebar">
-              <div>
-                <form id="search-form" role="search">
-                  <Space.Compact>
-                    <Select
-                      defaultValue="author"
-                      style={{ width: 80 }}
-                      onChange={handleSearchTypeChange}
-                    >
-                      <Option value="author">Name</Option>
-                      <Option value="paper">Title</Option>
-                    </Select>
-                    <Search
-                      placeholder={placeholder}
-                      onChange={handleSearch}
-                      onSearch={handleSearch}
-                      loading={loading}
-                      allowClear
-                    />
-                  </Space.Compact>
-                </form>
-              </div>
               <nav>
-                {searchResults.length ? (
-                  <ul>
-                    {searchResults.map((result) =>
-                      result.name ? (
-                        <li key={result.id}>
-                          <Link to={`author/${result.id}`}>{result.name}</Link>
-                        </li>
-                      ) : (
-                        <li key={result.id}>
-                          <Link to={`paper/${result.id}`}>{result.title}</Link>
-                        </li>
-                      )
-                    )}
-                  </ul>
-                ) : (
-                  query.length > 0 && (
-                    <ul>
-                      <li>
-                        <i>No results</i>
-                      </li>
-                    </ul>
-                  )
-                )}
-                {query.length > 0 && <Divider />}
                 <p>
                   <b>People are searching</b>
                 </p>
