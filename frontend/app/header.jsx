@@ -9,12 +9,13 @@ const { Option } = Select;
 
 export default function Header() {
   const [searchResults, setSearchResults] = useState([]);
-
+  const [hasSearched, setHasSearched] = useState(false);
   const [searchType, setSearchType] = useState("author");
   const [placeholder, setPlaceholder] = useState("Search author name");
 
   const handleSearchTypeChange = (value) => {
     setSearchType(value);
+    setSearchResults([]);
     if (value === "author") {
       setPlaceholder("Search author name");
     } else {
@@ -27,12 +28,13 @@ export default function Header() {
     navigate(option.key);
   };
 
-  const handleSearch = debounce((event) => {
-    const query = event.target ? event.target.value : event;
+  const handleSearch = debounce((query) => {
     if (!query) {
       setSearchResults([]);
+      setHasSearched(false);
       return;
     }
+    setHasSearched(true);
     fetch(`${API_URL}/search/${searchType}/${query}`)
       .then((response) => response.json())
       .then((data) => {
@@ -79,10 +81,14 @@ export default function Header() {
             options={searchResults}
             onSelect={onSelect}
             onSearch={handleSearch}
+            notFoundContent={
+              hasSearched && !searchResults.length ? "Not found" : null
+            }
           >
             <Input.Search
               size="medium"
               placeholder={placeholder}
+              onSearch={handleSearch}
               enterButton
               allowClear
             />
