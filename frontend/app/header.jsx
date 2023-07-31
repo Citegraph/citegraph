@@ -75,8 +75,8 @@ export default function Header() {
             <Option value="paper">Title</Option>
           </Select>
           <AutoComplete
+            className="search-bar"
             options={searchResults}
-            style={{ width: 400 }}
             onSelect={onSelect}
             onSearch={handleSearch}
           >

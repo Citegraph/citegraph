@@ -138,6 +138,10 @@ form[action$="destroy"] button {
   align-self: center;
 }
 
+#header .search-bar {
+  width: 400px;
+}
+
 #header #search .ant-input {
   border: none;
   outline: none;
@@ -346,6 +350,23 @@ i {
 }
 
 @media screen and (max-width: 768px) {
+  #logo,
+  #menu-items {
+    display: none;
+  }
+
+  .header {
+    flex-direction: column;
+  }
+
+  #search {
+    margin: auto;
+  }
+
+  #header .search-bar {
+    width: 250px;
+  }
+
   #detail {
     margin-left: 0;
     padding: 2rem 1rem;
@@ -357,16 +378,12 @@ i {
     overflow: hidden;
   }
 
-  #sidebar-container.active {
-    width: 20rem;
-  }
-
   .desktop-collapse {
     display: none;
   }
 
   .graph-container {
-    flex-direction: column-reverse; /* Put the Author Info panel at the top on mobile */
+    flex-direction: column-reverse; /* Put the Info panel at the top on mobile */
   }
 
   .node-info-panel {
