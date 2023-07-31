@@ -38,16 +38,26 @@ export default function Header() {
     fetch(`${API_URL}/search/${searchType}/${query}`)
       .then((response) => response.json())
       .then((data) => {
-        setSearchResults(
-          data.map((result) => {
-            const isAuthor = result.name != null;
-            return {
-              key: (isAuthor ? "/author/" : "/paper/") + result.id,
-              value: isAuthor ? result.name : result.title,
-              label: isAuthor ? result.name : result.title,
-            };
-          })
-        );
+        const results = data.map((result) => {
+          const isAuthor = result.name != null;
+          return {
+            key: (isAuthor ? "/author/" : "/paper/") + result.id,
+            value: isAuthor ? result.name : result.title,
+          };
+        });
+        let prev = null;
+        let counter = 0;
+        for (let result of results) {
+          if (result.value == prev) {
+            counter++;
+            result.value = result.value + " (" + counter + ")";
+          } else {
+            counter = 0;
+            prev = result.value;
+          }
+          result.label = result.value;
+        }
+        setSearchResults(results);
       })
       .catch((error) => {
         console.error("Error fetching search results: ", error);
