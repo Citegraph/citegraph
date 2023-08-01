@@ -36,6 +36,13 @@ public class AuthorResponse {
         this.pagerank = pagerank;
     }
 
+    public AuthorResponse(String name, String id, int numOfPaperReferers, double pagerank) {
+        this.name = name;
+        this.id = id;
+        this.numOfPaperReferers = numOfPaperReferers;
+        this.pagerank = pagerank;
+    }
+
     public AuthorResponse(String name, String id, int numOfPapers, int numOfReferees, int numOfReferers,
                           int numOfPaperReferees, int numOfPaperReferers, int numOfCoauthors, double pagerank) {
         this.name = name;

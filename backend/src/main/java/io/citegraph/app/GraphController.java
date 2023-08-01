@@ -72,9 +72,14 @@ public class GraphController {
         if (getEdges) {
             List<AuthorResponse> authors = g.V(paper).in("writes").toList()
                 .stream()
-                .map(v -> new AuthorResponse(
-                    (String) g.V(v).values("name").tryNext().orElse("unknown"),
-                    (String) v.id()))
+                .map(v -> {
+                    Map<Object, Object> props = g.V(v).elementMap().next();
+                    return new AuthorResponse(
+                        (String) props.getOrDefault("name", "unknown"),
+                        (String) v.id(),
+                        (Integer) props.getOrDefault("numOfPaperReferers", 0),
+                        (Double) props.getOrDefault("pagerank", 0.0));
+                })
                 .collect(Collectors.toList());
             paperResponse.setAuthors(authors);
         }

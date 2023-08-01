@@ -65,7 +65,7 @@ export default function Paper() {
     }
   }, [fetcher.data, setLoading]);
 
-  const columns = [
+  const paperColumns = [
     {
       title: "Title",
       dataIndex: "title",
@@ -94,6 +94,41 @@ export default function Paper() {
     },
   ];
 
+  const authorColumns = [
+    {
+      title: "Name",
+      dataIndex: "name",
+      sorter: (a, b) => a.name.localeCompare(b.name),
+      sortDirections: ["ascend", "descend", "ascend"],
+      render: (text, record) => (
+        <Link to={"/author/" + record.key}>{text}</Link>
+      ),
+    },
+    {
+      title: "Citations",
+      dataIndex: "citations",
+      sorter: (a, b) => a.citations - b.citations,
+      sortDirections: ["descend", "ascend", "descend"],
+    },
+    {
+      title: "PageRank",
+      dataIndex: "pagerank",
+      sorter: (a, b) => a.pagerank - b.pagerank,
+      sortDirections: ["descend", "ascend", "descend"],
+      defaultSortOrder: "descend",
+    },
+  ];
+
+  const authors =
+    paper && paper.authors
+      ? paper.authors.map((p) => ({
+          key: p.id,
+          name: p.name,
+          citations: p.numOfPaperReferers,
+          pagerank: p.pagerank.toFixed(2),
+        }))
+      : [];
+
   const referers =
     paper && paper.referers
       ? paper.referers.map((p) => ({
@@ -119,11 +154,15 @@ export default function Paper() {
   const tabs = [
     {
       key: "1",
-      label: `Cited by (${(referers && referers.length) || 0} rows)`,
+      label: `Authors (${(authors && authors.length) || 0} rows)`,
       children:
-        referers && referers.length > 0 ? (
+        authors && authors.length > 0 ? (
           <div>
-            <Table columns={columns} dataSource={referers} loading={loading} />
+            <Table
+              columns={authorColumns}
+              dataSource={authors}
+              loading={loading}
+            />
           </div>
         ) : (
           "N/A"
@@ -131,11 +170,31 @@ export default function Paper() {
     },
     {
       key: "2",
+      label: `Cited by (${(referers && referers.length) || 0} rows)`,
+      children:
+        referers && referers.length > 0 ? (
+          <div>
+            <Table
+              columns={paperColumns}
+              dataSource={referers}
+              loading={loading}
+            />
+          </div>
+        ) : (
+          "N/A"
+        ),
+    },
+    {
+      key: "3",
       label: `References (${(referees && referees.length) || 0} rows)`,
       children:
         referees && referees.length > 0 ? (
           <div>
-            <Table columns={columns} dataSource={referees} loading={loading} />
+            <Table
+              columns={paperColumns}
+              dataSource={referees}
+              loading={loading}
+            />
           </div>
         ) : (
           "N/A"
@@ -227,16 +286,7 @@ export default function Paper() {
             {paper.numOfReferees}
           </Descriptions.Item>
           <Descriptions.Item label="Authors">
-            {paper && paper.authors
-              ? paper.authors.map((author, index) => (
-                  <span
-                    key={index}
-                    style={{ paddingLeft: index !== 0 ? "10px" : "0" }}
-                  >
-                    <Link to={`/author/${author.id}`}>{author.name}</Link>
-                  </span>
-                ))
-              : []}
+            {paper.authors.length}
           </Descriptions.Item>
         </Descriptions>
       </div>
