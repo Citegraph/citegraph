@@ -22,8 +22,7 @@ code {
 
 html,
 body {
-  height: 100%;
-  overflow-y: hidden;
+  overflow-y: auto;
   margin: 0;
   line-height: 1.5;
   color: #121212;
@@ -103,7 +102,6 @@ form[action$="destroy"] button {
 
 #root {
   display: flex;
-  height: calc(100vh - 64px); /* height of header */
   width: 100%;
 }
 
@@ -353,10 +351,6 @@ i {
   #logo,
   #menu-items {
     display: none;
-  }
-
-  .header {
-    flex-direction: column;
   }
 
   #search {
