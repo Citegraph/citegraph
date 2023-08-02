@@ -334,7 +334,9 @@ i {
   width: 200px; /* Adjust width as necessary */
   padding: 20px;
   border-left: 1px solid #ddd; /* Border on the left on desktop */
+  background-color: #fff;
   overflow-y: auto;
+  z-index: 2;
 }
 
 .cytoscape-component {
