@@ -122,6 +122,10 @@ form[action$="destroy"] button {
   transition-delay: 200ms;
 }
 
+#detail .tabular {
+  overflow-x: auto;
+}
+
 #header {
   display: flex;
   justify-content: space-between;

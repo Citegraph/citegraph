@@ -157,7 +157,7 @@ export default function Paper() {
       label: `Authors (${(authors && authors.length) || 0} rows)`,
       children:
         authors && authors.length > 0 ? (
-          <div>
+          <div className="tabular">
             <Table
               columns={authorColumns}
               dataSource={authors}
@@ -173,7 +173,7 @@ export default function Paper() {
       label: `Cited by (${(referers && referers.length) || 0} rows)`,
       children:
         referers && referers.length > 0 ? (
-          <div>
+          <div className="tabular">
             <Table
               columns={paperColumns}
               dataSource={referers}
@@ -189,7 +189,7 @@ export default function Paper() {
       label: `References (${(referees && referees.length) || 0} rows)`,
       children:
         referees && referees.length > 0 ? (
-          <div>
+          <div className="tabular">
             <Table
               columns={paperColumns}
               dataSource={referees}

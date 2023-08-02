@@ -166,7 +166,7 @@ export default function Author() {
       label: `Publications (${(papers && papers.length) || 0} rows)`,
       children:
         papers && papers.length > 0 ? (
-          <div>
+          <div className="tabular">
             <Table columns={paperCols} dataSource={papers} loading={loading} />
           </div>
         ) : (
@@ -178,7 +178,7 @@ export default function Author() {
       label: `Collaborators (${(coauthors && coauthors.length) || 0} rows)`,
       children:
         coauthors && coauthors.length > 0 ? (
-          <div>
+          <div className="tabular">
             <Table
               columns={authorCols}
               dataSource={coauthors}
@@ -194,7 +194,7 @@ export default function Author() {
       label: `Referers (${(referers && referers.length) || 0} rows)`,
       children:
         referers && referers.length > 0 ? (
-          <div>
+          <div className="tabular">
             <Table
               columns={authorCols}
               dataSource={referers}
@@ -210,7 +210,7 @@ export default function Author() {
       label: `Referees (${(referees && referees.length) || 0} rows)`,
       children:
         referees && referees.length > 0 ? (
-          <div>
+          <div className="tabular">
             <Table
               columns={authorCols}
               dataSource={referees}
