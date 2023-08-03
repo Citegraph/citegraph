@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Collapse } from "antd";
 import { MultiDirectedGraph } from "graphology";
-import { DEFAULT_LAYOUT } from "./layout";
 import { AuthorInfoPanel, PaperInfoPanel } from "./infoPanel";
 import '@react-sigma/core/lib/react-sigma.min.css';
 
@@ -11,6 +9,7 @@ const SigmaGraph = React.memo(function SigmaGraph({
   edgeClickHandler,
   canvasClickHandler
 }) {
+  const [sigmaHeight, setSigmaHeight] = useState('600px'); // default height
   const [SigmaContainer, setSigmaContainer] = useState(null);
   const [useLoadGraph, setUseLoadGraph] = useState(null);
   const [useLayout, setUseLayout] = useState(null);
@@ -29,6 +28,32 @@ const SigmaGraph = React.memo(function SigmaGraph({
         setUseLayout(() => sigmaModule.useLayoutRandom);
       })
       .catch((error) => console.error('Error loading module', error));
+
+    function updateSize() {
+      // Get the heights of the other elements
+      const headerStyle = window.getComputedStyle(document.getElementById('header'));
+      const headerHeight = document.getElementById('header').offsetHeight + parseInt(headerStyle.marginTop) + parseInt(headerStyle.marginBottom);
+
+      const navStyle = window.getComputedStyle(document.getElementById('navigation'));
+      const navHeight = document.getElementById('navigation').offsetHeight + parseInt(navStyle.marginTop) + parseInt(navStyle.marginBottom);
+
+      const searchStyle = window.getComputedStyle(document.getElementById('searchLimitConfig'));
+      const searchHeight = document.getElementById('searchLimitConfig').offsetHeight + parseInt(searchStyle.marginTop) + parseInt(searchStyle.marginBottom);
+
+      const detailPagePadding = 48; // 3rem
+      // Subtract those heights from the viewport height
+      const newSigmaHeight = window.innerHeight - headerHeight - navHeight - searchHeight - detailPagePadding;
+
+      // Update the state
+      setSigmaHeight(`${newSigmaHeight}px`);
+    }
+
+    // Update the height when the component mounts and when the window resizes
+    window.addEventListener('resize', updateSize);
+    updateSize();
+
+    // Clean up the event listener when the component unmounts
+    return () => window.removeEventListener('resize', updateSize);
   }, []);
 
   if (!SigmaContainer || !useLoadGraph) {
@@ -92,7 +117,7 @@ const SigmaGraph = React.memo(function SigmaGraph({
     <SigmaContainer
       graph={MultiDirectedGraph}
       settings={{ renderEdgeLabels: true, defaultEdgeType: "arrow" }}
-      style={{ width: "100%" }}>
+      style={{ width: "100%", height: sigmaHeight }}>
       <LoadGraph />
       <GraphEvents />
     </SigmaContainer>

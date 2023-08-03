@@ -109,7 +109,7 @@ form[action$="destroy"] button {
 }
 
 #detail {
-  padding: 2rem 2rem;
+  padding: 2rem 2rem 1rem;
   overflow-x: hidden; 
   background-color: #fff;
   box-sizing: border-box;
@@ -350,7 +350,7 @@ i {
 
 .sigma-container {
   width: 100%;
-  height: 800px;
+  height: 100%;
 }
 
 @media screen and (max-width: 768px) {
@@ -369,7 +369,7 @@ i {
 
   #detail {
     margin-left: 0;
-    padding: 2rem 1rem;
+    padding: 2rem 1rem 1rem;
     max-width: 100vw;
   }
 
