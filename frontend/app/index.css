@@ -387,9 +387,10 @@ i {
   }
 
   .node-info-panel {
-    width: 100%; /* Full width on mobile */
-    border-top: 1px solid #ddd; /* Border at the top on mobile */
-    border-left: none; /* Remove the border on the left on mobile */
+    display: none;
+    /* width: 100%; Full width on mobile */
+    /* border-top: 1px solid #ddd; Border at the top on mobile */
+    /* border-left: none; Remove the border on the left on mobile */
   }
 
   .cytoscape-component {
