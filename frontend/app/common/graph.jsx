@@ -14,6 +14,9 @@ const SigmaGraph = React.memo(function SigmaGraph({
   const [useLoadGraph, setUseLoadGraph] = useState(null);
   const [useLayout, setUseLayout] = useState(null);
   const [useRegisterEvents, setUseRegisterEvents] = useState(null);
+  const [ControlsContainer, setControlsContainer] = useState(null);
+  const [ZoomControl, setZoomControl] = useState(null);
+  const [FullScreenControl, setFullScreenControl] = useState(null);
 
   useEffect(() => {
     import('@react-sigma/core')
@@ -21,6 +24,9 @@ const SigmaGraph = React.memo(function SigmaGraph({
         setSigmaContainer(() => sigmaModule.SigmaContainer);
         setUseLoadGraph(() => sigmaModule.useLoadGraph);
         setUseRegisterEvents(() => sigmaModule.useRegisterEvents);
+        setControlsContainer(() => sigmaModule.ControlsContainer);
+        setZoomControl(() => sigmaModule.ZoomControl);
+        setFullScreenControl(() => sigmaModule.FullScreenControl);
       })
       .catch((error) => console.error('Error loading module', error));
     import('@react-sigma/layout-random')
@@ -120,6 +126,10 @@ const SigmaGraph = React.memo(function SigmaGraph({
       style={{ width: "100%", height: sigmaHeight }}>
       <LoadGraph />
       <GraphEvents />
+      <ControlsContainer position={"bottom-right"}>
+        <ZoomControl />
+        <FullScreenControl />
+      </ControlsContainer>
     </SigmaContainer>
   );
 });

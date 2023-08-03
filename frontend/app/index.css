@@ -353,6 +353,17 @@ i {
   height: 100%;
 }
 
+.react-sigma {
+  position: relative; /* Parent element needs to have relative or absolute position */
+}
+
+.react-sigma-controls {
+  position: absolute; /* Positioning of controls relative to parent element */
+  bottom: 20px; /* Adjust as needed */
+  right: 20px; /* Adjust as needed */
+  z-index: 10; /* Increase if buttons are not appearing on top */
+}
+
 @media screen and (max-width: 768px) {
   #logo,
   #menu-items {
@@ -399,6 +410,10 @@ i {
 
   .sigma-container {
     width: 100%;
+  }
+
+  .react-sigma-controls {
+    display: none;
   }
 
   .ant-tabs-nav {
