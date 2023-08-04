@@ -29,9 +29,9 @@ const SigmaGraph = React.memo(function SigmaGraph({
         setFullScreenControl(() => sigmaModule.FullScreenControl);
       })
       .catch((error) => console.error('Error loading module', error));
-    import('@react-sigma/layout-random')
+    import('@react-sigma/layout-force')
       .then((sigmaModule) => {
-        setUseLayout(() => sigmaModule.useLayoutRandom);
+        setUseLayout(() => sigmaModule.useLayoutForce);
       })
       .catch((error) => console.error('Error loading module', error));
 
@@ -80,12 +80,14 @@ const SigmaGraph = React.memo(function SigmaGraph({
       const MIN_NODE_SIZE = 5;
       const MAX_NODE_SIZE = 20;
 
-      graphElements.forEach(element => {
+      graphElements.forEach((element, i, arr) => {
         const data = element.data;
         if (data.id) {
+          const x = i == 0 ? 0 : Math.cos(Math.PI * 2 * i / arr.length);
+          const y = i == 0 ? 0.5 : Math.sin(Math.PI * 2 * i / arr.length);
           graph.mergeNode(data.id, {
-            x: 0,
-            y: 0,
+            x: x,
+            y: y,
             size: ((data.pagerank - minScore) / (maxScore - minScore)) *
             (MAX_NODE_SIZE - MIN_NODE_SIZE) +
             MIN_NODE_SIZE,
