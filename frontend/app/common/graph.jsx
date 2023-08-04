@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { MultiDirectedGraph } from "graphology";
 import { AuthorInfoPanel, PaperInfoPanel } from "./infoPanel";
 import '@react-sigma/core/lib/react-sigma.min.css';
 
 const SigmaGraph = React.memo(function SigmaGraph({
+  containerRef,
   graphElements,
   nodeClickHandler,
   edgeClickHandler,
@@ -36,6 +37,13 @@ const SigmaGraph = React.memo(function SigmaGraph({
       .catch((error) => console.error('Error loading module', error));
 
     function updateSize() {
+      if (document.fullscreenElement ||
+        document.mozFullScreenElement ||
+        document.webkitFullscreenElement ||
+        document.msFullscreenElement) {
+          setSigmaHeight(`${window.innerHeight}px`);
+          return;
+      }
       // Get the heights of the other elements
       const headerStyle = window.getComputedStyle(document.getElementById('header'));
       const headerHeight = document.getElementById('header').offsetHeight + parseInt(headerStyle.marginTop) + parseInt(headerStyle.marginBottom);
@@ -130,7 +138,7 @@ const SigmaGraph = React.memo(function SigmaGraph({
       <GraphEvents />
       <ControlsContainer position={"bottom-right"}>
         <ZoomControl />
-        <FullScreenControl />
+        <FullScreenControl container={containerRef}/>
       </ControlsContainer>
     </SigmaContainer>
   );
@@ -143,9 +151,11 @@ export function GraphContainerSigma({
   edgeClickHandler,
   canvasClickHandler,
 }) {
+  const containerRef = useRef(null);
   return (
-    <div className="graph-container">
+    <div className="graph-container" ref={containerRef}>
       <SigmaGraph
+        containerRef={containerRef}
         graphElements={graphElements}
         nodeClickHandler={nodeClickHandler}
         edgeClickHandler={edgeClickHandler}
