@@ -18,6 +18,8 @@ const SigmaGraph = React.memo(function SigmaGraph({
   const [ControlsContainer, setControlsContainer] = useState(null);
   const [ZoomControl, setZoomControl] = useState(null);
   const [FullScreenControl, setFullScreenControl] = useState(null);
+  const graphRef = useRef(null);  // Store the graph in a ref
+  const sigmaRef = useRef(null);
 
   useEffect(() => {
     import('@react-sigma/core')
@@ -74,7 +76,7 @@ const SigmaGraph = React.memo(function SigmaGraph({
     return <div>Loading...</div>;
   }
 
-  const LoadGraph = () => {
+  const LoadGraph = ({ graphRef }) => {
     const loadGraph = useLoadGraph();
     const { assign } = useLayout();
 
@@ -109,33 +111,82 @@ const SigmaGraph = React.memo(function SigmaGraph({
         }
       });
       loadGraph(graph);
+      graphRef.current = graph;
       assign();
     }, [assign, loadGraph]);
 
     return null;
   };
 
-  const GraphEvents = () => {
+  const GraphEvents = ({ graphRef }) => {
     const registerEvents = useRegisterEvents();
+    const [highlightedNodes, setHighlightedNodes] = useState(new Set());
 
     useEffect(() => {
       registerEvents({
         clickNode: nodeClickHandler,
         clickEdge: edgeClickHandler,
         clickStage: canvasClickHandler,
+        enterNode: handleNodeHover,
+        leaveNode: handleNodeOut
       });
     }, [registerEvents]);
+
+    const handleNodeHover = e => {
+      if (graphRef.current) {
+        const neighbors = new Set(graphRef.current.neighbors(e.node));
+        neighbors.add(e.node);
+        setHighlightedNodes(neighbors);
+        updateNodeColors(neighbors);
+      }
+    };
+
+    const handleNodeOut = () => {
+      setHighlightedNodes(new Set());
+      resetNodeColors();
+    };
+
+    const updateNodeColors = (neighbors) => {
+      if (graphRef.current) {
+        const allNodes = graphRef.current._nodes;
+        for (const node of allNodes.values()) {
+          if (neighbors.has(node.key)) {
+            node.prevColor = node.attributes.color;
+            node.attributes.color = '#ff0000';  // highlighted color
+          } else {
+            node.prevColor = node.attributes.color;
+            node.attributes.color = '#d3d3d3';  // grayed out color
+          }
+        }
+        if (sigmaRef.current) {
+          sigmaRef.current.refresh();
+        }
+      }
+    };
+
+    const resetNodeColors = () => {
+      if (graphRef.current) {
+        const allNodes = graphRef.current._nodes;
+        for (const node of allNodes.values()) {
+          node.attributes.color = node.prevColor;
+        }
+        if (sigmaRef.current) {
+          sigmaRef.current.refresh();
+        }
+      }
+    };
 
     return null;
   };
 
   return (
     <SigmaContainer
+      ref={sigmaRef}
       graph={MultiDirectedGraph}
       settings={{ renderEdgeLabels: true, defaultEdgeType: "arrow" }}
       style={{ width: "100%", height: sigmaHeight }}>
-      <LoadGraph />
-      <GraphEvents />
+      <LoadGraph graphRef={graphRef}/>
+      <GraphEvents graphRef={graphRef}/>
       <ControlsContainer position={"bottom-right"}>
         <ZoomControl />
         <FullScreenControl container={containerRef}/>
