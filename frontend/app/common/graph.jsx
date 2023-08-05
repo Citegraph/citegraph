@@ -138,13 +138,37 @@ const SigmaGraph = React.memo(function SigmaGraph({
         neighbors.add(e.node);
         setHighlightedNodes(neighbors);
         updateNodeColors(neighbors);
+        updateEdgeVisibility(e.node);
+        sigmaRef.current.refresh();
       }
     };
 
     const handleNodeOut = () => {
       setHighlightedNodes(new Set());
       resetNodeColors();
+      resetEdgeVisibility();
+      sigmaRef.current.refresh();
     };
+
+    const updateEdgeVisibility = (node) => {
+      if (graphRef.current) {
+        const allEdges = graphRef.current._edges;
+        for (const edge of allEdges.values()) {
+          if (edge.source.key != node && edge.target.key != node) {
+            edge.attributes.hidden = true;
+          }
+        }
+      }
+    }
+
+    const resetEdgeVisibility = () => {
+      if (graphRef.current) {
+        const allEdges = graphRef.current._edges;
+        for (const edge of allEdges.values()) {
+          edge.attributes.hidden = false;
+        }
+      }
+    }
 
     const updateNodeColors = (neighbors) => {
       if (graphRef.current) {
@@ -158,9 +182,6 @@ const SigmaGraph = React.memo(function SigmaGraph({
             node.attributes.color = '#d3d3d3';  // grayed out color
           }
         }
-        if (sigmaRef.current) {
-          sigmaRef.current.refresh();
-        }
       }
     };
 
@@ -169,9 +190,6 @@ const SigmaGraph = React.memo(function SigmaGraph({
         const allNodes = graphRef.current._nodes;
         for (const node of allNodes.values()) {
           node.attributes.color = node.prevColor;
-        }
-        if (sigmaRef.current) {
-          sigmaRef.current.refresh();
         }
       }
     };
