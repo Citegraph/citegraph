@@ -4,14 +4,16 @@ import {
   Link,
   Links,
   useNavigation,
+  useLocation,
   Meta,
   useLoaderData,
 } from "@remix-run/react";
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import { getHotAuthors } from "./apis/authors";
 import stylesheetUrl from "./index.css";
 import { Skeleton } from "antd";
 import Header from "./header";
+import { useViewedAddresses, ViewedAddressesProvider } from "./address";
 
 export const links = () => {
   return [
@@ -40,11 +42,92 @@ export async function loader() {
   return { authors };
 }
 
-export default function Root() {
+function Root() {
   const { authors } = useLoaderData();
 
   const navigation = useNavigation();
 
+  const location = useLocation();
+  const { historyList, setHistoryList } = useViewedAddresses();
+
+  useEffect(() => {
+    let currentTitle = document.title;
+    // Remove " - Citegraph" from the tail if it exists
+    const suffix = " - Citegraph";
+    if (currentTitle.endsWith(suffix)) {
+      currentTitle = currentTitle.slice(0, -suffix.length);
+    }
+
+    setHistoryList((prevHistory) => {
+      // Excluding homepage or graph visualization page
+      if (
+        location.pathname == "/" ||
+        location.pathname.startsWith("/visualizer")
+      ) {
+        console.log("home page, return prevhistory", prevHistory);
+        return prevHistory;
+      }
+      // Limiting to last 10 visited entries
+      const newHistory = [
+        { path: location.pathname, title: currentTitle },
+        ...prevHistory,
+      ].slice(0, 10);
+      return newHistory;
+    });
+  }, [location.pathname]);
+
+  return (
+    <div id="root">
+      <div id="sidebar-container">
+        <div id="sidebar">
+          {historyList.length > 0 && (
+            <nav>
+              <p>
+                <b>Recently viewed</b>
+              </p>
+              <ul>
+                {historyList.map((entry, index) => (
+                  <li key={index}>
+                    <Link
+                      to={entry.path}
+                      className="truncate-text"
+                      title={entry.title}
+                    >
+                      {entry.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )}
+          <nav>
+            <p>
+              <b>Author Trending</b>
+            </p>
+            {authors.length ? (
+              <ul>
+                {authors.map((author) => (
+                  <li key={author.id}>
+                    <Link to={`author/${author.id}`}>{author.name}</Link>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>
+                <i>No authors</i>
+              </p>
+            )}
+          </nav>
+        </div>
+      </div>
+      <div id="detail">
+        {navigation.state == "loading" ? <Skeleton active /> : <Outlet />}
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
   return (
     <html lang="en">
       <head>
@@ -71,33 +154,9 @@ export default function Root() {
       <body>
         <Scripts />
         <Header />
-        <div id="root">
-          <div id="sidebar-container">
-            <div id="sidebar">
-              <nav>
-                <p>
-                  <b>People are searching</b>
-                </p>
-                {authors.length ? (
-                  <ul>
-                    {authors.map((author) => (
-                      <li key={author.id}>
-                        <Link to={`author/${author.id}`}>{author.name}</Link>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>
-                    <i>No authors</i>
-                  </p>
-                )}
-              </nav>
-            </div>
-          </div>
-          <div id="detail">
-            {navigation.state == "loading" ? <Skeleton active /> : <Outlet />}
-          </div>
-        </div>
+        <ViewedAddressesProvider>
+          <Root />
+        </ViewedAddressesProvider>
       </body>
     </html>
   );

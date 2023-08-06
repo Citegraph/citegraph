@@ -332,6 +332,14 @@ i {
   text-decoration: none;
 }
 
+.truncate-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  vertical-align: middle;
+}
+
 .graph-container {
   display: flex;
   flex-direction: row; /* Put the info panel to the side on desktop */
