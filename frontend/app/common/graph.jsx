@@ -174,11 +174,8 @@ const SigmaGraph = React.memo(function SigmaGraph({
       if (graphRef.current) {
         const allNodes = graphRef.current._nodes;
         for (const node of allNodes.values()) {
-          if (neighbors.has(node.key)) {
-            node.prevColor = node.attributes.color;
-            node.attributes.color = '#ff0000';  // highlighted color
-          } else {
-            node.prevColor = node.attributes.color;
+          node.prevColor = node.attributes.color;
+          if (!neighbors.has(node.key)) {
             node.attributes.color = '#d3d3d3';  // grayed out color
           }
         }
