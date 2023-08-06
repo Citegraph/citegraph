@@ -234,13 +234,9 @@ export default function Paper() {
           title="Paper Info"
           layout="vertical"
           extra={
-            <a
-              href={"/visualizer/" + paper.id}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <Link to={"/visualizer/" + paper.id}>
               <Button icon={<BulbTwoTone />}>Open Visualization</Button>
-            </a>
+            </Link>
           }
         >
           <Descriptions.Item label="Title">{paper.title}</Descriptions.Item>

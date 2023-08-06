@@ -260,13 +260,9 @@ export default function Author() {
           title="Author Info"
           layout="vertical"
           extra={
-            <a
-              href={"/visualizer/" + author.id}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <Link to={"/visualizer/" + author.id}>
               <Button icon={<BulbTwoTone />}>Open Visualization</Button>
-            </a>
+            </Link>
           }
         >
           <Descriptions.Item label="Name">
