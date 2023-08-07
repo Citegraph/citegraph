@@ -5,6 +5,8 @@ import io.citegraph.app.model.AuthorResponse;
 import io.citegraph.app.model.CitationResponse;
 import io.citegraph.app.model.CollaborationResponse;
 import io.citegraph.app.model.PaperResponse;
+import io.citegraph.app.model.PathDTO;
+import org.apache.tinkerpop.gremlin.process.traversal.Path;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Edge;
@@ -22,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.ws.rs.Path;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -251,6 +253,21 @@ public class GraphController {
     public List<AuthorResponse> getAuthors() {
         return authorCache.asMap().entrySet().stream()
             .map(entry -> new AuthorResponse(entry.getValue(), entry.getKey()))
+            .collect(Collectors.toList());
+    }
+
+    // TODO: add timeout
+    @GetMapping("/graph/path")
+    public List<PathDTO> getShortestPath(@RequestParam String fromId, @RequestParam String toId) {
+        return g.V(fromId)
+            .repeat(__.bothE("collaborates", "refers").otherV().simplePath())
+            .until(__.hasId(toId))
+            .path()
+            .by(__.elementMap())
+            .by(__.label())
+            .limit(1)
+            .toStream()
+            .map(PathDTO::new)
             .collect(Collectors.toList());
     }
 
