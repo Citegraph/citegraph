@@ -53,8 +53,11 @@ const SigmaGraph = React.memo(function SigmaGraph({
       const navStyle = window.getComputedStyle(document.getElementById('navigation'));
       const navHeight = document.getElementById('navigation').offsetHeight + parseInt(navStyle.marginTop) + parseInt(navStyle.marginBottom);
 
-      const searchStyle = window.getComputedStyle(document.getElementById('searchLimitConfig'));
-      const searchHeight = document.getElementById('searchLimitConfig').offsetHeight + parseInt(searchStyle.marginTop) + parseInt(searchStyle.marginBottom);
+      let searchHeight = 0;
+      if (document.getElementById("searchLimitConfig")) {
+        const searchStyle = window.getComputedStyle(document.getElementById('searchLimitConfig'));
+        searchHeight = document.getElementById('searchLimitConfig').offsetHeight + parseInt(searchStyle.marginTop) + parseInt(searchStyle.marginBottom);
+      }
 
       const detailPagePadding = 48; // 3rem
       // Subtract those heights from the viewport height
