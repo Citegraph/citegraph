@@ -1,69 +1,9 @@
-import { Link, useNavigate } from "@remix-run/react";
-import React, { useState } from "react";
-import { debounce } from "lodash";
+import { Link } from "@remix-run/react";
+import React from "react";
 import logo from "./assets/logo.svg";
-import { Select, Input, Space, AutoComplete } from "antd";
-import { API_URL } from "./apis/commons";
-
-const { Option } = Select;
+import { Search } from "./search";
 
 export default function Header() {
-  const [searchResults, setSearchResults] = useState([]);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [searchType, setSearchType] = useState("author");
-  const [placeholder, setPlaceholder] = useState("Search author name");
-
-  const handleSearchTypeChange = (value) => {
-    setSearchType(value);
-    setSearchResults([]);
-    if (value === "author") {
-      setPlaceholder("Search author name");
-    } else {
-      setPlaceholder("Search paper title");
-    }
-  };
-
-  const navigate = useNavigate();
-  const onSelect = (value, option) => {
-    navigate(option.key);
-  };
-
-  const handleSearch = debounce((query) => {
-    if (!query) {
-      setSearchResults([]);
-      setHasSearched(false);
-      return;
-    }
-    setHasSearched(true);
-    fetch(`${API_URL}/search/${searchType}/${query}`)
-      .then((response) => response.json())
-      .then((data) => {
-        const results = data.map((result) => {
-          const isAuthor = result.name != null;
-          return {
-            key: (isAuthor ? "/author/" : "/paper/") + result.id,
-            value: isAuthor ? result.name : result.title,
-          };
-        });
-        let prev = null;
-        let counter = 0;
-        for (let result of results) {
-          if (result.value == prev) {
-            counter++;
-            result.value = result.value + " (" + counter + ")";
-          } else {
-            counter = 0;
-            prev = result.value;
-          }
-          result.label = result.value;
-        }
-        setSearchResults(results);
-      })
-      .catch((error) => {
-        console.error("Error fetching search results: ", error);
-      });
-  }, 500);
-
   return (
     <div id="header">
       <div id="logo">
@@ -76,35 +16,7 @@ export default function Header() {
         </Link>
       </div>
 
-      <div id="search">
-        <Space.Compact>
-          <Select
-            defaultValue="author"
-            style={{ width: 80 }}
-            onChange={handleSearchTypeChange}
-          >
-            <Option value="author">Name</Option>
-            <Option value="paper">Title</Option>
-          </Select>
-          <AutoComplete
-            className="search-bar"
-            options={searchResults}
-            onSelect={onSelect}
-            onSearch={handleSearch}
-            notFoundContent={
-              hasSearched && !searchResults.length ? "Not found" : null
-            }
-          >
-            <Input.Search
-              size="medium"
-              placeholder={placeholder}
-              onSearch={handleSearch}
-              enterButton
-              allowClear
-            />
-          </AutoComplete>
-        </Space.Compact>
-      </div>
+      <Search />
 
       <div id="menu-items">
         <Link to="/about" className="menu-item">
