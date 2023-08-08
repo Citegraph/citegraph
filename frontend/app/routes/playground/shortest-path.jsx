@@ -1,4 +1,4 @@
-import { Link, useLoaderData, useFetcher } from "@remix-run/react";
+import { Link, useLoaderData, useNavigate } from "@remix-run/react";
 import { DEFAULT_SEARCH_LIMIT } from "../../apis/commons";
 import React, {
   useState,
@@ -36,13 +36,13 @@ export const meta = ({ data }) => {
 };
 
 export default function ShortestPath() {
-  const fetcher = useFetcher();
   const initialData = useLoaderData().path;
   const [path, setPath] = useState(initialData);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null);
   const [startId, setStartId] = useState(null);
   const [endId, setEndId] = useState(null);
+  const navigate = useNavigate();
 
   const resetGraph = () => {
     setSelected(null);
@@ -51,18 +51,8 @@ export default function ShortestPath() {
   // invoked when new page is loaded
   useEffect(() => {
     setPath(initialData);
-    setLoading(false);
     resetGraph();
   }, [initialData]);
-
-  // invoked when search box updated
-  useEffect(() => {
-    if (fetcher.data) {
-      setPath(fetcher.data.path);
-      setLoading(false);
-      resetGraph();
-    }
-  }, [fetcher.data, setLoading]);
 
   const selectedRef = useRef();
   selectedRef.current = selected;
@@ -117,10 +107,7 @@ export default function ShortestPath() {
   }, [path]);
 
   const findPath = (fromId, toId) => {
-    if (fetcher.state === "idle") {
-      setLoading(true);
-      fetcher.load(`/playground/shortest-path?fromId=${fromId}&toId=${toId}`);
-    }
+    navigate(`/playground/shortest-path?fromId=${fromId}&toId=${toId}`);
   };
 
   const onSelectStart = (value, option) => {
