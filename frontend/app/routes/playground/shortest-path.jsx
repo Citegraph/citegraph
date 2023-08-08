@@ -1,5 +1,5 @@
 import { Link, useLoaderData, useFetcher } from "@remix-run/react";
-import { DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from "../../apis/commons";
+import { DEFAULT_SEARCH_LIMIT } from "../../apis/commons";
 import React, {
   useState,
   useEffect,
@@ -9,15 +9,8 @@ import React, {
 } from "react";
 import { getVertex, getPath } from "../../apis/graph";
 import { GraphContainerSigma } from "../../common/graph";
-import {
-  Breadcrumb,
-  Checkbox,
-  Row,
-  Col,
-  Slider,
-  Spin,
-  InputNumber,
-} from "antd";
+import { Breadcrumb, Spin, Result } from "antd";
+import { SimpleSearch } from "../../search";
 
 export async function loader({ request }) {
   const searchParams = new URL(request.url).searchParams;
@@ -36,10 +29,6 @@ function getVertexType(vertex) {
   return vertex.title ? "paper" : "author";
 }
 
-function getVertexLink(vertex, type) {
-  return "/" + type + "/" + vertex.id;
-}
-
 export const meta = ({ data }) => {
   return {
     title: `Find shortest path - Citegraph`,
@@ -52,6 +41,8 @@ export default function ShortestPath() {
   const [path, setPath] = useState(initialData);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [startId, setStartId] = useState(null);
+  const [endId, setEndId] = useState(null);
 
   const resetGraph = () => {
     setSelected(null);
@@ -63,6 +54,15 @@ export default function ShortestPath() {
     setLoading(false);
     resetGraph();
   }, [initialData]);
+
+  // invoked when search box updated
+  useEffect(() => {
+    if (fetcher.data) {
+      setPath(fetcher.data.path);
+      setLoading(false);
+      resetGraph();
+    }
+  }, [fetcher.data, setLoading]);
 
   const selectedRef = useRef();
   selectedRef.current = selected;
@@ -93,24 +93,50 @@ export default function ShortestPath() {
 
   const elements = useMemo(() => {
     return [].concat(
-      path.vertices.map((elem) => ({
-        data: {
-          id: elem.id,
-          label: getVertexName(elem),
-          type: getVertexType(elem),
-          pagerank: elem.pagerank,
-        },
-      })),
-      path.edges.map((elem) => ({
-        data: {
-          source: elem.from,
-          target: elem.to,
-          label: elem.label,
-          type: elem.label,
-        },
-      }))
+      path && path.vertices
+        ? path.vertices.map((elem) => ({
+            data: {
+              id: elem.id,
+              label: getVertexName(elem),
+              type: getVertexType(elem),
+              pagerank: elem.pagerank,
+            },
+          }))
+        : [],
+      path && path.edges
+        ? path.edges.map((elem) => ({
+            data: {
+              source: elem.from,
+              target: elem.to,
+              label: elem.label,
+              type: elem.label,
+            },
+          }))
+        : []
     );
   }, [path]);
+
+  const findPath = (fromId, toId) => {
+    if (fetcher.state === "idle") {
+      setLoading(true);
+      fetcher.load(`/playground/shortest-path?fromId=${fromId}&toId=${toId}`);
+    }
+  };
+
+  const onSelectStart = (value, option) => {
+    setStartId(option.key);
+  };
+
+  const onSelectEnd = (value, option) => {
+    setEndId(option.key);
+  };
+
+  useEffect(() => {
+    if (startId && endId) {
+      // TODO: alert if startId == endId
+      findPath(startId, endId);
+    }
+  }, [startId, endId]);
 
   return (
     <div id="path">
@@ -129,6 +155,10 @@ export default function ShortestPath() {
           ]}
         />
       </div>
+      <div id="graph-config">
+        <SimpleSearch onSelect={onSelectStart} includePrefix={false} />
+        <SimpleSearch onSelect={onSelectEnd} includePrefix={false} />
+      </div>
 
       {loading ? (
         <div
@@ -141,6 +171,8 @@ export default function ShortestPath() {
         >
           <Spin size="large" />
         </div>
+      ) : elements == null || elements.length == 0 ? (
+        <Result status="warning" title="No path is found within 10 seconds." />
       ) : (
         <GraphContainerSigma
           graphElements={elements}

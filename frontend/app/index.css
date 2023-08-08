@@ -148,7 +148,7 @@ form[action$="destroy"] button {
   width: 400px;
 }
 
-#header #search .ant-input {
+.search-bar .ant-input {
   border: none;
   outline: none;
   box-shadow: none;

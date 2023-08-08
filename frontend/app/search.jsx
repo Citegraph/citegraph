@@ -12,6 +12,7 @@ export function SimpleSearch({
   placeholderText,
   onSelect: externalOnSelect,
   clearResults,
+  includePrefix = true,
 }) {
   const [searchResults, setSearchResults] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
@@ -42,7 +43,9 @@ export function SimpleSearch({
         const results = data.map((result) => {
           const isAuthor = result.name != null;
           return {
-            key: (isAuthor ? "/author/" : "/paper/") + result.id,
+            key:
+              (includePrefix ? (isAuthor ? "/author/" : "/paper/") : "") +
+              result.id,
             value: isAuthor ? result.name : result.title,
           };
         });
