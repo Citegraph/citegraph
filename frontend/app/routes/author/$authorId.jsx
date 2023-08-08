@@ -342,7 +342,7 @@ export default function Author() {
       </div>
       <Divider dashed />
       {maxSearchLimit > DEFAULT_SEARCH_LIMIT && (
-        <div id="searchLimitConfig">
+        <div id="graph-config">
           <Text>Search Limit</Text>
           <Row>
             <Col xs={24} md={8}>

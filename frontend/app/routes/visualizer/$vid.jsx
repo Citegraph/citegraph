@@ -275,7 +275,7 @@ export default function Graph() {
           ]}
         />
       </div>
-      <div id="searchLimitConfig">
+      <div id="graph-config">
         <Row>
           <Col xs={24} md={8} style={{ marginRight: "16px" }}>
             <Slider

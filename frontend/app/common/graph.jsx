@@ -54,9 +54,9 @@ const SigmaGraph = React.memo(function SigmaGraph({
       const navHeight = document.getElementById('navigation').offsetHeight + parseInt(navStyle.marginTop) + parseInt(navStyle.marginBottom);
 
       let searchHeight = 0;
-      if (document.getElementById("searchLimitConfig")) {
-        const searchStyle = window.getComputedStyle(document.getElementById('searchLimitConfig'));
-        searchHeight = document.getElementById('searchLimitConfig').offsetHeight + parseInt(searchStyle.marginTop) + parseInt(searchStyle.marginBottom);
+      if (document.getElementById("graph-config")) {
+        const searchStyle = window.getComputedStyle(document.getElementById('graph-config'));
+        searchHeight = document.getElementById('graph-config').offsetHeight + parseInt(searchStyle.marginTop) + parseInt(searchStyle.marginBottom);
       }
 
       const detailPagePadding = 48; // 3rem
