@@ -13,6 +13,7 @@ export function SimpleSearch({
   onSelect: externalOnSelect,
   clearResults,
   includePrefix = true,
+  initialValue = "",
 }) {
   const [searchResults, setSearchResults] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
@@ -85,6 +86,7 @@ export function SimpleSearch({
       notFoundContent={
         hasSearched && !searchResults.length ? "Not found" : null
       }
+      defaultValue={initialValue}
     >
       <Input.Search
         size="medium"

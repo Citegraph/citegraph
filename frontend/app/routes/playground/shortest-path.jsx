@@ -1,4 +1,4 @@
-import { Link, useLoaderData, useNavigate } from "@remix-run/react";
+import { Link, useLoaderData, useNavigate, useLocation } from "@remix-run/react";
 import { DEFAULT_SEARCH_LIMIT } from "../../apis/commons";
 import React, {
   useState,
@@ -9,7 +9,7 @@ import React, {
 } from "react";
 import { getVertex, getPath } from "../../apis/graph";
 import { GraphContainerSigma } from "../../common/graph";
-import { Breadcrumb, Spin, Result } from "antd";
+import { Breadcrumb, Empty, Space, Spin, Result } from "antd";
 import { SimpleSearch } from "../../search";
 
 export async function loader({ request }) {
@@ -18,7 +18,7 @@ export async function loader({ request }) {
   const end = searchParams.get("toId");
   const paths = await getPath(start, end);
   const path = paths[0];
-  return { path };
+  return { path, startId: start, endId: end };
 }
 
 function getVertexName(vertex) {
@@ -36,12 +36,19 @@ export const meta = ({ data }) => {
 };
 
 export default function ShortestPath() {
-  const initialData = useLoaderData().path;
+  const loadedData = useLoaderData();
+  const initialData = loadedData.path;
   const [path, setPath] = useState(initialData);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null);
-  const [startId, setStartId] = useState(null);
-  const [endId, setEndId] = useState(null);
+  const [startId, setStartId] = useState(loadedData.startId);
+  const [endId, setEndId] = useState(loadedData.endId);
+  // we also need to maintain the names of the authors selected
+  const location = useLocation();
+  // TODO: move this to loader. when state is not available, fetch from backend
+  const [startValue, setStartValue] = useState(location.state?.startValue || "");
+  const [endValue, setEndValue] = useState(location.state?.endValue || "");
+
   const navigate = useNavigate();
 
   const resetGraph = () => {
@@ -107,23 +114,29 @@ export default function ShortestPath() {
   }, [path]);
 
   const findPath = (fromId, toId) => {
-    navigate(`/playground/shortest-path?fromId=${fromId}&toId=${toId}`);
+    navigate(`/playground/shortest-path?fromId=${fromId}&toId=${toId}`, { state: { startValue: startValue, endValue: endValue } });
   };
 
   const onSelectStart = (value, option) => {
     setStartId(option.key);
+    setStartValue(value);
   };
 
   const onSelectEnd = (value, option) => {
     setEndId(option.key);
+    setEndValue(value);
   };
 
   useEffect(() => {
-    if (startId && endId) {
-      // TODO: alert if startId == endId
+    const searchParams = new URL(window.location.href).searchParams;
+    const currentStart = searchParams.get("fromId");
+    const currentEnd = searchParams.get("toId");
+
+    // TODO: alert if startId == endId
+    if (startId && endId && (startId !== currentStart || endId !== currentEnd)) {
       findPath(startId, endId);
     }
-  }, [startId, endId]);
+}, [startId, endId]);
 
   return (
     <div id="path">
@@ -143,8 +156,22 @@ export default function ShortestPath() {
         />
       </div>
       <div id="graph-config">
-        <SimpleSearch onSelect={onSelectStart} includePrefix={false} />
-        <SimpleSearch onSelect={onSelectEnd} includePrefix={false} />
+        <Space>
+          <p>Find shortest path between </p>
+          <SimpleSearch
+            onSelect={onSelectStart}
+            placeholderText={"Enter start author"}
+            includePrefix={false}
+            initialValue={startValue}
+          />
+          <p>and</p>
+          <SimpleSearch
+            onSelect={onSelectEnd}
+            placeholderText={"Enter end author"}
+            includePrefix={false}
+            initialValue={endValue}
+          />
+        </Space>
       </div>
 
       {loading ? (
@@ -160,7 +187,7 @@ export default function ShortestPath() {
         </div>
       ) : elements == null || elements.length == 0 ? (
         startId == null || endId == null ? (
-          <Result status="info" title="Start by entering author names..." />
+          <Empty description={<p>no data yet</p>} />
         ) : (
           <Result
             status="warning"
