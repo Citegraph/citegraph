@@ -256,7 +256,6 @@ public class GraphController {
             .collect(Collectors.toList());
     }
 
-    // TODO: add timeout
     @GetMapping("/graph/path")
     public List<PathDTO> getShortestPath(@RequestParam String fromId, @RequestParam String toId) {
         return g.V(fromId)
