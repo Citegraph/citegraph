@@ -59,12 +59,12 @@ function Root() {
     }
 
     setHistoryList((prevHistory) => {
-      // Excluding homepage or graph visualization page
+      // Excluding homepage or graph visualization (including playground) page
       if (
         location.pathname == "/" ||
-        location.pathname.startsWith("/visualizer")
+        location.pathname.startsWith("/visualizer") ||
+        location.pathname.startsWith("/playground")
       ) {
-        console.log("home page, return prevhistory", prevHistory);
         return prevHistory;
       }
       // Limiting to last 10 visited entries
@@ -80,6 +80,18 @@ function Root() {
     <div id="root">
       <div id="sidebar-container">
         <div id="sidebar">
+          <nav>
+            <p>
+              <b>Playground</b>
+            </p>
+            <ul>
+              <li key="path">
+                <Link to={"/playground/shortest-path/"}>
+                  Find Shortest Path Between ...
+                </Link>
+              </li>
+            </ul>
+          </nav>
           {historyList.length > 0 && (
             <nav>
               <p>
@@ -100,11 +112,11 @@ function Root() {
               </ul>
             </nav>
           )}
-          <nav>
-            <p>
-              <b>Author Trending</b>
-            </p>
-            {authors.length ? (
+          {authors.length > 0 && (
+            <nav>
+              <p>
+                <b>Author Trending</b>
+              </p>
               <ul>
                 {authors.map((author) => (
                   <li key={author.id}>
@@ -112,12 +124,8 @@ function Root() {
                   </li>
                 ))}
               </ul>
-            ) : (
-              <p>
-                <i>No authors</i>
-              </p>
-            )}
-          </nav>
+            </nav>
+          )}
         </div>
       </div>
       <div id="detail">

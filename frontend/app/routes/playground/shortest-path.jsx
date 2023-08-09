@@ -159,7 +159,14 @@ export default function ShortestPath() {
           <Spin size="large" />
         </div>
       ) : elements == null || elements.length == 0 ? (
-        <Result status="warning" title="No path is found within 10 seconds." />
+        startId == null || endId == null ? (
+          <Result status="info" title="Start by entering author names..." />
+        ) : (
+          <Result
+            status="warning"
+            title="No path is found within 10 seconds."
+          />
+        )
       ) : (
         <GraphContainerSigma
           graphElements={elements}
