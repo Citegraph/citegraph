@@ -8,6 +8,7 @@ import React, {
   useRef,
 } from "react";
 import { getVertex, getPath } from "../../apis/graph";
+import { getAuthor } from "../../apis/authors";
 import { GraphContainerSigma } from "../../common/graph";
 import { Breadcrumb, Empty, Space, Spin, Result } from "antd";
 import { SimpleSearch } from "../../search";
@@ -45,9 +46,9 @@ export default function ShortestPath() {
   const [endId, setEndId] = useState(loadedData.endId);
   // we also need to maintain the names of the authors selected
   const location = useLocation();
-  // TODO: move this to loader. when state is not available, fetch from backend
-  const [startValue, setStartValue] = useState(location.state?.startValue || "");
-  const [endValue, setEndValue] = useState(location.state?.endValue || "");
+  // when state is not available, fetch from backend
+  const [startValue, setStartValue] = useState(location.state?.startValue || getAuthor(startId, 0, false).name);
+  const [endValue, setEndValue] = useState(location.state?.endValue || getAuthor(endId, 0, false).name);
 
   const navigate = useNavigate();
 
