@@ -176,24 +176,29 @@ export default function ShortestPath() {
       </div>
 
       {loading ? (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "800px",
-          }}
-        >
+        <div className="loading-spin">
           <Spin size="large" />
         </div>
       ) : elements == null || elements.length == 0 ? (
         startId == null || endId == null ? (
-          <Empty description={<p>no data yet</p>} />
+          <div className="landing-no-data">
+            <Empty description={<p>no data yet</p>} />
+          </div>
         ) : (
-          <Result
-            status="warning"
-            title="No path is found within 10 seconds."
-          />
+          // TODO: explain why no path found, and what could user try
+          // TODO: this quickly shows up the moment search starts
+          <div className="warning-no-data">
+            <Result
+              status="warning"
+              title="No path is found within 10 seconds."
+              extra={
+                <div>
+                  <p>Citegraph uses Breadth-First Search to find shortest path from start author to end author.</p>
+                  <p>Consider start from the author with fewer neighbors.</p>
+                </div>
+              }
+            />
+          </div>
         )
       ) : (
         <GraphContainerSigma

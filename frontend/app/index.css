@@ -328,6 +328,21 @@ i {
   width: 100%;
 }
 
+.loading-spin {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 8rem;
+}
+
+.landing-no-data {
+  margin-top: 8rem;
+}
+
+.warning-no-data {
+  margin-top: 4rem;
+}
+
 .no-underline {
   text-decoration: none;
 }
