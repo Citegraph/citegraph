@@ -159,10 +159,10 @@ export default function ShortestPath() {
               title: <Link to="/">Home</Link>,
             },
             {
-              title: "Playground",
+              title: <Link to="/playground/">Playground</Link>,
             },
             {
-              title: "Shortested Path",
+              title: <Link to="/playground/shortest-path/">Shortested Path</Link>,
             },
           ]}
         />

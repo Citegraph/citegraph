@@ -87,7 +87,7 @@ function Root() {
             <ul>
               <li key="path">
                 <Link to={"/playground/shortest-path/"}>
-                  Find Shortest Path Between ...
+                  Find Shortest Path
                 </Link>
               </li>
             </ul>

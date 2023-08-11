@@ -19,6 +19,9 @@ export default function Header() {
       <Search />
 
       <div id="menu-items">
+        <Link to="/playground" className="menu-item">
+          Playground
+        </Link>
         <Link to="/about" className="menu-item">
           About
         </Link>
