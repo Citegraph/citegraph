@@ -5,6 +5,7 @@ export async function getHotAuthors() {
 }
 
 export async function getAuthor(id, limit, getEdges = true) {
+  if (id == null) return null;
   return fetch(
     `${API_URL}/author/${id}?limit=${limit}&getEdges=${getEdges}`
   ).then((r) => r.json());

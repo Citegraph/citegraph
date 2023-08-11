@@ -47,8 +47,8 @@ export default function ShortestPath() {
   // we also need to maintain the names of the authors selected
   const location = useLocation();
   // when state is not available, fetch from backend
-  const [startValue, setStartValue] = useState(location.state?.startValue || getAuthor(startId, 0, false).name);
-  const [endValue, setEndValue] = useState(location.state?.endValue || getAuthor(endId, 0, false).name);
+  const [startValue, setStartValue] = useState(location.state?.startValue || getAuthor(startId, 0, false)?.name);
+  const [endValue, setEndValue] = useState(location.state?.endValue || getAuthor(endId, 0, false)?.name);
 
   const navigate = useNavigate();
 
