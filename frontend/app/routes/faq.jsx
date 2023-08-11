@@ -35,7 +35,7 @@ const items = [
   },
   {
     key: "2",
-    label: "Why is some data missing/wrong?",
+    label: "Why is some data missing/wrong? Why is data not up-to-date?",
     children: (
       <div>
         <p>
@@ -46,9 +46,13 @@ const items = [
           being mixed up as one person.
         </p>
         <p>
+          As of now, the data set purely comes from DBLP-Citation-network V14,
+          an open-source citation dataset published on 2023-01-31.
+        </p>
+        <p>
           If you spot any mistakes or missing data, please let us know. You can
           do this by raising an issue on our GitHub page. We'll do our best to
-          fix it quickly.
+          fix it manually.
         </p>
       </div>
     ),
@@ -127,6 +131,17 @@ const items = [
       </p>
     ),
   },
+  {
+    key: "6",
+    label: "Why are authors of a paper not in their original order?",
+    children: (
+      <p>
+        Citegraph by default sorts authors by their pagerank (influence). At the
+        moment, the original author order is not retained. Please submit an
+        issue on GitHub if you find it important for your use case.
+      </p>
+    ),
+  },
 ];
 
 export const meta = () => {
@@ -136,5 +151,5 @@ export const meta = () => {
 };
 
 export default function FAQ() {
-  return <Collapse items={items} defaultActiveKey={[1, 2, 3, 4, 5]} />;
+  return <Collapse items={items} defaultActiveKey={[1, 2, 3, 4, 5, 6]} />;
 }
