@@ -44,6 +44,8 @@ export default function ShortestPath() {
   const [selected, setSelected] = useState(null);
   const [startId, setStartId] = useState(loadedData.startId);
   const [endId, setEndId] = useState(loadedData.endId);
+  // show no path found warning
+  const [showWarning, setShowWarning] = useState(true);
   // we also need to maintain the names of the authors selected
   const location = useLocation();
   // when state is not available, fetch from backend
@@ -119,11 +121,13 @@ export default function ShortestPath() {
   };
 
   const onSelectStart = (value, option) => {
+    setShowWarning(false);
     setStartId(option.key);
     setStartValue(value);
   };
 
   const onSelectEnd = (value, option) => {
+    setShowWarning(false);
     setEndId(option.key);
     setEndValue(value);
   };
@@ -187,12 +191,11 @@ export default function ShortestPath() {
           <Spin size="large" />
         </div>
       ) : elements == null || elements.length == 0 ? (
-        startId == null || endId == null || startId == endId ? (
+        startId == null || endId == null || startId == endId || !showWarning ? (
           <div className="landing-no-data">
             <Empty description={<p>no data yet</p>} />
           </div>
         ) : (
-          // TODO: this quickly shows up the moment search starts
           <div className="warning-no-data">
             <Result
               status="warning"
