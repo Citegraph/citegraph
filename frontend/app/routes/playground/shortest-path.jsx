@@ -10,7 +10,7 @@ import React, {
 import { getVertex, getPath } from "../../apis/graph";
 import { getAuthor } from "../../apis/authors";
 import { GraphContainerSigma } from "../../common/graph";
-import { Breadcrumb, Empty, Space, Spin, Result } from "antd";
+import { Breadcrumb, Empty, Space, Spin, Result, notification } from "antd";
 import { SimpleSearch } from "../../search";
 
 export async function loader({ request }) {
@@ -133,7 +133,14 @@ export default function ShortestPath() {
     const currentStart = searchParams.get("fromId");
     const currentEnd = searchParams.get("toId");
 
-    // TODO: alert if startId == endId
+    if (startId && endId && startId === endId) {
+      notification.warning({
+          message: 'Invalid Selection',
+          description: 'The start and end authors cannot be the same. Please choose different authors.',
+      });
+      return;  // Prevent further execution in this useEffect
+    }
+
     if (startId && endId && (startId !== currentStart || endId !== currentEnd)) {
       findPath(startId, endId);
     }
@@ -180,7 +187,7 @@ export default function ShortestPath() {
           <Spin size="large" />
         </div>
       ) : elements == null || elements.length == 0 ? (
-        startId == null || endId == null ? (
+        startId == null || endId == null || startId == endId ? (
           <div className="landing-no-data">
             <Empty description={<p>no data yet</p>} />
           </div>
@@ -193,7 +200,7 @@ export default function ShortestPath() {
               extra={
                 <div>
                   <p>Citegraph uses Breadth-First Search to find shortest path from start author to end author.</p>
-                  <p>Consider start from the author with fewer neighbors.</p>
+                  <p>Consider starting from the author with fewer neighbors.</p>
                 </div>
               }
             />
