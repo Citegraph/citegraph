@@ -4,6 +4,9 @@ Disallow:
 User-agent: SemrushBot
 Disallow: /
 
+User-agent: PetalBot
+Disallow: /
+
 Sitemap: https://www.citegraph.io/sitemap1.txt
 Sitemap: https://www.citegraph.io/sitemap2.txt
 Sitemap: https://www.citegraph.io/sitemap3.txt
