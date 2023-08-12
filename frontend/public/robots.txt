@@ -7,6 +7,24 @@ Disallow: /
 User-agent: PetalBot
 Disallow: /
 
+User-agent: AspiegelBot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12Bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: MauiBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
 Sitemap: https://www.citegraph.io/sitemap1.txt
 Sitemap: https://www.citegraph.io/sitemap2.txt
 Sitemap: https://www.citegraph.io/sitemap3.txt
