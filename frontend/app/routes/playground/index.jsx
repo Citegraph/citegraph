@@ -1,13 +1,14 @@
-import {
-  Link,
-  useLoaderData,
-  useNavigate,
-  useLocation,
-} from "@remix-run/react";
+import { Link } from "@remix-run/react";
 import { Breadcrumb, Card, Col, Row, Space } from "antd";
 import shortPathDemo from "../../assets/short_path_demo.png";
 
 const { Meta } = Card;
+
+export const meta = () => {
+  return {
+    title: `Playground - Explore Citation Networks | Citegraph`,
+  };
+};
 
 export default function Playground() {
   return (
