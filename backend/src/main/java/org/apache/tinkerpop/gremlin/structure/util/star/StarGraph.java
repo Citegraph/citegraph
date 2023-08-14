@@ -360,12 +360,23 @@ public final class StarGraph implements Graph, Serializable {
             super(id, label);
         }
 
+        private void dropEdgeProperty(Object id) {
+            if (edgeProperties != null) {
+                edgeProperties.remove(id);
+            } else {
+                // debug only
+                assert(edgeProperties == null);
+            }
+        }
+
         public void dropEdges(final Direction direction) {
             if ((direction.equals(Direction.OUT) || direction.equals(Direction.BOTH)) && null != this.outEdges) {
+                this.outEdges.values().forEach(edges -> edges.forEach(edge -> dropEdgeProperty(edge.id())));
                 this.outEdges.clear();
                 this.outEdges = null;
             }
             if ((direction.equals(Direction.IN) || direction.equals(Direction.BOTH)) && null != this.inEdges) {
+                this.inEdges.values().forEach(edges -> edges.forEach(edge -> dropEdgeProperty(edge.id())));
                 this.inEdges.clear();
                 this.inEdges = null;
             }
@@ -373,12 +384,14 @@ public final class StarGraph implements Graph, Serializable {
 
         public void dropEdges(final Direction direction, final String edgeLabel) {
             if (null != this.outEdges && (direction.equals(Direction.OUT) || direction.equals(Direction.BOTH))) {
+                this.outEdges.get(edgeLabel).forEach(edge -> dropEdgeProperty(edge.id()));
                 this.outEdges.remove(edgeLabel);
 
                 if (this.outEdges.isEmpty())
                     this.outEdges = null;
             }
             if (null != this.inEdges && (direction.equals(Direction.IN) || direction.equals(Direction.BOTH))) {
+                this.inEdges.get(edgeLabel).forEach(edge -> dropEdgeProperty(edge.id()));
                 this.inEdges.remove(edgeLabel);
 
                 if (this.inEdges.isEmpty())
@@ -535,12 +548,12 @@ public final class StarGraph implements Graph, Serializable {
                     if (graphFilter.checkEdgeLegality(Direction.IN).negative())
                         this.dropEdges(Direction.IN);
                     if (null != this.outEdges)
-                        for (final String key : new HashSet<>(this.outEdges.keySet())) {
+                        for (final String key : this.outEdges.keySet()) {
                             if (graphFilter.checkEdgeLegality(Direction.OUT, key).negative())
                                 this.dropEdges(Direction.OUT, key);
                         }
                     if (null != this.inEdges)
-                        for (final String key : new HashSet<>(this.inEdges.keySet())) {
+                        for (final String key : this.inEdges.keySet()) {
                             if (graphFilter.checkEdgeLegality(Direction.IN, key).negative())
                                 this.dropEdges(Direction.IN, key);
                         }
@@ -565,6 +578,7 @@ public final class StarGraph implements Graph, Serializable {
                             }
                         });
 
+                        // TODO: more edge properties to remove
                         if (outEdges.isEmpty())
                             this.dropEdges(Direction.OUT);
                         else

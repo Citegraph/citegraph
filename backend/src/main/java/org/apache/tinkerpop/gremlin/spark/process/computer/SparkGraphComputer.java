@@ -405,6 +405,7 @@ public final class SparkGraphComputer extends AbstractHadoopGraphComputer {
                             }
                             memory.setInExecute(true);
                             viewIncomingRDD = SparkExecutor.executeVertexProgramIteration(loadedGraphRDD, viewIncomingRDD, memory, graphComputerConfiguration, vertexProgramConfiguration);
+                            viewIncomingRDD.persist(StorageLevel.fromString(hadoopConfiguration.get(GREMLIN_SPARK_GRAPH_STORAGE_LEVEL, "MEMORY_ONLY")));
                             iteration++;
                             memory.setInExecute(false);
                             if (this.vertexProgram.terminate(memory))
