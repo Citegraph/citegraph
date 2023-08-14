@@ -43,6 +43,7 @@ public class DblpParser {
      * the other author's work.
      * This method is idempotent.
      *
+     * @deprecated Single-thread is too slow, use AuthorRefEdgeLoader Spark program instead
      * @param paper
      * @param graph
      */
@@ -70,8 +71,7 @@ public class DblpParser {
                         graph.traversal().E(e).property("refCount", count + 1).next();
                     } else {
                         graph.traversal().V(author).addE("refers").to(refAuthor)
-                            .property("refCount", 1)
-                            .property("name", name).next();
+                            .property("refCount", 1).next();
                     }
                 }
             }
