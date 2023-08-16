@@ -13,6 +13,7 @@ import org.apache.tinkerpop.gremlin.hadoop.structure.io.VertexWritable;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.spark.structure.io.SparkIOUtil;
 import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.util.star.StarGraph;
 import org.janusgraph.core.JanusGraph;
@@ -69,10 +70,13 @@ public class EdgePropertyPurger {
                             List<Object> edgeIds = g.V(fromV).outE("refers").id().toList();
                             int count = 0;
                             for (Object edgeId : edgeIds) {
-                                count++;
                                 Edge e = g.E(edgeId).next();
-                                e.property("name").remove();
-                                if (count % 10 == 0) {
+                                Property prop = e.property("name");
+                                if (prop.isPresent()) {
+                                    count++;
+                                    prop.remove();
+                                }
+                                if (count > 0 && count % 10 == 0) {
                                     g.tx().commit();
                                 }
                             }
