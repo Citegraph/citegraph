@@ -25,7 +25,7 @@ import static org.apache.tinkerpop.gremlin.hadoop.Constants.GREMLIN_HADOOP_OUTPU
 public class CommunityDetectionRunner {
     public static void main(String[] args) throws Exception {
         Configuration sparkGraphConfiguration = getSparkGraphConfig();
-        sparkGraphConfiguration.setProperty(Constants.GREMLIN_SPARK_GRAPH_STORAGE_LEVEL, "DISK_ONLY");
+        sparkGraphConfiguration.setProperty(Constants.GREMLIN_SPARK_GRAPH_STORAGE_LEVEL, "MEMORY_AND_DISK");
         sparkGraphConfiguration.setProperty(GREMLIN_HADOOP_GRAPH_WRITER, GraphSONOutputFormat.class.getCanonicalName());
         sparkGraphConfiguration.setProperty(GREMLIN_HADOOP_OUTPUT_LOCATION, "/Users/liboxuan/workspace/sparkgraph/");
         sparkGraphConfiguration.setProperty(SparkLauncher.EXECUTOR_MEMORY, "1g");
@@ -45,7 +45,6 @@ public class CommunityDetectionRunner {
             .submit()
             .get();
         long duration = (System.currentTimeMillis() - startTime) / 1000;
-        System.out.println("Result memory: " + result.memory().asMap());
         System.out.println("finished PeerPressure computation, elapsed time = " + duration + " seconds.");
         graph.close();
     }
