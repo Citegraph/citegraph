@@ -548,12 +548,12 @@ public final class StarGraph implements Graph, Serializable {
                     if (graphFilter.checkEdgeLegality(Direction.IN).negative())
                         this.dropEdges(Direction.IN);
                     if (null != this.outEdges)
-                        for (final String key : this.outEdges.keySet()) {
+                        for (final String key : new HashSet<>(this.outEdges.keySet())) {
                             if (graphFilter.checkEdgeLegality(Direction.OUT, key).negative())
                                 this.dropEdges(Direction.OUT, key);
                         }
                     if (null != this.inEdges)
-                        for (final String key : this.inEdges.keySet()) {
+                        for (final String key : new HashSet<>(this.inEdges.keySet())) {
                             if (graphFilter.checkEdgeLegality(Direction.IN, key).negative())
                                 this.dropEdges(Direction.IN, key);
                         }
