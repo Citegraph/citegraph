@@ -47,6 +47,9 @@ public class GraphInitializer {
         PropertyKey collaborateCount = mgmt.getPropertyKey("collaborateCount");
         if (collaborateCount == null)
             mgmt.makePropertyKey("collaborateCount").dataType(Integer.class).make();
+        PropertyKey clusterId = mgmt.getPropertyKey("clusterId");
+        if (clusterId == null)
+            mgmt.makePropertyKey("clusterId").dataType(String.class).make();
         if (mgmt.getGraphIndex("nameIdx") == null)
             mgmt.buildIndex("nameIdx", Vertex.class).addKey(name).buildMixedIndex("search");
         if (mgmt.getGraphIndex("titleIdx") == null)
