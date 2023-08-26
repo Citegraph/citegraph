@@ -59,10 +59,10 @@ public class GraphSONVertexPropertyLoader {
                         String vid = vertex.getId();
                         String cluster = vertex.getProperties().getCluster().get(0).getValue();
                         GraphTraversalSource g = finalGraph.traversal();
-                        if (g.V(vid).values("cluster").hasNext()) {
+                        if (g.V(vid).values("clusterId").hasNext()) {
                             return;
                         }
-                        g.V(vid).property("cluster", cluster).next();
+                        g.V(vid).property("clusterId", cluster).next();
                         g.tx().commit();
                         return;
                     } catch (Exception ex) {

@@ -256,6 +256,21 @@ public class GraphController {
             .collect(Collectors.toList());
     }
 
+    @GetMapping("/graph/cluster/{vid}")
+    public List<PathDTO> getCluster(@PathVariable String vid) {
+        String clusterId = (String) g.V(vid).values("clusterId").next();
+        return g.V(vid)
+            .repeat(__.bothE("collaborates").otherV().simplePath())
+            .until(__.not(__.has("clusterId", clusterId)))
+            .limit(100)
+            .path()
+            .by(__.elementMap())
+            .by(__.label())
+            .toStream()
+            .map(PathDTO::new)
+            .collect(Collectors.toList());
+    }
+
     @GetMapping("/graph/path")
     public List<PathDTO> getShortestPath(@RequestParam String fromId, @RequestParam String toId) {
         return g.V(fromId)
