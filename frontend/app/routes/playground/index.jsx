@@ -1,6 +1,7 @@
 import { Link } from "@remix-run/react";
 import { Breadcrumb, Card, Col, Row, Space } from "antd";
 import shortPathDemo from "../../assets/short_path_demo.png";
+import communityDemo from "../../assets/community_demo.png";
 
 const { Meta } = Card;
 
@@ -45,6 +46,25 @@ export default function Playground() {
                 <Meta
                   title="Shortest Path Finder"
                   description="Explore how people connect"
+                />
+              </Card>
+            </Link>
+          </Col>
+          <Col span={8}>
+            <Link to="/playground/cluster">
+              <Card
+                hoverable
+                cover={
+                  <img
+                    src={communityDemo}
+                    alt="Demo of community detector"
+                    style={{ border: "1px solid #f0f0f0" }}
+                  />
+                }
+              >
+                <Meta
+                  title="Community Detector"
+                  description="Explore collaboration communities"
                 />
               </Card>
             </Link>

@@ -1,14 +1,15 @@
 import { Link } from "@remix-run/react";
 import { Descriptions } from "antd";
 
-export function PaperInfoPanel({ paper, detailPage = true }) {
+export function PaperInfoPanel({ paper }) {
   return (
     <div className="node-info-panel">
       <Descriptions title="Paper Info" layout="vertical">
         <Descriptions.Item label="Title" span={3}>
-          <Link to={(detailPage ? "/paper/" : "/visualizer/") + paper.id}>
-            {paper.title}
-          </Link>
+          <Link to={"/paper/" + paper.id}>{paper.title}</Link>
+        </Descriptions.Item>
+        <Descriptions.Item label="Visualize" span={3}>
+          <Link to={"/visualizer/" + paper.id}>[Neighbors]</Link>
         </Descriptions.Item>
         <Descriptions.Item label="PageRank" span={3}>
           {paper.pagerank.toFixed(2)}
@@ -27,14 +28,18 @@ export function PaperInfoPanel({ paper, detailPage = true }) {
   );
 }
 
-export function AuthorInfoPanel({ author, detailPage = true }) {
+export function AuthorInfoPanel({ author }) {
   return (
     <div className="node-info-panel">
       <Descriptions title="Author Info" layout="vertical">
         <Descriptions.Item label="Name" span={3}>
-          <Link to={(detailPage ? "/author/" : "/visualizer/") + author.id}>
-            {author.name}
-          </Link>
+          <Link to={"/author/" + author.id}>{author.name}</Link>
+        </Descriptions.Item>
+        <Descriptions.Item label="Visualize" span={3}>
+          <p style={{ margin: 0 }}>
+            <Link to={"/visualizer/" + author.id}>[Neighbors]</Link>
+            <Link to={"/playground/cluster?id=" + author.id}>[Community]</Link>
+          </p>
         </Descriptions.Item>
         <Descriptions.Item label="PageRank" span={3}>
           {author.pagerank.toFixed(2)}

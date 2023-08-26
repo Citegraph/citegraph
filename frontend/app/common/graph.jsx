@@ -228,9 +228,9 @@ export function GraphContainerSigma({
         canvasClickHandler={canvasClickHandler}/>
       {selectedNode &&
         (selectedNode.name ? (
-          <AuthorInfoPanel author={selectedNode} detailPage={false} />
+          <AuthorInfoPanel author={selectedNode}/>
         ) : (
-          <PaperInfoPanel paper={selectedNode} detailPage={false} />
+          <PaperInfoPanel paper={selectedNode}/>
         ))}
     </div>
   );

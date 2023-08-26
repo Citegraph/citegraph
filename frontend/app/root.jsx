@@ -87,8 +87,9 @@ function Root() {
             <ul>
               <li key="path">
                 <Link to={"/playground/shortest-path/"}>
-                  Find Shortest Path
+                  Shortest Path Finder
                 </Link>
+                <Link to={"/playground/cluster/"}>Community Detector</Link>
               </li>
             </ul>
           </nav>
