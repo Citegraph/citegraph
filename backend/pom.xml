@@ -15,7 +15,8 @@
 	<description>Cite Graph - Citation Graph Online Visualizer</description>
 	<properties>
 		<java.version>8</java.version>
-		<janusgraph.version>1.0.0-20230428-082704.5159135</janusgraph.version>
+		<janusgraph.version>1.0.0-20230902-220351.19c80a1</janusgraph.version>
+		<tinkerpop.version>3.7.0</tinkerpop.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -49,13 +50,13 @@
 		<dependency>
 			<groupId>org.apache.tinkerpop</groupId>
 			<artifactId>spark-gremlin</artifactId>
-			<version>3.6.2</version>
+			<version>${tinkerpop.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.tinkerpop</groupId>
 			<artifactId>gremlin-driver</artifactId>
-			<version>3.6.2</version>
+			<version>${tinkerpop.version}</version>
 		</dependency>
 
 		<dependency>

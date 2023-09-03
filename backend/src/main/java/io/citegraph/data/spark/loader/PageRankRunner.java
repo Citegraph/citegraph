@@ -36,7 +36,7 @@ public class PageRankRunner {
         ComputerResult result = graph.compute(SparkGraphComputer.class)
             .vertices(__.has("type", "paper"))
             .edges(__.bothE("cites"))
-            .properties(__.properties("type"))
+            .vertexProperties(__.properties("type"))
             .persist(GraphComputer.Persist.VERTEX_PROPERTIES)
             .program(PageRankVertexProgram.build()
                 .edges(__.outE("cites").asAdmin())

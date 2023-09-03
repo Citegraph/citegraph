@@ -35,7 +35,7 @@ public class CommunityDetectionRunner {
         ComputerResult result = graph.compute(SparkGraphComputer.class)
             .vertices(__.has("type", "author"))
             .edges(__.bothE("collaborates"))
-            .properties(__.properties("dummy"))
+            .vertexProperties(__.properties("dummy"))
             .persist(GraphComputer.Persist.VERTEX_PROPERTIES)
             .program(PeerPressureVertexProgram.build()
                 .edges(__.bothE("collaborates").asAdmin())

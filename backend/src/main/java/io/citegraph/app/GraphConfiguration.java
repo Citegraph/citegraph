@@ -3,9 +3,9 @@ package io.citegraph.app;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.apache.tinkerpop.gremlin.driver.Cluster;
-import org.apache.tinkerpop.gremlin.driver.MessageSerializer;
+import org.apache.tinkerpop.gremlin.util.MessageSerializer;
 import org.apache.tinkerpop.gremlin.driver.remote.DriverRemoteConnection;
-import org.apache.tinkerpop.gremlin.driver.ser.GraphBinaryMessageSerializerV1;
+import org.apache.tinkerpop.gremlin.util.ser.GraphBinaryMessageSerializerV1;
 import org.apache.tinkerpop.gremlin.process.traversal.AnonymousTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.janusgraph.graphdb.tinkerpop.JanusGraphIoRegistry;
@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.apache.tinkerpop.gremlin.driver.ser.AbstractMessageSerializer.TOKEN_IO_REGISTRIES;
+import static org.apache.tinkerpop.gremlin.util.ser.AbstractMessageSerializer.TOKEN_IO_REGISTRIES;
 
 @Configuration
 public class GraphConfiguration {
