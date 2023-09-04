@@ -23,8 +23,7 @@ See [README](backend/src/main/java/io/citegraph/data/README.md) for steps.
 ### Start Graph Database
 
 Enter the root directory of JanusGraph distribution, run the following command
-(please replace the absolute path accordingly, the config file is available in this
- project):
+(please replace the absolute path accordingly, the config file is available [here](https://github.com/Citegraph/citegraph/blob/main/backend/src/main/resources/gremlin-server-cql.yaml):
 
 ```
 JAVA_OPTIONS="-DJANUSGRAPH_RELATION_DELIMITER=@" ./bin/janusgraph-server.sh console /home/azureuser/gremlin-server-cql.yaml
@@ -118,9 +117,3 @@ server {
 Note the above steps assumes you have an SSL certificate installed in `/etc/letsencrypt/live/www.citegraph.io`.
 If you don't, you can follow [this tutorial](https://dzone.com/articles/spring-boot-secured-by-lets-encrypt)
 to generate and install one in your VM. 
-
-## Roadmap
-
-- Add visualizer of subgraphs
-- Run pagerank algorithm to attribute scores to authors and papers
-- Ingest and show coauthor relationships
