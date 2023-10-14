@@ -2,10 +2,16 @@
 
 ## Introduction
 
-CiteGraph is an open-source online visualizer of citation networks. It was initially created as a demo
-of [JanusGraph](https://janusgraph.org), a distributed graph database. The tech stack includes JanusGraph,
-Spring Boot, Nginx, React, Remix (Server Side Rendering), Lucene, Cassandra, and Spark.
+Citegraph is an open-source online visualizer of 5+ million papers, 4+ million authors, and 
+various relationships. In total, Citegraph has 9.4 million vertices and 294 million edges.
+At the moment, Citegraph only has computer science bibliography.
 
+Some interesting use cases:
+1) How many degrees of separation are between researcher X and Y?
+2) What's researcher X's interests (cited papers, collaborators)?
+3) Who cites my works the most (and might write me a reference letter)?
+4) Which research community do I belong to? Who are my potential collaborators?
+5) What's the pagerank/influence of paper X or author Y?
 
 <img width="1818" alt="Screenshot 2023-08-27 at 1 05 05 AM" src="https://github.com/Citegraph/citegraph/assets/25746010/d915b6c2-b9e7-4ce8-8072-b833e0e79929">
 <img width="1811" alt="Screenshot 2023-08-27 at 1 05 44 AM" src="https://github.com/Citegraph/citegraph/assets/25746010/793e9246-da54-4c8f-8099-fda1ef34a452">
@@ -14,7 +20,9 @@ Spring Boot, Nginx, React, Remix (Server Side Rendering), Lucene, Cassandra, and
 
 ## Quick Start
 
-Of course, only if you want to launch CiteGraph on your own. Otherwise, just visit [CiteGraph](https://www.citegraph.io) and have fun!
+CiteGraph is built on top of a few technologies. JanusGraph is the underlying graph database that stores the citation
+network. Other tech stacks include Spring Boot, Nginx, React, Remix (Server Side Rendering), Lucene, Cassandra, and Spark.
+The steps below are useful only if you want to launch CiteGraph on your own. Otherwise, just visit [CiteGraph](https://www.citegraph.io) and have fun!
 
 ### Ingest Graph Data
 
