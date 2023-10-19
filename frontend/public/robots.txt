@@ -31,6 +31,9 @@ Disallow: /
 User-agent: GPTBot
 Disallow: /
 
+User-agent: barkrowler
+Disallow: /
+
 Sitemap: https://www.citegraph.io/sitemap1.txt
 Sitemap: https://www.citegraph.io/sitemap2.txt
 Sitemap: https://www.citegraph.io/sitemap3.txt
