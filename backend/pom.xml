@@ -15,7 +15,7 @@
 	<description>Cite Graph - Citation Graph Online Visualizer</description>
 	<properties>
 		<java.version>8</java.version>
-		<janusgraph.version>1.0.0-20231014-033310.6710004</janusgraph.version>
+		<janusgraph.version>1.0.0</janusgraph.version>
 		<tinkerpop.version>3.7.0</tinkerpop.version>
 	</properties>
 	<dependencies>
