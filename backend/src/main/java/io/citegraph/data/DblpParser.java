@@ -37,48 +37,6 @@ public class DblpParser {
     private static final Logger LOG = LoggerFactory.getLogger(DblpParser.class);
 
     /**
-     * A naive single-threaded author references loader. It adds an edge from one
-     * author to another author if their papers have citation relationships. The
-     * edge contains a counter representing the number of times the author cites
-     * the other author's work.
-     * This method is idempotent.
-     *
-     * @deprecated Single-thread is too slow, use AuthorRefEdgeLoader Spark program instead
-     * @param paper
-     * @param graph
-     */
-    private static void loadAuthorRefs(final Paper paper, final JanusGraph graph) {
-        if (StringUtils.isBlank(paper.getId())) {
-            LOG.error("Paper {} does not have id, skip", paper.getTitle());
-            return;
-        }
-        Vertex pVertex = graph.traversal().V(paper.getId()).next();
-        List<String> references = paper.getReferences();
-        if (references == null) {
-            return;
-        }
-        List<Vertex> authors = graph.traversal().V(pVertex).in("writes").toList();
-        List<Vertex> citedPapers = graph.traversal().V(pVertex).out("cites").toList();
-        for (Vertex citedP : citedPapers) {
-            List<Vertex> refAuthors = graph.traversal().V(citedP).in("writes").toList();
-            for (Vertex author : authors) {
-                final String name = author.value("name");
-                for (Vertex refAuthor : refAuthors) {
-                    GraphTraversal<Vertex, Edge> t = graph.traversal().V(author).outE("refers").where(__.inV().is(refAuthor));
-                    if (t.hasNext()) {
-                        Edge e = t.next();
-                        int count = Integer.parseInt(graph.traversal().E(e).properties("refCount").next().value().toString());
-                        graph.traversal().E(e).property("refCount", count + 1).next();
-                    } else {
-                        graph.traversal().V(author).addE("refers").to(refAuthor)
-                            .property("refCount", 1).next();
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * A naive single-threaded citations loader. It only touches upon on paper-paper
      * relationships, which does not involve any index lookup, so it is relatively fast.
      *
@@ -208,10 +166,6 @@ public class DblpParser {
                         executor.submit(() -> {
                             loadCitations(paper, finalGraph);
                         });
-                    } else if (mode.equalsIgnoreCase("references")) {
-                        LOG.error("Mode references deprecated, please use AuthorRefEdgeLoader instead");
-                        graph.close();
-                        System.exit(0);
                     } else {
                         LOG.error("Unknown mode {}, must be either vertices or citations", mode);
                         graph.close();
