@@ -1,7 +1,11 @@
 import { Link, useLoaderData, useFetcher } from "@remix-run/react";
 import { getPaper } from "../../apis/papers";
 import React, { useEffect, useState } from "react";
-import { DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from "../../apis/commons";
+import {
+  DEFAULT_SEARCH_LIMIT,
+  MAX_SEARCH_LIMIT,
+  DEFAULT_PAGE_SIZE,
+} from "../../apis/commons";
 import { BulbTwoTone, InfoCircleOutlined } from "@ant-design/icons";
 import {
   Breadcrumb,
@@ -162,6 +166,7 @@ export default function Paper() {
               columns={authorColumns}
               dataSource={authors}
               loading={loading}
+              pagination={{ pageSize: DEFAULT_PAGE_SIZE }}
             />
           </div>
         ) : (
@@ -178,6 +183,7 @@ export default function Paper() {
               columns={paperColumns}
               dataSource={referers}
               loading={loading}
+              pagination={{ pageSize: DEFAULT_PAGE_SIZE }}
             />
           </div>
         ) : (
@@ -194,6 +200,7 @@ export default function Paper() {
               columns={paperColumns}
               dataSource={referees}
               loading={loading}
+              pagination={{ pageSize: DEFAULT_PAGE_SIZE }}
             />
           </div>
         ) : (

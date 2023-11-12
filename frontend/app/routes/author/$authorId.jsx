@@ -1,7 +1,11 @@
 import { Link, useLoaderData, useFetcher } from "@remix-run/react";
 import { getAuthor } from "../../apis/authors";
 import React, { useEffect, useState } from "react";
-import { DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from "../../apis/commons";
+import {
+  DEFAULT_SEARCH_LIMIT,
+  MAX_SEARCH_LIMIT,
+  DEFAULT_PAGE_SIZE,
+} from "../../apis/commons";
 import { BulbTwoTone, InfoCircleOutlined } from "@ant-design/icons";
 import {
   Breadcrumb,
@@ -167,7 +171,12 @@ export default function Author() {
       children:
         papers && papers.length > 0 ? (
           <div className="tabular">
-            <Table columns={paperCols} dataSource={papers} loading={loading} />
+            <Table
+              columns={paperCols}
+              dataSource={papers}
+              loading={loading}
+              pagination={{ pageSize: DEFAULT_PAGE_SIZE }}
+            />
           </div>
         ) : (
           "N/A"
@@ -183,6 +192,7 @@ export default function Author() {
               columns={authorCols}
               dataSource={coauthors}
               loading={loading}
+              pagination={{ pageSize: DEFAULT_PAGE_SIZE }}
             />
           </div>
         ) : (
@@ -199,6 +209,7 @@ export default function Author() {
               columns={authorCols}
               dataSource={referers}
               loading={loading}
+              pagination={{ pageSize: DEFAULT_PAGE_SIZE }}
             />
           </div>
         ) : (
@@ -215,6 +226,7 @@ export default function Author() {
               columns={authorCols}
               dataSource={referees}
               loading={loading}
+              pagination={{ pageSize: DEFAULT_PAGE_SIZE }}
             />
           </div>
         ) : (
