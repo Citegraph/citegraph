@@ -7,6 +7,8 @@ import org.janusgraph.core.PropertyKey;
 import org.janusgraph.core.schema.JanusGraphManagement;
 
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 
 public class GraphInitializer {
     public static void main(String[] args) {
@@ -20,6 +22,13 @@ public class GraphInitializer {
             System.exit(0);
         }
         JanusGraphManagement mgmt = graph.openManagement();
+        List<String> stringPropertyKeys = Arrays.asList("org", "venue", "keywords", "field", "docType", "volume",
+            "issue", "issn", "isbn", "doi", "abstract");
+
+        for (String key : stringPropertyKeys) {
+            if (mgmt.getPropertyKey(key) == null)
+                mgmt.makePropertyKey(key).dataType(String.class).make();
+        }
 
         if (mgmt.getPropertyKey("numOfPaperReferees") == null)
             mgmt.makePropertyKey("numOfPaperReferees").dataType(Integer.class).make();
