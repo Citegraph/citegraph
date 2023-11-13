@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.citegraph.data.model.Author;
 import io.citegraph.data.model.FieldOfStudy;
 import io.citegraph.data.model.Paper;
+import io.vavr.API;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.structure.T;
@@ -18,7 +19,13 @@ import org.janusgraph.core.attribute.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
@@ -36,12 +43,48 @@ import static io.citegraph.app.GraphConfiguration.GRAPH_CONFIG_NAME;
  */
 public class DblpParser {
     private static final Logger LOG = LoggerFactory.getLogger(DblpParser.class);
+    private static final String GPT_URL = "https://api.openai.com/v1/chat/completions";
+    private static final String API_KEY = System.getenv("OPENAI_KEY");
+    private static final String GPT_MODEL = "gpt-3.5-turbo";
 
     private static String getString(String value) {
         if (StringUtils.isBlank(value)) {
             return null;
         }
         return value;
+    }
+
+    private static boolean sameOrg(String org1, String org2) {
+        try {
+            URL obj = new URL(GPT_URL);
+            HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Authorization", "Bearer " + API_KEY);
+            connection.setRequestProperty("Content-Type", "application/json");
+            String prompt = "Do " + org1 + " and " + org2 + " belong to the same (larger) institute? Answer yes or no without explanation.";
+
+            // The request body
+            String body = "{\"model\": \"" + GPT_MODEL + "\", \"messages\": [{\"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
+            connection.setDoOutput(true);
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            writer.write(body);
+            writer.flush();
+            writer.close();
+
+            // Response from ChatGPT
+            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuffer response = new StringBuffer();
+            String line;
+            while ((line = br.readLine()) != null) {
+                response.append(line);
+            }
+            br.close();
+            LOG.info("Response from OpenAI is {}, org1 = {}, org2 = {}", response, org1, org2);
+            return response.toString().toLowerCase().contains("yes");
+        } catch (Exception e) {
+            LOG.error("Fail to call OpenAI API", e);
+            return false;
+        }
     }
 
     private static boolean sameAuthor(Vertex a, Author b) {
@@ -60,11 +103,10 @@ public class DblpParser {
             return false;
         }
         // both have org info
-        // TODO: check if they are the same org
         String existingOrg = (String) a.property("org").value();
         String org = b.getOrg();
-        LOG.info("org1 is {}, org2 is {}, match = {}", existingOrg, org, true);
-        return true;
+        boolean same = sameOrg(existingOrg, org);
+        return same;
     }
 
     /**
