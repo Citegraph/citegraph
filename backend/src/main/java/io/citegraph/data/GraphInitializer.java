@@ -30,6 +30,12 @@ public class GraphInitializer {
                 mgmt.makePropertyKey(key).dataType(String.class).make();
         }
 
+        // For internal use only; when we merge two authors (based on name and org), we
+        // increment this counter, so that in the future, we have a chance to reconcile
+        // wrong merge.
+        if (mgmt.getPropertyKey("mergeCount") == null)
+            mgmt.makePropertyKey("mergeCount").dataType(Integer.class).make();
+
         if (mgmt.getPropertyKey("numOfPaperReferees") == null)
             mgmt.makePropertyKey("numOfPaperReferees").dataType(Integer.class).make();
         if (mgmt.getPropertyKey("numOfPaperReferers") == null)

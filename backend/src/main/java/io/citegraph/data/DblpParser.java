@@ -1,13 +1,13 @@
 package io.citegraph.data;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.citegraph.data.model.Author;
+import io.citegraph.data.model.FieldOfStudy;
 import io.citegraph.data.model.Paper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
-import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.janusgraph.core.JanusGraph;
@@ -27,6 +27,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static io.citegraph.app.GraphConfiguration.GRAPH_CONFIG_NAME;
 
@@ -35,6 +36,36 @@ import static io.citegraph.app.GraphConfiguration.GRAPH_CONFIG_NAME;
  */
 public class DblpParser {
     private static final Logger LOG = LoggerFactory.getLogger(DblpParser.class);
+
+    private static String getString(String value) {
+        if (StringUtils.isBlank(value)) {
+            return null;
+        }
+        return value;
+    }
+
+    private static boolean sameAuthor(Vertex a, Author b) {
+        if (!a.property("name").isPresent()) {
+            throw new RuntimeException();
+        }
+        if (!a.property("name").value().equals(b.getName())) {
+            return false;
+        }
+        // existing vertex has no org info
+        if (!a.property("org").isPresent()) {
+            return StringUtils.isBlank(b.getOrg());
+        }
+        // existing vertex has org info, but incoming author doesn't
+        if (StringUtils.isBlank(b.getOrg())) {
+            return false;
+        }
+        // both have org info
+        // TODO: check if they are the same org
+        String existingOrg = (String) a.property("org").value();
+        String org = b.getOrg();
+        LOG.info("org1 is {}, org2 is {}, match = {}", existingOrg, org, true);
+        return true;
+    }
 
     /**
      * A naive single-threaded citations loader. It only touches upon on paper-paper
@@ -73,14 +104,28 @@ public class DblpParser {
      * @param paper
      * @param graph
      */
-    private static void loadVertices(final Paper paper, final JanusGraph graph) {
+    private static void loadVertices(final Paper paper, final JanusGraph graph) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
         // create paper vertex first
         if (StringUtils.isBlank(paper.getId())) {
-            LOG.error("Paper {} does not have id, skip", paper.getTitle());
-            return;
+            LOG.info("Paper {} does not have id", paper);
+            System.exit(1);
         }
-        JanusGraphVertex pVertex = graph.addVertex(T.id, paper.getId(),
-            "title", paper.getTitle(), "year", paper.getYear(), "type", "paper");
+        JanusGraphVertex pVertex = graph.addVertex(
+            T.id, paper.getId(),
+            "title", paper.getTitle(),
+            "year", paper.getYear(),
+            "type", "paper",
+            "venue", paper.getVenue() != null ? getString(paper.getVenue().getRaw()) : null,
+            "keywords", paper.getKeywords() != null ? String.join(",", paper.getKeywords()): null,
+            "field", paper.getField() != null ? paper.getField().stream().map(FieldOfStudy::getName).collect(Collectors.joining(",")) : null,
+            "docType", getString(paper.getDocType()),
+            "volume", getString(paper.getVolume()),
+            "issue", getString(paper.getIssue()),
+            "issn", getString(paper.getIssn()),
+            "isbn", getString(paper.getIsbn()),
+            "doi", getString(paper.getDoi()),
+            "abstract", getString(paper.getPaperAbstract()));
         // create author vertex if not exists
         for (Author author : paper.getAuthors()) {
             if (StringUtils.isBlank(author.getName())) continue;
@@ -90,19 +135,39 @@ public class DblpParser {
                 if (traversal.hasNext()) {
                     aVertex = traversal.next();
                 } else {
-                    aVertex = graph.addVertex(T.id, author.getId(),
-                        "name", author.getName(), "type", "author");
+                    aVertex = graph.addVertex(
+                        T.id, author.getId(),
+                        "name", author.getName(),
+                        "type", "author",
+                        "org", getString(author.getOrg()));
                 }
             } else {
-                LOG.debug("Author {} does not have id", author.getName());
-                GraphTraversal<Vertex, Vertex> traversal = graph.traversal().V()
-                    .has("name", Text.textContains(author.getName())).limit(1);
-                if (traversal.hasNext()) {
-                    // we match the author with closest name, usually it's good enough
-                    aVertex = traversal.next();
-                } else {
+                 GraphTraversal<Vertex, Vertex> traversal = graph.traversal().V()
+                     .has("name", Text.textContains(author.getName()));
+                if (!traversal.hasNext()) {
                     aVertex = graph.addVertex(T.id, UUID.randomUUID().toString(),
-                        "name", author.getName(), "type", "author");
+                        "name", author.getName(), "type", "author", "org", getString(author.getOrg()));
+                } else {
+                    // find the best match
+                    boolean found = false;
+                    while (traversal.hasNext()) {
+                        Vertex candidate = traversal.next();
+                        if (sameAuthor(candidate, author)) {
+                            found = true;
+                            aVertex = candidate;
+                            int mergeCount = aVertex.property("mergeCount").isPresent()
+                                ? (int) aVertex.property("mergeCount").value()
+                                : 0;
+                            mergeCount++;
+                            aVertex.property("mergeCount", mergeCount);
+                            LOG.info("Merged author {}, merge count = {}", mapper.writeValueAsString(author), mergeCount);
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        aVertex = graph.addVertex(T.id, UUID.randomUUID().toString(),
+                            "name", author.getName(), "type", "author", "org", getString(author.getOrg()));
+                    }
                 }
             }
             // create edge between author and paper

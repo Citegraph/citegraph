@@ -10,7 +10,7 @@ public class Paper {
     private Venue venue;
     private List<String> keywords;
     @JsonProperty("fos")
-    private FieldOfStudy field;
+    private List<FieldOfStudy> field;
     @JsonProperty("doc_type")
     private String docType;
     private String volume;
@@ -81,11 +81,11 @@ public class Paper {
         this.keywords = keywords;
     }
 
-    public FieldOfStudy getField() {
+    public List<FieldOfStudy> getField() {
         return field;
     }
 
-    public void setField(FieldOfStudy field) {
+    public void setField(List<FieldOfStudy> field) {
         this.field = field;
     }
 
