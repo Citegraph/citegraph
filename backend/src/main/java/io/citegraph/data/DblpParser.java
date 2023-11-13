@@ -160,7 +160,7 @@ public class DblpParser {
                                 : 0;
                             mergeCount++;
                             aVertex.property("mergeCount", mergeCount);
-                            LOG.info("Merged author {}, merge count = {}", mapper.writeValueAsString(author), mergeCount);
+                            // LOG.info("Merged author {}, merge count = {}", mapper.writeValueAsString(author), mergeCount);
                             break;
                         }
                     }
@@ -212,6 +212,10 @@ public class DblpParser {
             sc = new Scanner(inputStream, "UTF-8");
             while (sc.hasNextLine()) {
                 String line = sc.nextLine().trim();
+                if (i == 0) {
+                    i++;
+                    continue;
+                }
                 if (line.endsWith(",")) {
                     line = line.substring(0, line.length() - 1);
                 }
