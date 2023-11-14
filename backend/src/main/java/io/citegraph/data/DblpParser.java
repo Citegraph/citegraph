@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.citegraph.data.model.Author;
 import io.citegraph.data.model.FieldOfStudy;
 import io.citegraph.data.model.Paper;
-import io.vavr.API;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.structure.T;
@@ -20,15 +19,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -46,6 +49,9 @@ public class DblpParser {
     private static final String GPT_URL = "https://api.openai.com/v1/chat/completions";
     private static final String API_KEY = System.getenv("OPENAI_KEY");
     private static final String GPT_MODEL = "gpt-3.5-turbo";
+    // TODO: load CACHE from file
+    private static final Map<String, Boolean> GPT_QA_CACHE = new HashMap<>();
+    private static BufferedWriter bufferedWriter;
 
     private static String getString(String value) {
         if (StringUtils.isBlank(value)) {
@@ -55,6 +61,14 @@ public class DblpParser {
     }
 
     private static boolean sameOrg(String org1, String org2) {
+        // TODO: GPT API sometimes hangs indefinitely
+        if (org1.compareTo(org2) < 0) {
+            return sameOrg(org2, org1);
+        }
+        String key = org1 + "\t" + org2;
+        if (GPT_QA_CACHE.containsKey(key)) {
+            return GPT_QA_CACHE.get(key);
+        }
         try {
             URL obj = new URL(GPT_URL);
             HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
@@ -80,7 +94,12 @@ public class DblpParser {
             }
             br.close();
             LOG.info("Response from OpenAI is {}, org1 = {}, org2 = {}", response, org1, org2);
-            return response.toString().toLowerCase().contains("yes");
+            boolean ans = response.toString().toLowerCase().contains("yes");
+            GPT_QA_CACHE.put(key, ans);
+            bufferedWriter.write(org1 + "\t" + org2 + "\t" + ans);
+            bufferedWriter.newLine();
+            bufferedWriter.flush();
+            return ans;
         } catch (Exception e) {
             LOG.error("Fail to call OpenAI API", e);
             return false;
@@ -89,7 +108,8 @@ public class DblpParser {
 
     private static boolean sameAuthor(Vertex a, Author b) {
         if (!a.property("name").isPresent()) {
-            throw new RuntimeException();
+            LOG.error("Vertex {} does not have name property, data corrupted", a.id());
+            return false;
         }
         if (!a.property("name").value().equals(b.getName())) {
             return false;
@@ -105,8 +125,7 @@ public class DblpParser {
         // both have org info
         String existingOrg = (String) a.property("org").value();
         String org = b.getOrg();
-        boolean same = sameOrg(existingOrg, org);
-        return same;
+        return sameOrg(existingOrg, org);
     }
 
     /**
@@ -169,7 +188,9 @@ public class DblpParser {
             "doi", getString(paper.getDoi()),
             "abstract", getString(paper.getPaperAbstract()));
         // create author vertex if not exists
+        int order = 0;
         for (Author author : paper.getAuthors()) {
+            order++;
             if (StringUtils.isBlank(author.getName())) continue;
             Vertex aVertex = null;
             if (StringUtils.isNotBlank(author.getId())) {
@@ -213,17 +234,23 @@ public class DblpParser {
                 }
             }
             // create edge between author and paper
-            graph.traversal().V(aVertex).addE("writes").to(pVertex).next();
+            graph.traversal().V(aVertex).addE("writes").property("authorOrder", order).to(pVertex).next();
             LOG.debug("Created edge between paper " + paper.getId() + " and author " + author.getId());
         }
     }
     public static void main(String[] args) throws Exception {
-        if (args.length != 2) {
-            System.err.format("Usage: java %s <DBLP-Citation-network V14 path> <mode>\n", DblpParser.class.getName());
-            System.err.println("<vertices>: Load all papers and authors, including edges between papers and authors");
-            System.err.println("<citations>: Load all citations between papers");
+        if (args.length != 3) {
+            System.err.format("Usage: java %s <DBLP-Citation-network V14 path> <Org-Match-Result path> <mode>\n", DblpParser.class.getName());
+            System.err.println("<mode: vertices>: Load all papers and authors, including edges between papers and authors");
+            System.err.println("<mode: citations>: Load all citations between papers");
             System.exit(0);
         }
+
+        final String path = args[0];
+        final String orgCsv = args[1];
+        final String mode = args[2];
+
+        bufferedWriter = new BufferedWriter(new FileWriter(orgCsv));
 
         LOG.info("Opening graph...");
         URL resource = GraphInitializer.class.getClassLoader().getResource(GRAPH_CONFIG_NAME);
@@ -236,8 +263,6 @@ public class DblpParser {
         }
 
         ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        final String path = args[0];
-        final String mode = args[1];
 
         boolean multiThreading = mode.equalsIgnoreCase("citations");
         // create a thread pool for data loading
@@ -315,6 +340,7 @@ public class DblpParser {
             }
         }
         graph.close();
+        bufferedWriter.close();
     }
 }
 
