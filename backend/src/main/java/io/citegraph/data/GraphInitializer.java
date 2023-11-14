@@ -36,6 +36,9 @@ public class GraphInitializer {
         if (mgmt.getPropertyKey("mergeCount") == null)
             mgmt.makePropertyKey("mergeCount").dataType(Integer.class).make();
 
+        if (mgmt.getPropertyKey("authorOrder") == null)
+            mgmt.makePropertyKey("authorOrder").dataType(Integer.class).make();
+
         if (mgmt.getPropertyKey("numOfPaperReferees") == null)
             mgmt.makePropertyKey("numOfPaperReferees").dataType(Integer.class).make();
         if (mgmt.getPropertyKey("numOfPaperReferers") == null)
