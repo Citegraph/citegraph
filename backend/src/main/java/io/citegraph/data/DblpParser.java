@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -49,7 +50,6 @@ public class DblpParser {
     private static final String GPT_URL = "https://api.openai.com/v1/chat/completions";
     private static final String API_KEY = System.getenv("OPENAI_KEY");
     private static final String GPT_MODEL = "gpt-3.5-turbo";
-    // TODO: load CACHE from file
     private static final Map<String, Boolean> GPT_QA_CACHE = new HashMap<>();
     private static BufferedWriter bufferedWriter;
 
@@ -61,7 +61,6 @@ public class DblpParser {
     }
 
     private static boolean sameOrg(String org1, String org2) {
-        // TODO: GPT API sometimes hangs indefinitely
         if (org1.compareTo(org2) < 0) {
             return sameOrg(org2, org1);
         }
@@ -99,6 +98,8 @@ public class DblpParser {
             bufferedWriter.write(org1 + "\t" + org2 + "\t" + ans);
             bufferedWriter.newLine();
             bufferedWriter.flush();
+            // sleep 2 seconds to avoid calling GPT AI too frequently
+            Thread.sleep(2000);
             return ans;
         } catch (Exception e) {
             LOG.error("Fail to call OpenAI API", e);
@@ -240,17 +241,43 @@ public class DblpParser {
     }
     public static void main(String[] args) throws Exception {
         if (args.length != 3) {
-            System.err.format("Usage: java %s <DBLP-Citation-network V14 path> <Org-Match-Result path> <mode>\n", DblpParser.class.getName());
+            System.err.format("Usage: java %s <DBLP-Citation-network V14 path> <Org-Match-Result tsv path> <mode>\n", DblpParser.class.getName());
             System.err.println("<mode: vertices>: Load all papers and authors, including edges between papers and authors");
             System.err.println("<mode: citations>: Load all citations between papers");
             System.exit(0);
         }
 
         final String path = args[0];
-        final String orgCsv = args[1];
+        final String orgTsv = args[1];
         final String mode = args[2];
 
-        bufferedWriter = new BufferedWriter(new FileWriter(orgCsv));
+        // load existing org comparison records to cache
+        try (BufferedReader br = new BufferedReader(new FileReader(orgTsv))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                // Use a tab as delimiter
+                String[] values = line.split("\t");
+                if (values.length != 3) {
+                    LOG.error("Reading invalid line with {} entries, expect 3: {}", values.length, line);
+                    continue;
+                }
+
+                String key = values[0] + "\t" + values[1];
+                boolean areSame = Boolean.parseBoolean(values[2]);
+                GPT_QA_CACHE.put(key, areSame);
+                LOG.info("Parsed input {}: org1 = {}, org2 = {}", areSame, values[0], values[1]);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        LOG.info("Loaded {} entries to cache", GPT_QA_CACHE.size());
+        LOG.info("================================================");
+        LOG.info("                     START                      ");
+        LOG.info("================================================");
+
+        bufferedWriter = new BufferedWriter(new FileWriter(orgTsv, true));
 
         LOG.info("Opening graph...");
         URL resource = GraphInitializer.class.getClassLoader().getResource(GRAPH_CONFIG_NAME);
