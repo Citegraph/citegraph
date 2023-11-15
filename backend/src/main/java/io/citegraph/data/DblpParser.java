@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -61,6 +62,9 @@ public class DblpParser {
     }
 
     private static boolean sameOrg(String org1, String org2) {
+        if (Objects.equals(org1.toLowerCase().replaceAll("\\s+",""), org2.toLowerCase().replaceAll("\\s+",""))) {
+            return true;
+        }
         if (org1.compareTo(org2) < 0) {
             return sameOrg(org2, org1);
         }
