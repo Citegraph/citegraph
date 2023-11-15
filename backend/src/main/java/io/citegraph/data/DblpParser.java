@@ -73,29 +73,61 @@ public class DblpParser {
             return GPT_QA_CACHE.get(key);
         }
         try {
+            // Set timeouts in milliseconds
+            int connectionTimeout = 10000; // e.g., 10 seconds
+            int readTimeout = 15000; // e.g., 15 seconds
+            int maxRetries = 3; // Maximum number of retries
+            int retryDelay = 5000; // Delay between retries (5 seconds)
+
             URL obj = new URL(GPT_URL);
-            HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Authorization", "Bearer " + API_KEY);
-            connection.setRequestProperty("Content-Type", "application/json");
-            String prompt = "Do " + org1 + " and " + org2 + " belong to the same (larger) institute? Answer yes or no without explanation.";
-
-            // The request body
-            String body = "{\"model\": \"" + GPT_MODEL + "\", \"messages\": [{\"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
-            connection.setDoOutput(true);
-            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-            writer.write(body);
-            writer.flush();
-            writer.close();
-
-            // Response from ChatGPT
-            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             StringBuffer response = new StringBuffer();
-            String line;
-            while ((line = br.readLine()) != null) {
-                response.append(line);
+            boolean success = false;
+
+            for (int attempt = 0; attempt < maxRetries && !success; attempt++) {
+                try {
+                    HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
+                    connection.setRequestMethod("POST");
+                    connection.setRequestProperty("Authorization", "Bearer " + API_KEY);
+                    connection.setRequestProperty("Content-Type", "application/json");
+                    connection.setConnectTimeout(connectionTimeout);
+                    connection.setReadTimeout(readTimeout);
+
+                    String prompt = "Do " + org1 + " and " + org2 + " belong to the same or the same larger institute? Answer yes or no without explanation.";
+
+                    // The request body
+                    String body = "{\"model\": \"" + GPT_MODEL + "\", \"messages\": [{\"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
+                    connection.setDoOutput(true);
+                    OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+                    writer.write(body);
+                    writer.flush();
+                    writer.close();
+
+                    // Reading response
+                    BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        response.append(line);
+                    }
+                    br.close();
+
+                    success = true; // If the request was successful
+                } catch (IOException e) {
+                    LOG.error("Attempt {} failed: {}", attempt + 1, e.getMessage());
+                    if (attempt < maxRetries - 1) {
+                        // Wait for retryDelay milliseconds before retrying
+                        try {
+                            Thread.sleep(retryDelay);
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                            throw new RuntimeException("Thread interrupted", ie);
+                        }
+                    }
+                }
             }
-            br.close();
+
+            if (!success) {
+                throw new RuntimeException("Failed to connect to the API after " + maxRetries + " attempts.");
+            }
             LOG.info("Response from OpenAI is {}, org1 = {}, org2 = {}", response, org1, org2);
             boolean ans = response.toString().toLowerCase().contains("yes");
             GPT_QA_CACHE.put(key, ans);
