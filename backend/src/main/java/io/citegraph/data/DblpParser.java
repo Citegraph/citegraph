@@ -75,7 +75,7 @@ public class DblpParser {
         try {
             // Set timeouts in milliseconds
             int connectionTimeout = 10000; // e.g., 10 seconds
-            int readTimeout = 15000; // e.g., 15 seconds
+            int readTimeout = 5000; // e.g., 5 seconds
             int maxRetries = 3; // Maximum number of retries
             int retryDelay = 5000; // Delay between retries (5 seconds)
 
@@ -134,8 +134,6 @@ public class DblpParser {
             bufferedWriter.write(org1 + "\t" + org2 + "\t" + ans);
             bufferedWriter.newLine();
             bufferedWriter.flush();
-            // sleep 2 seconds to avoid calling GPT AI too frequently
-            Thread.sleep(2000);
             return ans;
         } catch (Exception e) {
             LOG.error("Fail to call OpenAI API", e);
