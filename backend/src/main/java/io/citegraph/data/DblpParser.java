@@ -29,6 +29,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -61,6 +62,59 @@ public class DblpParser {
         return value;
     }
 
+    /**
+     * This helper method returns true if it knows the two orgs' countries/regions might be the same. If it doesn't know for sure,
+     * it returns true.
+     *
+     * NOTE: some orgs may not even have country/region names.
+     * @param org1
+     * @param org2
+     * @return
+     */
+    private static boolean mightSameCountry(String org1, String org2) {
+        // This list is not complete. Some territories, e.g. Hong Kong, is removed from the list because some orgs will
+        // list China rather than Hong Kong.
+        List<String> countries = Arrays.asList("Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda",
+            "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados",
+            "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil",
+            "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada",
+            "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica", "Croatia",
+            "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "East Timor",
+            "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia",
+            "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada",
+            "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India",
+            "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast", "Jamaica", "Japan", "Jordan",
+            "Kazakhstan", "Kenya", "Kiribati", "Korea", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon",
+            "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia",
+            "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova",
+            "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands",
+            "New Zealand", "Nicaragua", "Niger", "Nigeria", "Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Panama",
+            "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia",
+            "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino",
+            "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore",
+            "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Sudan", "Spain", "Sri Lanka",
+            "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga",
+            "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates",
+            "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam",
+            "Yemen", "Zambia", "Zimbabwe");
+        for (String country : countries) {
+            if (org1.contains(country)) {
+                if (org2.contains(country)) {
+                    return true;
+                }
+                // it's possible that org2 does not have a country at all
+                for (String country2 : countries) {
+                    if (!country.equals(country2) && org2.contains(country2)) {
+                        // we know for sure the two orgs are from different countries
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        return true;
+    }
+
     private static boolean sameOrg(String org1, String org2) {
         if (Objects.equals(org1.toLowerCase().replaceAll("\\s+",""), org2.toLowerCase().replaceAll("\\s+",""))) {
             return true;
@@ -72,6 +126,12 @@ public class DblpParser {
         if (GPT_QA_CACHE.containsKey(key)) {
             return GPT_QA_CACHE.get(key);
         }
+
+        // adopt some simple heuristics - using country/region name to exclude some common negatives
+        if (!mightSameCountry(org1, org2)) {
+            return false;
+        }
+
         try {
             // Set timeouts in milliseconds
             int connectionTimeout = 10000; // e.g., 10 seconds
