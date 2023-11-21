@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.citegraph.data.model.Author;
 import io.citegraph.data.model.FieldOfStudy;
 import io.citegraph.data.model.Paper;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.structure.T;
@@ -60,6 +61,10 @@ public class DblpParser {
             return null;
         }
         return value;
+    }
+
+    private static String generateId(String name, String org) {
+        return DigestUtils.md5Hex(name + org);
     }
 
     /**
@@ -303,7 +308,7 @@ public class DblpParser {
                  GraphTraversal<Vertex, Vertex> traversal = graph.traversal().V()
                      .has("name", Text.textContains(author.getName()));
                 if (!traversal.hasNext()) {
-                    aVertex = graph.addVertex(T.id, UUID.randomUUID().toString(),
+                    aVertex = graph.addVertex(T.id, generateId(author.getName(), author.getOrg()),
                         "name", author.getName(), "type", "author", "org", getString(author.getOrg()));
                 } else {
                     // find the best match
