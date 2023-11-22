@@ -5,6 +5,7 @@ import org.janusgraph.core.JanusGraph;
 import org.janusgraph.core.JanusGraphFactory;
 import org.janusgraph.core.PropertyKey;
 import org.janusgraph.core.schema.JanusGraphManagement;
+import org.janusgraph.core.schema.Mapping;
 
 import java.net.URL;
 import java.util.Arrays;
@@ -69,7 +70,7 @@ public class GraphInitializer {
         if (clusterId == null)
             mgmt.makePropertyKey("clusterId").dataType(String.class).make();
         if (mgmt.getGraphIndex("nameIdx") == null)
-            mgmt.buildIndex("nameIdx", Vertex.class).addKey(name).buildMixedIndex("search");
+            mgmt.buildIndex("nameIdx", Vertex.class).addKey(name, Mapping.TEXTSTRING.asParameter()).buildMixedIndex("search");
         if (mgmt.getGraphIndex("titleIdx") == null)
             mgmt.buildIndex("titleIdx", Vertex.class).addKey(title).buildMixedIndex("search");
         mgmt.getOrCreateEdgeLabel("writes");

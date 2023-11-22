@@ -329,7 +329,7 @@ public class DblpParser {
                 }
             } else {
                  GraphTraversal<Vertex, Vertex> traversal = graph.traversal().V()
-                     .has("name", Text.textContains(author.getName()));
+                     .has("name", author.getName());
                 if (!traversal.hasNext()) {
                     aVertex = graph.addVertex(T.id, generateId(author.getName(), author.getOrg()),
                         "name", author.getName(), "type", "author", "org", getString(author.getOrg()));
