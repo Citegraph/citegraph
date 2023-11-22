@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,7 +37,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -353,7 +351,7 @@ public class DblpParser {
                         }
                     }
                     if (!found) {
-                        aVertex = graph.addVertex(T.id, UUID.randomUUID().toString(),
+                        aVertex = graph.addVertex(T.id, generateId(author.getName(), author.getOrg()),
                             "name", author.getName(), "type", "author", "org", getString(author.getOrg()));
                     }
                 }
