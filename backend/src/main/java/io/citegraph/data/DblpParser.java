@@ -123,8 +123,8 @@ public class DblpParser {
      * @return
      */
     public static boolean mightSameCountry(String org1, String org2) {
-        org1 = org1.toLowerCase();
-        org2 = org2.toLowerCase();
+        org1 = org1.toLowerCase().replaceAll("\\s+\\d*$", "");
+        org2 = org2.toLowerCase().replaceAll("\\s+\\d*$", "");
 
         for (String country : REGIONS) {
             if (org1.endsWith(country)) {

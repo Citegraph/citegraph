@@ -20,6 +20,8 @@ public class DblpParserTest {
             "Department of Computer Science, Michigan State University, East Lansing, MI 48824, U.S.A."));
         Assertions.assertFalse(DblpParser.mightSameCountry("China",
             "Department of Computer Science, Michigan State University, East Lansing, MI 48824, U.S.A."));
+        Assertions.assertFalse(DblpParser.mightSameCountry("China",
+            "Department of Computer Science, Michigan State University, East Lansing, MI, U.S.A. 48824"));
         Assertions.assertTrue(DblpParser.mightSameCountry("UK, united States",
             "Department of Computer Science, Michigan State University, East Lansing, MI 48824, U.S.A."));
     }
