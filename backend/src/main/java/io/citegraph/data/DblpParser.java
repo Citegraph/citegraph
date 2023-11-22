@@ -37,11 +37,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.citegraph.app.GraphConfiguration.GRAPH_CONFIG_NAME;
 
@@ -56,35 +58,13 @@ public class DblpParser {
     private static final Map<String, Boolean> GPT_QA_CACHE = new HashMap<>();
     private static BufferedWriter bufferedWriter;
 
-    private static String getString(String value) {
-        if (StringUtils.isBlank(value)) {
-            return null;
-        }
-        return value;
-    }
-
-    private static String generateId(String name, String org) {
-        return DigestUtils.md5Hex(name + org);
-    }
-
-    /**
-     * This helper method returns true if it knows the two orgs' countries/regions might be the same. If it doesn't know for sure,
-     * it returns true.
-     *
-     * NOTE: some orgs may not even have country/region names.
-     * @param org1
-     * @param org2
-     * @return
-     */
-    private static boolean mightSameCountry(String org1, String org2) {
-        // This list is not complete. Some territories, e.g. Hong Kong, is removed from the list because some orgs will
-        // list China rather than Hong Kong.
-        List<String> countries = Arrays.asList("Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda",
+    // countries and regions, including aliases
+    private static List<String> REGIONS = Stream.of("Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda",
             "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados",
             "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil",
             "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada",
-            "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica", "Croatia",
-            "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "East Timor",
+            "Central African Republic", "Chad", "Chile", "China", "Hong Kong", "HK", "Macau", "CN", "PRC", "Colombia", "Comoros",
+            "Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech", "Denmark", "Djibouti", "Dominica", "East Timor",
             "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia",
             "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada",
             "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India",
@@ -100,16 +80,61 @@ public class DblpParser {
             "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Sudan", "Spain", "Sri Lanka",
             "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga",
             "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates",
-            "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam",
-            "Yemen", "Zambia", "Zimbabwe");
-        for (String country : countries) {
-            if (org1.contains(country)) {
-                if (org2.contains(country)) {
+            "United Kingdom", "UK", "U.K.", "Britain", "United States", "USA", "U.S.A.", "U.S.", "United States of America", "America", "Uruguay",
+            "Uzbekistan", "Vanuatu", "Vatican", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe")
+        .map(String::toLowerCase).collect(Collectors.toList());
+
+    private static List<Set<String>> ALIASES_LIST = Arrays.asList(
+            new HashSet<>(Arrays.asList("china", "cn", "hong kong", "hk", "macau", "prc")),
+            new HashSet<>(Arrays.asList("united states", "us", "usa", "united states of america", "america", "u.s.a.", "u.s.")),
+            new HashSet<>(Arrays.asList("britain", "united kingdom", "uk", "u.k."))
+        );
+
+    private static String getString(String value) {
+        if (StringUtils.isBlank(value)) {
+            return null;
+        }
+        return value;
+    }
+
+    private static String generateId(String name, String org) {
+        return DigestUtils.md5Hex(name + org);
+    }
+
+    public static boolean equivalentRegions(String region1, String region2) {
+        if (region1.equals(region2)) {
+            return true;
+        }
+        for (Set<String> aliases : ALIASES_LIST) {
+            if (aliases.contains(region1) && aliases.contains(region2)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * This helper method returns true if it knows the two orgs' countries/regions might be the same. If it doesn't know for sure,
+     * it returns true.
+     *
+     * NOTE: some orgs may not even have country/region names.
+     * @param org1
+     * @param org2
+     * @return
+     */
+    public static boolean mightSameCountry(String org1, String org2) {
+        org1 = org1.toLowerCase();
+        org2 = org2.toLowerCase();
+
+        for (String country : REGIONS) {
+            if (org1.endsWith(country)) {
+                // shortcut
+                if (org2.endsWith(country)) {
                     return true;
                 }
                 // it's possible that org2 does not have a country at all
-                for (String country2 : countries) {
-                    if (!country.equals(country2) && org2.contains(country2)) {
+                for (String country2 : REGIONS) {
+                    if (org2.endsWith(country2) && !equivalentRegions(country, country2)) {
                         // we know for sure the two orgs are from different countries
                         return false;
                     }
