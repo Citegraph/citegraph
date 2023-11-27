@@ -283,8 +283,9 @@ public class DblpParser {
      * A naive single-threaded vertices loader. To finish loading ~5 million papers,
      * it can take a few hours to finish.
      *
-     * This method is NOT idempotent - if you run the method again, it will throw an
-     * error because of duplicate papers.
+     * This method is idempotent - if you run the method again, it will skip loaded papers
+     * and authors.
+     *
      * @param paper
      * @param graph
      */
@@ -294,6 +295,9 @@ public class DblpParser {
         if (StringUtils.isBlank(paper.getId())) {
             LOG.info("Paper {} does not have id", paper);
             System.exit(1);
+        }
+        if (graph.traversal().V(paper.getId()).hasNext()) {
+            return;
         }
         JanusGraphVertex pVertex = graph.addVertex(
             T.id, paper.getId(),
