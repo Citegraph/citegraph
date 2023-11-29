@@ -8,6 +8,7 @@ import io.citegraph.data.model.FieldOfStudy;
 import io.citegraph.data.model.Paper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -83,10 +84,10 @@ public class DblpParser {
         .map(String::toLowerCase).collect(Collectors.toList());
 
     private static List<Set<String>> ALIASES_LIST = Arrays.asList(
-            new HashSet<>(Arrays.asList("china", "cn", "hong kong", "hk", "macau", "prc")),
-            new HashSet<>(Arrays.asList("united states", "us", "usa", "united states of america", "america", "u.s.a.", "u.s.")),
-            new HashSet<>(Arrays.asList("britain", "united kingdom", "uk", "u.k."))
-        );
+        new HashSet<>(Arrays.asList("china", "cn", "hong kong", "hk", "macau", "prc")),
+        new HashSet<>(Arrays.asList("united states", "us", "usa", "united states of america", "america", "u.s.a.", "u.s.")),
+        new HashSet<>(Arrays.asList("britain", "united kingdom", "uk", "u.k."))
+    );
 
     private static String getString(String value) {
         if (StringUtils.isBlank(value)) {
@@ -114,8 +115,9 @@ public class DblpParser {
     /**
      * This helper method returns true if it knows the two orgs' countries/regions might be the same. If it doesn't know for sure,
      * it returns true.
-     *
+     * <p>
      * NOTE: some orgs may not even have country/region names.
+     *
      * @param org1
      * @param org2
      * @return
@@ -143,8 +145,8 @@ public class DblpParser {
         return true;
     }
 
-    private static boolean sameOrg(String org1, String org2) {
-        if (Objects.equals(org1.toLowerCase().replaceAll("\\s+",""), org2.toLowerCase().replaceAll("\\s+",""))) {
+    private static boolean sameOrg(String org1, String org2) throws IOException {
+        if (Objects.equals(org1.toLowerCase().replaceAll("\\s+", ""), org2.toLowerCase().replaceAll("\\s+", ""))) {
             return true;
         }
         if (org1.compareTo(org2) < 0) {
@@ -160,76 +162,72 @@ public class DblpParser {
             return false;
         }
 
-        try {
-            // Set timeouts in milliseconds
-            int connectionTimeout = 10000; // e.g., 10 seconds
-            int readTimeout = 5000; // e.g., 5 seconds
-            int maxRetries = 3; // Maximum number of retries
-            int retryDelay = 5000; // Delay between retries (5 seconds)
+        // Set timeouts in milliseconds
+        int connectionTimeout = 10000; // e.g., 10 seconds
+        int readTimeout = 5000; // e.g., 5 seconds
+        int maxRetries = 10; // Maximum number of retries
+        int retryDelay = 5000; // Delay between retries (5 seconds)
 
-            URL obj = new URL(GPT_URL);
-            StringBuffer response = new StringBuffer();
-            boolean success = false;
+        URL obj = new URL(GPT_URL);
+        StringBuffer response = new StringBuffer();
+        boolean success = false;
 
-            for (int attempt = 0; attempt < maxRetries && !success; attempt++) {
-                try {
-                    HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
-                    connection.setRequestMethod("POST");
-                    connection.setRequestProperty("Authorization", "Bearer " + API_KEY);
-                    connection.setRequestProperty("Content-Type", "application/json");
-                    connection.setConnectTimeout(connectionTimeout);
-                    connection.setReadTimeout(readTimeout);
+        for (int attempt = 0; attempt < maxRetries && !success; attempt++) {
+            try {
+                HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Authorization", "Bearer " + API_KEY);
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setConnectTimeout(connectionTimeout);
+                connection.setReadTimeout(readTimeout);
 
-                    String prompt = "Do " + org1 + " and " + org2 + " belong to the same or the same larger institute? Answer yes or no without explanation.";
+                String prompt = "Do " + org1 + " and " + org2 + " belong to the same or the same larger institute? Answer yes or no without explanation.";
 
-                    // The request body
-                    String body = "{\"model\": \"" + GPT_MODEL + "\", \"messages\": [{\"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
-                    connection.setDoOutput(true);
-                    OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-                    writer.write(body);
-                    writer.flush();
-                    writer.close();
+                // The request body
+                String body = "{\"model\": \"" + GPT_MODEL + "\", \"messages\": [{\"role\": \"user\", \"content\": \"" + prompt + "\"}]}";
+                connection.setDoOutput(true);
+                OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+                writer.write(body);
+                writer.flush();
+                writer.close();
 
-                    // Reading response
-                    BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    String line;
-                    while ((line = br.readLine()) != null) {
-                        response.append(line);
-                    }
-                    br.close();
+                // Reading response
+                BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                String line;
+                while ((line = br.readLine()) != null) {
+                    response.append(line);
+                }
+                br.close();
 
-                    success = true; // If the request was successful
-                } catch (IOException e) {
-                    LOG.error("Attempt {} failed: {}", attempt + 1, e.getMessage());
-                    if (attempt < maxRetries - 1) {
-                        // Wait for retryDelay milliseconds before retrying
-                        try {
-                            Thread.sleep(retryDelay);
-                        } catch (InterruptedException ie) {
-                            Thread.currentThread().interrupt();
-                            throw new RuntimeException("Thread interrupted", ie);
-                        }
+                success = true; // If the request was successful
+            } catch (IOException e) {
+                LOG.error("Attempt {} failed: {}", attempt + 1, e.getMessage());
+                if (attempt < maxRetries - 1) {
+                    // Exponentially wait for retryDelay milliseconds before retrying
+                    try {
+                        Thread.sleep(retryDelay);
+                        retryDelay *= 2;
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        throw new RuntimeException("Thread interrupted", ie);
                     }
                 }
             }
-
-            if (!success) {
-                throw new RuntimeException("Failed to connect to the API after " + maxRetries + " attempts.");
-            }
-            LOG.info("Response from OpenAI is {}, org1 = {}, org2 = {}", response, org1, org2);
-            boolean ans = response.toString().toLowerCase().contains("yes");
-            GPT_QA_CACHE.put(key, ans);
-            bufferedWriter.write(org1 + "\t" + org2 + "\t" + ans);
-            bufferedWriter.newLine();
-            bufferedWriter.flush();
-            return ans;
-        } catch (Exception e) {
-            LOG.error("Fail to call OpenAI API", e);
-            return false;
         }
+
+        if (!success) {
+            throw new RuntimeException("Failed to connect to the API after " + maxRetries + " attempts.");
+        }
+        LOG.info("Response from OpenAI is {}, org1 = {}, org2 = {}", response, org1, org2);
+        boolean ans = response.toString().toLowerCase().contains("yes");
+        GPT_QA_CACHE.put(key, ans);
+        bufferedWriter.write(org1 + "\t" + org2 + "\t" + ans);
+        bufferedWriter.newLine();
+        bufferedWriter.flush();
+        return ans;
     }
 
-    private static boolean sameAuthor(Vertex a, Author b) {
+    private static boolean sameAuthor(Vertex a, Author b) throws IOException {
         if (!a.property("name").isPresent()) {
             LOG.error("Vertex {} does not have name property, data corrupted", a.id());
             return false;
@@ -254,7 +252,7 @@ public class DblpParser {
     /**
      * A naive single-threaded citations loader. It only touches upon on paper-paper
      * relationships, which does not involve any index lookup, so it is relatively fast.
-     *
+     * <p>
      * This method is NOT idempotent - if you run the method again, it will create duplicate
      * edges between papers.
      *
@@ -282,7 +280,7 @@ public class DblpParser {
     /**
      * A naive single-threaded vertices loader. To finish loading ~5 million papers,
      * it can take a few hours to finish.
-     *
+     * <p>
      * This method is idempotent - if you run the method again, it will skip loaded papers
      * and authors.
      *
@@ -305,7 +303,7 @@ public class DblpParser {
             "year", paper.getYear(),
             "type", "paper",
             "venue", paper.getVenue() != null ? getString(paper.getVenue().getRaw()) : null,
-            "keywords", paper.getKeywords() != null ? String.join(",", paper.getKeywords()): null,
+            "keywords", paper.getKeywords() != null ? String.join(",", paper.getKeywords()) : null,
             "field", paper.getField() != null ? paper.getField().stream().map(FieldOfStudy::getName).collect(Collectors.joining(",")) : null,
             "docType", getString(paper.getDocType()),
             "volume", getString(paper.getVolume()),
@@ -332,8 +330,8 @@ public class DblpParser {
                         "org", getString(author.getOrg()));
                 }
             } else {
-                 GraphTraversal<Vertex, Vertex> traversal = graph.traversal().V()
-                     .has("name", author.getName());
+                GraphTraversal<Vertex, Vertex> traversal = graph.traversal().V()
+                    .has("name", author.getName());
                 if (!traversal.hasNext()) {
                     aVertex = graph.addVertex(T.id, generateId(author.getName(), author.getOrg()),
                         "name", author.getName(), "type", "author", "org", getString(author.getOrg()));
@@ -342,7 +340,13 @@ public class DblpParser {
                     boolean found = false;
                     while (traversal.hasNext()) {
                         Vertex candidate = traversal.next();
-                        if (sameAuthor(candidate, author)) {
+                        boolean same = false;
+                        try {
+                            same = sameAuthor(candidate, author);
+                        } catch (Exception ex) {
+                            System.exit(1);
+                        }
+                        if (same) {
                             found = true;
                             aVertex = candidate;
                             int mergeCount = aVertex.property("mergeCount").isPresent()
@@ -365,6 +369,7 @@ public class DblpParser {
             LOG.debug("Created edge between paper " + paper.getId() + " and author " + author.getId());
         }
     }
+
     public static void main(String[] args) throws Exception {
         if (args.length != 3) {
             System.err.format("Usage: java %s <DBLP-Citation-network V14 path> <Org-Match-Result tsv path> <mode>\n", DblpParser.class.getName());
