@@ -20,6 +20,8 @@ public class GPTApp {
     private static final Map<String, Boolean> GPT_QA_CACHE = new HashMap<>();
 
     private static boolean sameOrg(String org1, String org2) {
+        org1 = org1.trim();
+        org2 = org2.trim();
         if (org1.compareTo(org2) < 0) {
             return sameOrg(org2, org1);
         }
@@ -63,6 +65,6 @@ public class GPTApp {
 
     public static void main(String[] args) {
         System.out.println("Using API key " + API_KEY);
-        System.out.println("result = " + sameOrg("Dept. of Sci. & Inf. Technol., Univ. Inst. of Lisbon, Lisbon, Portugal|c| ", "Dept. of Sci. & Inf. Technol., UI-Lisbon, Lisbon, Portugal|c|"));
+        System.out.println("result = " + sameOrg("university of illinois at chicago", "Corresponding authors. Tel.: +86 13813825166 (Lin Chen).\n"));
     }
 }

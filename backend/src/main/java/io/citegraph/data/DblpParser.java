@@ -8,7 +8,6 @@ import io.citegraph.data.model.FieldOfStudy;
 import io.citegraph.data.model.Paper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -146,6 +145,8 @@ public class DblpParser {
     }
 
     private static boolean sameOrg(String org1, String org2) throws IOException {
+        org1 = org1.trim();
+        org2 = org2.trim();
         if (Objects.equals(org1.toLowerCase().replaceAll("\\s+", ""), org2.toLowerCase().replaceAll("\\s+", ""))) {
             return true;
         }
