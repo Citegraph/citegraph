@@ -166,7 +166,7 @@ public class DblpParser {
         // Set timeouts in milliseconds
         int connectionTimeout = 10000; // e.g., 10 seconds
         int readTimeout = 5000; // e.g., 5 seconds
-        int maxRetries = 10; // Maximum number of retries
+        int maxRetries = 5; // Maximum number of retries
         int retryDelay = 5000; // Delay between retries (5 seconds)
 
         URL obj = new URL(GPT_URL);
@@ -216,10 +216,11 @@ public class DblpParser {
             }
         }
 
-        if (!success) {
-            throw new RuntimeException("Failed to connect to the API after " + maxRetries + " attempts.");
-        }
         LOG.info("Response from OpenAI is {}, org1 = {}, org2 = {}", response, org1, org2);
+        if (!success) {
+            LOG.error("API call failed after {} retries", maxRetries);
+            return false;
+        }
         boolean ans = response.toString().toLowerCase().contains("yes");
         GPT_QA_CACHE.put(key, ans);
         bufferedWriter.write(org1 + "\t" + org2 + "\t" + ans);
