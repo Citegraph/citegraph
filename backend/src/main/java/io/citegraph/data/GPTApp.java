@@ -1,5 +1,6 @@
 package io.citegraph.data;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +29,9 @@ public class GPTApp {
         String key = org1 + "," + org2;
         if (GPT_QA_CACHE.containsKey(key)) {
             return GPT_QA_CACHE.get(key);
+        }
+        if (StringUtils.isBlank(API_KEY)) {
+            return false;
         }
         try {
             URL obj = new URL(GPT_URL);
