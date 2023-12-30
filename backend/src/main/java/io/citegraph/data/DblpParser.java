@@ -163,6 +163,10 @@ public class DblpParser {
             return false;
         }
 
+        if (StringUtils.isBlank(API_KEY)) {
+            return false;
+        }
+
         // Set timeouts in milliseconds
         int connectionTimeout = 10000; // e.g., 10 seconds
         int readTimeout = 5000; // e.g., 5 seconds
