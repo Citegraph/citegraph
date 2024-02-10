@@ -276,11 +276,11 @@ public class DblpParser {
         }
         JanusGraphTransaction tx = graph.newTransaction();
         Vertex pVertex = tx.traversal().V(paper.getId()).next();
+        List<Object> citedVertexIds = tx.traversal().V(pVertex).out("cites").id().toList();
         for (String ref : new HashSet<>(references)) {
             Vertex citedVertex = tx.traversal().V(ref).next();
-            if (!tx.traversal().V(pVertex).out("cites").is(citedVertex).hasNext()) {
-                tx.traversal().V(pVertex).addE("cites").to(citedVertex).next();
-            }
+            if (citedVertexIds.contains(citedVertex.id())) continue;
+            tx.traversal().V(pVertex).addE("cites").to(citedVertex).next();
         }
         tx.commit();
     }
