@@ -259,7 +259,7 @@ public class DblpParser {
      * A naive single-threaded citations loader. It only touches upon on paper-paper
      * relationships, which does not involve any index lookup, so it is relatively fast.
      * <p>
-     * This method is NOT idempotent - if you run the method again, it will create duplicate
+     * This method is idempotent - if you run the method again, it will not create duplicate
      * edges between papers.
      *
      * @param paper
@@ -278,7 +278,9 @@ public class DblpParser {
         Vertex pVertex = tx.traversal().V(paper.getId()).next();
         for (String ref : new HashSet<>(references)) {
             Vertex citedVertex = tx.traversal().V(ref).next();
-            tx.traversal().V(pVertex).addE("cites").to(citedVertex).next();
+            if (!tx.traversal().V(pVertex).out("cites").is(citedVertex).hasNext()) {
+                tx.traversal().V(pVertex).addE("cites").to(citedVertex).next();
+            }
         }
         tx.commit();
     }
@@ -389,27 +391,29 @@ public class DblpParser {
         final String mode = args[2];
 
         // load existing org comparison records to cache
-        try (BufferedReader br = new BufferedReader(new FileReader(orgTsv))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                // Use a tab as delimiter
-                String[] values = line.split("\t");
-                if (values.length != 3) {
-                    LOG.error("Reading invalid line with {} entries, expect 3: {}", values.length, line);
-                    continue;
-                }
+        if (mode.equalsIgnoreCase("vertices")) {
+            try (BufferedReader br = new BufferedReader(new FileReader(orgTsv))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    // Use a tab as delimiter
+                    String[] values = line.split("\t");
+                    if (values.length != 3) {
+                        LOG.error("Reading invalid line with {} entries, expect 3: {}", values.length, line);
+                        continue;
+                    }
 
-                String key = values[0] + "\t" + values[1];
-                boolean areSame = Boolean.parseBoolean(values[2]);
-                GPT_QA_CACHE.put(key, areSame);
-                LOG.info("Parsed input {}: org1 = {}, org2 = {}", areSame, values[0], values[1]);
+                    String key = values[0] + "\t" + values[1];
+                    boolean areSame = Boolean.parseBoolean(values[2]);
+                    GPT_QA_CACHE.put(key, areSame);
+                    LOG.info("Parsed input {}: org1 = {}, org2 = {}", areSame, values[0], values[1]);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.exit(1);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(1);
+            LOG.info("Loaded {} entries to cache", GPT_QA_CACHE.size());
         }
 
-        LOG.info("Loaded {} entries to cache", GPT_QA_CACHE.size());
         LOG.info("================================================");
         LOG.info("                     START                      ");
         LOG.info("================================================");
@@ -463,6 +467,7 @@ public class DblpParser {
                         loadVertices(paper, graph);
                     } else if (mode.equalsIgnoreCase("citations")) {
                         JanusGraph finalGraph = graph;
+                        assert executor != null;
                         executor.submit(() -> {
                             loadCitations(paper, finalGraph);
                         });
