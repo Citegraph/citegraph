@@ -21,14 +21,23 @@ import static org.apache.tinkerpop.gremlin.hadoop.Constants.GREMLIN_HADOOP_OUTPU
  * This Spark application runs PeerPressureVertexProgram to calculate
  * a cluster id for each author based on collaboration edges
  *
+ * Note: Spark will write a lot of shuffle files to your disk, which might
+ * cause out of disk error. This job alone needs more than 100GB to store
+ * the intermediate shuffle data. Spark doesn't clean those shuffle files
+ * until the end of the job, so we could do it by running a crontab:
+ *
+ * 0 * * * * /usr/bin/find /Users/liboxuan/workspace/tmp -type f ! -name ‘*rdd*’ -cmin +60 -exec rm {} \;
+ *
+ * that looks up your Spark temp directory and remove rdd files (intermediate
+ * shuffle files) every 60 minutes.
  */
 public class CommunityDetectionRunner {
     public static void main(String[] args) throws Exception {
         Configuration sparkGraphConfiguration = getSparkGraphConfig();
-        sparkGraphConfiguration.setProperty(Constants.GREMLIN_SPARK_GRAPH_STORAGE_LEVEL, "MEMORY_AND_DISK");
+        sparkGraphConfiguration.setProperty(Constants.GREMLIN_SPARK_GRAPH_STORAGE_LEVEL, "DISK_ONLY");
         sparkGraphConfiguration.setProperty(GREMLIN_HADOOP_GRAPH_WRITER, GraphSONOutputFormat.class.getCanonicalName());
         sparkGraphConfiguration.setProperty(GREMLIN_HADOOP_OUTPUT_LOCATION, "/Users/liboxuan/workspace/sparkgraph/");
-        sparkGraphConfiguration.setProperty(SparkLauncher.EXECUTOR_MEMORY, "1g");
+        sparkGraphConfiguration.setProperty(SparkLauncher.EXECUTOR_MEMORY, "1800m");
         Graph graph = GraphFactory.open(sparkGraphConfiguration);
 
         long startTime = System.currentTimeMillis();

@@ -15,8 +15,8 @@ import static io.citegraph.data.spark.Utils.getSparkGraphConfig;
  * by their types
  *
  * 07/15/2023:
- * number of vertices by type is: {paper=5259858, author=4116015}
- * number of edges by type is: {collaborates=19725263, cites=32724316, refers=224949068, writes=16863646}
+ * number of vertices by type is: {paper=5259858, author=5839765}
+ * number of edges by type is: {collaborates=21188837, cites=32724482, refers=227942008, writes=16863579}
  */
 public class VertexEdgeCountRunner {
     public static void main(String[] args) throws Exception {

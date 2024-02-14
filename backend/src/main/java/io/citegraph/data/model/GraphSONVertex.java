@@ -40,12 +40,23 @@ public class GraphSONVertex {
         @JsonProperty("cluster")
         private List<Cluster> cluster;
 
+        @JsonProperty("pagerank")
+        private List<PageRank> pagerank;
+
         public List<Cluster> getCluster() {
             return cluster;
         }
 
         public void setCluster(List<Cluster> cluster) {
             this.cluster = cluster;
+        }
+
+        public List<PageRank> getPagerank() {
+            return pagerank;
+        }
+
+        public void setPagerank(List<PageRank> pagerank) {
+            this.pagerank = pagerank;
         }
     }
 
@@ -61,6 +72,38 @@ public class GraphSONVertex {
         }
 
         public void setValue(String value) {
+            this.value = value;
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class PageRank {
+
+        @JsonProperty("value")
+        private InnerValue value;
+
+        // Getters and setters
+        public InnerValue getValue() {
+            return value;
+        }
+
+        public void setValue(InnerValue value) {
+            this.value = value;
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class InnerValue {
+
+        @JsonProperty("@value")
+        private Double value;
+
+        // Getters and setters
+        public Double getValue() {
+            return value;
+        }
+
+        public void setValue(Double value) {
             this.value = value;
         }
     }

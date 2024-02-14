@@ -66,7 +66,6 @@ public class AuthorRefEdgeLoader {
                                 // already processed, skip (don't do this if the graph has been updated)
                                 return;
                             }
-                            String name = v.value("name");
                             List<Vertex> referees = g.V(v.id()).out("writes").out("cites").in("writes").toList();
                             if (referees.isEmpty()) return;
                             Map<Vertex, Integer> refereeToCounter = new HashMap<>();

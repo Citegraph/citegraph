@@ -17,7 +17,7 @@ import static io.citegraph.app.GraphConfiguration.GRAPH_CONFIG_NAME;
 
 /**
  * Read GraphSON files and load specified property to the graph
- * For now, it's only used to load cluster id property
+ * For now, it's only used to load pagerank or cluster id property
  */
 public class GraphSONVertexPropertyLoader {
 

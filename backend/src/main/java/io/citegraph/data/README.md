@@ -38,6 +38,18 @@ You could run `PageRankRunner` Spark program to calculate the pageranks of paper
 pagerank values and dumps them into a specified folder in GraphSON format. You could then use
 `GraphSONVertexPropertyLoader` to read those files and load them into graph.
 
+### CoworkerEdgeLoader
+
+You could run `CoworkerEdgeLoader` to add `collaborates` edges between any two pair of authors
+if they ever coauthored the same paper.
+
+### CommunityDetectionRunner
+
+You could run `CommunityDetectionRunner` Spark program to calculate the research cluster of authors. It finds
+the cluster of each author and dumps them into a specified folder in GraphSON format. You could then use
+`GraphSONVertexPropertyLoader` to read those files and load them into graph. `CoworkerEdgeLoader` is the
+prerequisite since it leverages the `collaborates` edges.
+
 ### VertexPropertyEnricher
 
 You could run `VertexPropertyEnricher` to pre-compute some common traversals
@@ -46,10 +58,7 @@ of this program since it leverages the edges written by `AuthorRefEdgeLoader`.
 `PageRankRunner` is also a prerequisite since it leverages the pageranks of paper
 nodes to calculate pageranks of author nodes. See JavaDoc to see more details.
 
-### CoworkerEdgeLoader
-
-You could run `CoworkerEdgeLoader` to add edges between any two pair of authors
-if they ever coauthored the same paper.
+TODO: use collaborates edge to calculate numOfCoworkers
 
 ### SitemapGenerator
 
