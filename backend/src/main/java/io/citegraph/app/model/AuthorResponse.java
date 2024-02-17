@@ -5,6 +5,7 @@ import java.util.List;
 public class AuthorResponse {
     private String name;
     private String id;
+    private String org;
     private int numOfPapers;
     private int numOfReferees;
     private int numOfReferers;
@@ -30,6 +31,12 @@ public class AuthorResponse {
 
     public AuthorResponse(String name, String id) {
         this.name = name;
+        this.id = id;
+    }
+
+    public AuthorResponse(String name, String org, String id) {
+        this.name = name;
+        this.org = org;
         this.id = id;
     }
 
@@ -170,5 +177,13 @@ public class AuthorResponse {
 
     public void setCoauthors(List<CollaborationResponse> coauthors) {
         this.coauthors = coauthors;
+    }
+
+    public String getOrg() {
+        return org;
+    }
+
+    public void setOrg(String org) {
+        this.org = org;
     }
 }

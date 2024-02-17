@@ -245,7 +245,10 @@ public class GraphController {
     public List<AuthorResponse> getAuthorByName(@PathVariable String name) {
         List<AuthorResponse> authors = g.V().has("name", Text.textContains(name)).limit(DEFAULT_LIMIT).toList()
             .stream()
-            .map(v -> new AuthorResponse((String) g.V(v).values("name").next(), (String) v.id()))
+            .map(v -> new AuthorResponse(
+                (String) g.V(v).values("name").next(),
+                (String) g.V(v).values("org").tryNext().orElseGet(() -> null),
+                (String) v.id()))
             .collect(Collectors.toList());
         return authors;
     }

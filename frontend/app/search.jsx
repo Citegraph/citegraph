@@ -43,11 +43,12 @@ export function SimpleSearch({
       .then((data) => {
         const results = data.map((result) => {
           const isAuthor = result.name != null;
+          result.org = result.org ? " | " + result.org : "";
           return {
             key:
               (includePrefix ? (isAuthor ? "/author/" : "/paper/") : "") +
               result.id,
-            value: isAuthor ? result.name : result.title,
+            value: isAuthor ? result.name + result.org : result.title,
           };
         });
         let prev = null;
