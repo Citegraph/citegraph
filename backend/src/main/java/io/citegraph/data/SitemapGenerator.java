@@ -44,7 +44,7 @@ public class SitemapGenerator {
                     fileWriter = new FileWriter("sitemap" + fileCount + ".txt");
                 }
                 fileWriter.write(builder + "\n");
-                count = (count + 1) % 50000; // individual sitemap file limit
+                count = (count + 1) % 40000; // individual sitemap file limit
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
