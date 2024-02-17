@@ -58,8 +58,6 @@ of this program since it leverages the edges written by `AuthorRefEdgeLoader`.
 `PageRankRunner` is also a prerequisite since it leverages the pageranks of paper
 nodes to calculate pageranks of author nodes. See JavaDoc to see more details.
 
-TODO: use collaborates edge to calculate numOfCoworkers
-
 ### SitemapGenerator
 
 You could run `SitemapGenerator` to generate sitemaps for the website. Sitemaps are text

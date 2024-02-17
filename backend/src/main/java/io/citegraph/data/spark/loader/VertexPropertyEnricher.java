@@ -78,7 +78,7 @@ public class VertexPropertyEnricher {
                                 long numOfPaperReferers = g.V(v).out("writes").in("cites").count().next();
                                 long numOfAuthorReferees = g.V(v).out("refers").count().next();
                                 long numOfAuthorReferers = g.V(v).in("refers").count().next();
-                                long numOfCoworkers = Math.max(0, g.V(v).out("writes").in("writes").dedup().count().next() - 1);
+                                long numOfCoworkers = Math.max(0, g.V(v).both("collaborates").count().next());
                                 double pagerank = (Double) g.V(v).out("writes").values("pagerank").sum().next();
                                 long numOfPapers = g.V(v).out("writes").count().next();
                                 g.V(v)
