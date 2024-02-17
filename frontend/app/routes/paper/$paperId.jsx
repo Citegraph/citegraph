@@ -109,6 +109,13 @@ export default function Paper() {
       ),
     },
     {
+      title: "Order",
+      dataIndex: "order",
+      sorter: (a, b) => a.order - b.order,
+      sortDirections: ["ascend", "descend", "ascend"],
+      defaultSortOrder: "ascend",
+    },
+    {
       title: "Citations",
       dataIndex: "citations",
       sorter: (a, b) => a.citations - b.citations,
@@ -119,7 +126,6 @@ export default function Paper() {
       dataIndex: "pagerank",
       sorter: (a, b) => a.pagerank - b.pagerank,
       sortDirections: ["descend", "ascend", "descend"],
-      defaultSortOrder: "descend",
     },
   ];
 
@@ -128,6 +134,7 @@ export default function Paper() {
       ? paper.authors.map((p) => ({
           key: p.id,
           name: p.name,
+          order: p.order,
           citations: p.numOfPaperReferers,
           pagerank: p.pagerank.toFixed(2),
         }))

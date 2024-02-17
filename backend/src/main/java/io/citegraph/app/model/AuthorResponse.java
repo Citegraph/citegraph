@@ -13,6 +13,9 @@ public class AuthorResponse {
     private int numOfCoauthors;
     private double pagerank;
 
+    // author order; only applicable in the context of a particular paper
+    private int order;
+
     // paper written by this author
     private List<PaperResponse> papers;
 
@@ -36,11 +39,12 @@ public class AuthorResponse {
         this.pagerank = pagerank;
     }
 
-    public AuthorResponse(String name, String id, int numOfPaperReferers, double pagerank) {
+    public AuthorResponse(String name, String id, int numOfPaperReferers, double pagerank, int order) {
         this.name = name;
         this.id = id;
         this.numOfPaperReferers = numOfPaperReferers;
         this.pagerank = pagerank;
+        this.order = order;
     }
 
     public AuthorResponse(String name, String id, int numOfPapers, int numOfReferees, int numOfReferers,
@@ -150,6 +154,14 @@ public class AuthorResponse {
 
     public void setPagerank(double pagerank) {
         this.pagerank = pagerank;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
     }
 
     public List<CollaborationResponse> getCoauthors() {

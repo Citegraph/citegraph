@@ -130,18 +130,7 @@ const items = [
         this number for registered users (if we have a registration system).
       </p>
     ),
-  },
-  {
-    key: "6",
-    label: "Why are authors of a paper not in their original order?",
-    children: (
-      <p>
-        Citegraph by default sorts authors by their pagerank (influence). At the
-        moment, the original author order is not retained. Please submit an
-        issue on GitHub if you find it important for your use case.
-      </p>
-    ),
-  },
+  }
 ];
 
 export const meta = () => {

@@ -31,6 +31,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static org.apache.tinkerpop.gremlin.process.traversal.Order.asc;
 
 @RestController
 @RequestMapping("/apis/")
@@ -72,15 +75,22 @@ public class GraphController {
 
         // collect authors
         if (getEdges) {
-            List<AuthorResponse> authors = g.V(paper).in("writes").toList()
-                .stream()
-                .map(v -> {
-                    Map<Object, Object> props = g.V(v).elementMap().next();
+            List<Object> authorIds = g.V(paper)
+                .inE("writes")
+                .order().by("authorOrder", asc)
+                .outV()
+                .id()
+                .toList();
+            List<AuthorResponse> authors = IntStream.range(0, authorIds.size())
+                .mapToObj(index -> {
+                    Object vid = authorIds.get(index);
+                    Map<Object, Object> props = g.V(vid).elementMap().next();
                     return new AuthorResponse(
                         (String) props.getOrDefault("name", "unknown"),
-                        (String) v.id(),
+                        (String) vid,
                         (Integer) props.getOrDefault("numOfPaperReferers", 0),
-                        (Double) props.getOrDefault("pagerank", 0.0));
+                        (Double) props.getOrDefault("pagerank", 0.0),
+                        index + 1);
                 })
                 .collect(Collectors.toList());
             paperResponse.setAuthors(authors);
