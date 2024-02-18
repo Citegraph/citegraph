@@ -254,7 +254,48 @@ export default function Paper() {
           }
         >
           <Descriptions.Item label="Title">{paper.title}</Descriptions.Item>
+        </Descriptions>
+        {paper.paperAbstract && (
+          <Descriptions layout="vertical">
+            <Descriptions.Item label="Abstract">
+              {paper.paperAbstract}
+            </Descriptions.Item>
+          </Descriptions>
+        )}
+        <Descriptions layout="vertical">
           <Descriptions.Item label="Year">{paper.year}</Descriptions.Item>
+
+          {paper.doi && (
+            <Descriptions.Item label="DOI">{paper.doi}</Descriptions.Item>
+          )}
+          {paper.venue && (
+            <Descriptions.Item label="Venue">{paper.venue}</Descriptions.Item>
+          )}
+          {paper.keywords && (
+            <Descriptions.Item label="Keywords">
+              {paper.keywords}
+            </Descriptions.Item>
+          )}
+          {paper.field && (
+            <Descriptions.Item label="Field">{paper.field}</Descriptions.Item>
+          )}
+          {paper.docType && (
+            <Descriptions.Item label="DocType">
+              {paper.docType}
+            </Descriptions.Item>
+          )}
+          {paper.volume && (
+            <Descriptions.Item label="Volume">{paper.volume}</Descriptions.Item>
+          )}
+          {paper.issue && (
+            <Descriptions.Item label="Issue">{paper.issue}</Descriptions.Item>
+          )}
+          {paper.issn && (
+            <Descriptions.Item label="ISSN">{paper.issn}</Descriptions.Item>
+          )}
+          {paper.isbn && (
+            <Descriptions.Item label="ISBN">{paper.isbn}</Descriptions.Item>
+          )}
           <Descriptions.Item
             label={
               <span>

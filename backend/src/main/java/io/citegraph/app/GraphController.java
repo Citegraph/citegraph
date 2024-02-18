@@ -104,6 +104,16 @@ public class GraphController {
         paperResponse.setNumOfReferees(numOfReferees);
         paperResponse.setNumOfReferers(numOfReferers);
         paperResponse.setPagerank(pagerank);
+        paperResponse.setVenue((String) paperProps.get("venue"));
+        paperResponse.setKeywords((String) paperProps.get("keywords"));
+        paperResponse.setField((String) paperProps.get("field"));
+        paperResponse.setDocType((String) paperProps.get("docType"));
+        paperResponse.setVolume((String) paperProps.get("volume"));
+        paperResponse.setIssue((String) paperProps.get("issue"));
+        paperResponse.setIssn((String) paperProps.get("issn"));
+        paperResponse.setIsbn((String) paperProps.get("isbn"));
+        paperResponse.setDoi((String) paperProps.get("doi"));
+        paperResponse.setPaperAbstract((String) paperProps.get("abstract"));
 
         if (getEdges) {
             List<PaperResponse> referees = g.V(paper).out("cites").limit(limit).toList()
