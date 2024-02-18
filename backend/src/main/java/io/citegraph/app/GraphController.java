@@ -173,7 +173,9 @@ public class GraphController {
 
         int numOfCoauthors = (Integer) authorProps.getOrDefault("numOfCoworkers", 0);
 
-        AuthorResponse res = new AuthorResponse(name, id, numOfPapers, numOfReferees, numOfReferers,
+        String org = (String) authorProps.getOrDefault("org", "");
+
+        AuthorResponse res = new AuthorResponse(name, id, org, numOfPapers, numOfReferees, numOfReferers,
             numOfPaperReferees, numOfPaperReferers, numOfCoauthors, pagerank);
 
         if (getEdges) {

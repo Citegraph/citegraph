@@ -54,10 +54,11 @@ public class AuthorResponse {
         this.order = order;
     }
 
-    public AuthorResponse(String name, String id, int numOfPapers, int numOfReferees, int numOfReferers,
+    public AuthorResponse(String name, String id, String org, int numOfPapers, int numOfReferees, int numOfReferers,
                           int numOfPaperReferees, int numOfPaperReferers, int numOfCoauthors, double pagerank) {
         this.name = name;
         this.id = id;
+        this.org = org;
         this.numOfPapers = numOfPapers;
         this.numOfReferees = numOfReferees;
         this.numOfReferers = numOfReferers;

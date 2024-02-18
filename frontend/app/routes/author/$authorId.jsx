@@ -280,6 +280,11 @@ export default function Author() {
           <Descriptions.Item label="Name">
             {author.name.toUpperCase()}
           </Descriptions.Item>
+          {author.org && (
+            <Descriptions.Item label="Affiliation">
+              {author.org}
+            </Descriptions.Item>
+          )}
           <Descriptions.Item label="Papers">
             {author.numOfPapers}
           </Descriptions.Item>
