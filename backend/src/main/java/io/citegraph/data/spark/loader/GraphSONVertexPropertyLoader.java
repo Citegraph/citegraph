@@ -27,7 +27,7 @@ public class GraphSONVertexPropertyLoader {
         JavaSparkContext jsc = new JavaSparkContext(sparkConf);
 
         // Read files into JavaRDD
-        JavaRDD<String> input = jsc.textFile("/Users/liboxuan/workspace/cluster/part-r-*");
+        JavaRDD<String> input = jsc.textFile("/Users/liboxuan/workspace/pagerank/part-r-*");
 
         // Parse JSON in each line
         JavaRDD<GraphSONVertex> data = input.map(line -> {
@@ -39,6 +39,10 @@ public class GraphSONVertexPropertyLoader {
                 return null;
             }
         });
+
+        // pageranks are normalized so that they sum up to 1.
+        // Multiply page rank by data count so that average pagerank becomes 1.
+        long multiplyFactor = data.count();
 
         URL resource = GraphInitializer.class.getClassLoader().getResource(GRAPH_CONFIG_NAME);
 
@@ -57,12 +61,9 @@ public class GraphSONVertexPropertyLoader {
                 for (int i = 0; i < 3; i++) {
                     try {
                         String vid = vertex.getId();
-                        String cluster = vertex.getProperties().getCluster().get(0).getValue();
+                        double pagerank = vertex.getProperties().getPagerank().get(0).getValue().getValue() * multiplyFactor;
                         GraphTraversalSource g = finalGraph.traversal();
-                        if (g.V(vid).values("clusterId").hasNext()) {
-                            return;
-                        }
-                        g.V(vid).property("clusterId", cluster).next();
+                        g.V(vid).property("pagerank", pagerank).next();
                         g.tx().commit();
                         return;
                     } catch (Exception ex) {
