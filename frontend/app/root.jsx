@@ -7,6 +7,8 @@ import {
   useLocation,
   Meta,
   useLoaderData,
+  isRouteErrorResponse,
+  useRouteError,
 } from "@remix-run/react";
 import React, { useEffect } from "react";
 import { getHotAuthors } from "./apis/authors";
@@ -165,6 +167,53 @@ export default function App() {
         <Header />
         <ViewedAddressesProvider>
           <Root />
+        </ViewedAddressesProvider>
+      </body>
+    </html>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Oops!</title>
+        <Links />
+      </head>
+      <body>
+        <Scripts />
+        <Header />
+        <ViewedAddressesProvider>
+          <div id="root">
+            <div id="sidebar-container">
+              <div id="sidebar">
+                <nav>
+                  <p>
+                    <b>Playground</b>
+                  </p>
+                  <ul>
+                    <li key="path">
+                      <Link to={"/playground/shortest-path/"}>
+                        Shortest Path Finder
+                      </Link>
+                      <Link to={"/playground/cluster/"}>
+                        Community Detector
+                      </Link>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+            <div id="detail">
+              <h1>
+                {error.status} {error.data}
+              </h1>
+            </div>
+          </div>
         </ViewedAddressesProvider>
       </body>
     </html>

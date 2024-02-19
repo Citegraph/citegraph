@@ -28,6 +28,9 @@ export async function loader({ request, params }) {
   const limit =
     new URL(request.url).searchParams.get("limit") || DEFAULT_SEARCH_LIMIT;
   const paper = await getPaper(params.paperId, limit);
+  if (!paper || paper.error) {
+    throw new Response(paper.error, { status: paper.status });
+  }
   return { paper };
 }
 

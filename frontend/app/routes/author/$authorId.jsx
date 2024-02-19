@@ -28,6 +28,9 @@ export async function loader({ params, request }) {
   const limit =
     new URL(request.url).searchParams.get("limit") || DEFAULT_SEARCH_LIMIT;
   const author = await getAuthor(params.authorId, limit);
+  if (!author || author.error) {
+    throw new Response(author.error, { status: author.status });
+  }
   return { author };
 }
 
