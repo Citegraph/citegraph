@@ -23,6 +23,9 @@ export async function loader({ params, request }) {
   const limit =
     new URL(request.url).searchParams.get("limit") || DEFAULT_SEARCH_LIMIT;
   const vertex = await getVertex(params.vid, limit);
+  if (!vertex || vertex.error) {
+    throw new Response(vertex.error, { status: vertex.status });
+  }
   return { vertex };
 }
 

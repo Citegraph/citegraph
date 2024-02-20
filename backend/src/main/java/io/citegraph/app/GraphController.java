@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -312,44 +313,50 @@ public class GraphController {
 
     @GetMapping("/graph/vertex/{vid}")
     public Map<String, Object> getVertexById(@PathVariable String vid, @RequestParam int limit, @RequestParam boolean getEdges) {
-        if (getEdges) {
-            return g.V(vid)
-                .project("self", "neighbors")
-                .by(__.elementMap())
-                .by(
-                    __.union(
-                            __.bothE("collaborates").limit(limit).as("edge")
-                                .otherV().as("vertex")
-                                .select("edge", "vertex")
-                                .by(__.elementMap()),
-                            __.outE("cites").limit(limit).as("edge")
-                                .otherV().as("vertex")
-                                .select("edge", "vertex")
-                                .by(__.elementMap()),
-                            __.inE("cites").limit(limit).as("edge")
-                                .otherV().as("vertex")
-                                .select("edge", "vertex")
-                                .by(__.elementMap()),
-                            __.outE("refers").limit(limit).as("edge")
-                                .otherV().as("vertex")
-                                .select("edge", "vertex")
-                                .by(__.elementMap()),
-                            __.inE("refers").limit(limit).as("edge")
-                                .otherV().as("vertex")
-                                .select("edge", "vertex")
-                                .by(__.elementMap()),
-                            __.bothE("writes").limit(limit).as("edge")
-                                .otherV().as("vertex")
-                                .select("edge", "vertex")
-                                .by(__.elementMap())
-                        )
-                        .fold()
-                ).next();
-        } else {
-            return g.V(vid)
-                .project("self")
-                .by(__.elementMap())
-                .next();
+        try {
+
+            if (getEdges) {
+                return g.V(vid)
+                    .project("self", "neighbors")
+                    .by(__.elementMap())
+                    .by(
+                        __.union(
+                                __.bothE("collaborates").limit(limit).as("edge")
+                                    .otherV().as("vertex")
+                                    .select("edge", "vertex")
+                                    .by(__.elementMap()),
+                                __.outE("cites").limit(limit).as("edge")
+                                    .otherV().as("vertex")
+                                    .select("edge", "vertex")
+                                    .by(__.elementMap()),
+                                __.inE("cites").limit(limit).as("edge")
+                                    .otherV().as("vertex")
+                                    .select("edge", "vertex")
+                                    .by(__.elementMap()),
+                                __.outE("refers").limit(limit).as("edge")
+                                    .otherV().as("vertex")
+                                    .select("edge", "vertex")
+                                    .by(__.elementMap()),
+                                __.inE("refers").limit(limit).as("edge")
+                                    .otherV().as("vertex")
+                                    .select("edge", "vertex")
+                                    .by(__.elementMap()),
+                                __.bothE("writes").limit(limit).as("edge")
+                                    .otherV().as("vertex")
+                                    .select("edge", "vertex")
+                                    .by(__.elementMap())
+                            )
+                            .fold()
+                    ).next();
+            } else {
+                return g.V(vid)
+                    .project("self")
+                    .by(__.elementMap())
+                    .next();
+            }
+        } catch (NoSuchElementException ex) {
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, String.format("Vertex (ID: %s) not found", vid));
         }
     }
 
