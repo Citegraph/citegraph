@@ -82,7 +82,15 @@ function handleBrowserRequest(
   responseHeaders: Headers,
   remixContext: EntryContext
 ) {
-  console.log("Regular:", request.headers.get("user-agent"));
+  // Attempt to get the IP address from the `X-Forwarded-For` header
+  const xForwardedFor = request.headers.get("x-forwarded-for");
+  let ipAddress = xForwardedFor ? xForwardedFor.split(',')[0] : '';
+
+  if (ipAddress) {
+    console.log("IP Address:", ipAddress);
+    console.log("User-Agent:", request.headers.get("user-agent"));
+  }
+
   return new Promise((resolve, reject) => {
     const { pipe, abort } = renderToPipeableStream(
       <RemixServer
