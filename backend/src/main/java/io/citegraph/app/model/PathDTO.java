@@ -10,6 +10,10 @@ import java.util.Map;
 public class PathDTO {
     private List<VertexDTO> vertices = new ArrayList<>();
     private List<EdgeDTO> edges = new ArrayList<>();
+
+    public PathDTO() {
+
+    }
     public PathDTO(Path path) {
         List<Object> objects = path.objects();
         for (int i = 0; i < objects.size(); i += 2) {

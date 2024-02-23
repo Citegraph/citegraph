@@ -4,12 +4,16 @@ import com.github.benmanes.caffeine.cache.Cache;
 import io.citegraph.app.model.AuthorResponse;
 import io.citegraph.app.model.CitationResponse;
 import io.citegraph.app.model.CollaborationResponse;
+import io.citegraph.app.model.EdgeDTO;
 import io.citegraph.app.model.PaperResponse;
 import io.citegraph.app.model.PathDTO;
+import io.citegraph.app.model.VertexDTO;
+import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.Path;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.janusgraph.core.attribute.Text;
 import org.slf4j.Logger;
@@ -28,9 +32,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -309,6 +315,83 @@ public class GraphController {
             .toStream()
             .map(PathDTO::new)
             .collect(Collectors.toList());
+    }
+
+    /**
+     * Feature request: https://github.com/Citegraph/citegraph/issues/2
+     * Given a paper, find its n-hop references, with the following requirements:
+     * 1) The "bedrock" paper, defined as the one has most incoming links in this subgraph.
+     * 2) 2-hop graph would already be very crazily large, and sometimes user might want even 3-hop. Assuming the
+     * "bedrock" paper would have been cited multiple times in this hypothetical subgraph, we could randomly select,
+     * say, 10 outgoing links from every node except the original starting point
+     *
+     * Devnote: why do we not use a single gremlin query to achieve this? Three reasons:
+     * 1) I believe it's technically possible to write a single query to achieve the above requirements, but I am not
+     * an expert in writing complex gremlin queries
+     * 2) Gremlin path representation contains duplicate data when we want a lot of paths that are more or less overlapping.
+     * It's okay since our Gremlin server and web app server run on the same machine, but ideally we do want to reduce
+     * unnecessary network cost
+     * 3) We currently set up a global timeout on Gremlin server. For a task as complicated as this one, I do want to give
+     * it more leniency to run longer. By splitting a single complicated giant query into a few smaller ones, we overcome
+     * the timeout limitation.
+     *
+     * @param vid
+     * @return
+     */
+    @GetMapping("/graph/citations/{vid}")
+    public PathDTO getCitationNetwork(@PathVariable String vid) {
+        PathDTO result = new PathDTO();
+        Set<String> visited = new HashSet<>();
+        visited.add(vid);
+
+        // step 0: get title of current vertex
+        String title = (String) g.V(vid).values("title").next();
+        result.getVertices().add(new VertexDTO(vid, null, title, 0));
+
+        // step 1: find immediate neighbors (1-hop references)
+        List<Map<Object, Object>> oneHopVertices = g.V(vid).out("cites").elementMap("title").toList();
+        for (Map<Object, Object> oneHopVertex : oneHopVertices) {
+            String id = (String) oneHopVertex.get(T.id);
+            visited.add(id);
+            title = (String) oneHopVertex.get("title");
+            result.getVertices().add(new VertexDTO(id, null, title, 0));
+            result.getEdges().add(new EdgeDTO(vid, id, "cites"));
+        }
+
+        // step 2: find 2-hop references
+        List<String> frontier = new ArrayList<>();
+        for (Map<Object, Object> oneHopVertex : oneHopVertices) {
+            String id = (String) oneHopVertex.get(T.id);
+            List<Map<Object, Object>> twoHopVertices = g.V(id).out("cites").elementMap("title").toList();
+            for (Map<Object, Object> twoHopVertex : twoHopVertices) {
+                String toId = (String) twoHopVertex.get(T.id);
+                result.getEdges().add(new EdgeDTO(id, toId, "cites"));
+                if (visited.contains(toId)) {
+                    frontier.add(toId);
+                } else {
+                    title = (String) twoHopVertex.get("title");
+                    result.getVertices().add(new VertexDTO(toId, null, title, 0));
+                    visited.add(toId);
+                }
+            }
+        }
+
+        // step 3: if we have less than 20 vertices, find 3-hop references, but only traverse 10 edges per vertex
+        if (frontier.size() < 20) {
+            for (String fromId: frontier) {
+                List<Map<Object, Object>> threeHopVertices = g.V(fromId).out("cites").limit(10).elementMap("title").toList();
+                for (Map<Object, Object> threeHopVertex : threeHopVertices) {
+                    String toId = (String) threeHopVertex.get(T.id);
+                    result.getEdges().add(new EdgeDTO(fromId, toId, "cites"));
+                    if (!visited.add(toId)) {
+                        title = (String) threeHopVertex.get("title");
+                        result.getVertices().add(new VertexDTO(toId, null, title, 0));
+                        visited.add(toId);
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     @GetMapping("/graph/vertex/{vid}")

@@ -15,3 +15,7 @@ export async function getPath(fromId, toId) {
 export async function getCluster(id) {
   return fetch(`${API_URL}/graph/cluster/${id}`).then((r) => r.json());
 }
+
+export async function getCitationNetwork(id) {
+  return fetch(`${API_URL}/graph/citations/${id}`).then((r) => r.json());
+}
