@@ -88,8 +88,8 @@ function handleBrowserRequest(
 
   if (ipAddress) {
     console.log("IP Address:", ipAddress);
-    console.log("User-Agent:", request.headers.get("user-agent"));
   }
+  console.log("User-Agent:", request.headers.get("user-agent"));
 
   return new Promise((resolve, reject) => {
     const { pipe, abort } = renderToPipeableStream(
