@@ -5,12 +5,22 @@ public class VertexDTO {
     private String name;
     private String title;
     private double pagerank;
+    // start vertex hsa hops = 0, 1-hop vertex has hops = 1, etc.
+    private int hops;
 
     public VertexDTO(String id, String name, String title, double pagerank) {
         this.id = id;
         this.name = name;
         this.title = title;
         this.pagerank = pagerank;
+    }
+
+    public VertexDTO(String id, String name, String title, double pagerank, int hops) {
+        this.id = id;
+        this.name = name;
+        this.title = title;
+        this.pagerank = pagerank;
+        this.hops = hops;
     }
 
     public double getPagerank() {
@@ -43,5 +53,13 @@ public class VertexDTO {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public int getHops() {
+        return hops;
+    }
+
+    public void setHops(int hops) {
+        this.hops = hops;
     }
 }

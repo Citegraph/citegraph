@@ -102,7 +102,7 @@ const SigmaGraph = React.memo(function SigmaGraph({
             (MAX_NODE_SIZE - MIN_NODE_SIZE) +
             MIN_NODE_SIZE,
             label: data.label,
-            color: data.type == "author" ? "red" : "purple",
+            color: data.color ? data.color : (data.type == "author" ? "red" : "purple"),
           })
         } else {
           graph.addDirectedEdge(data.source, data.target, {

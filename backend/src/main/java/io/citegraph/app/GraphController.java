@@ -346,14 +346,14 @@ public class GraphController {
 
         // step 0: get title of current vertex
         Map<Object, Object> props = g.V(vid).elementMap("title", "pagerank").next();
-        result.getVertices().add(new VertexDTO(vid, null, (String) props.get("title"), (double) props.get("pagerank")));
+        result.getVertices().add(new VertexDTO(vid, null, (String) props.get("title"), (double) props.get("pagerank"), 0));
 
         // step 1: find immediate neighbors (1-hop references)
         List<Map<Object, Object>> oneHopVertices = g.V(vid).out("cites").elementMap("title", "pagerank").toList();
         for (Map<Object, Object> oneHopVertex : oneHopVertices) {
             String id = (String) oneHopVertex.get(T.id);
             visited.add(id);
-            result.getVertices().add(new VertexDTO(id, null, (String) oneHopVertex.get("title"), (double) oneHopVertex.get("pagerank")));
+            result.getVertices().add(new VertexDTO(id, null, (String) oneHopVertex.get("title"), (double) oneHopVertex.get("pagerank"), 1));
             result.getEdges().add(new EdgeDTO(vid, id, "cites"));
         }
 
@@ -379,8 +379,10 @@ public class GraphController {
                 .map(oneHopVertexId -> new EdgeDTO(oneHopVertexId, twoHopVertexId, "cites"))
                 .collect(Collectors.toList()));
             // add two-hop vertex
-            Map<Object, Object> vProps = g.V(twoHopVertexId).elementMap("title", "pagerank").next();
-            result.getVertices().add(new VertexDTO(twoHopVertexId, null, (String) vProps.get("title"), (double) vProps.get("pagerank")));
+            if (!visited.contains(twoHopVertexId)) {
+                Map<Object, Object> vProps = g.V(twoHopVertexId).elementMap("title", "pagerank").next();
+                result.getVertices().add(new VertexDTO(twoHopVertexId, null, (String) vProps.get("title"), (double) vProps.get("pagerank"), 2));
+            }
         }
 
         return result;

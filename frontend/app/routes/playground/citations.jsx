@@ -28,6 +28,16 @@ function getVertexType(vertex) {
   return vertex.title ? "paper" : "author";
 }
 
+function getPaperNodeColor(hops) {
+  if (!hops || hops == 0) {
+    return "purple";
+  }
+  if (hops == 1) {
+    return "blue";
+  }
+  return "green";
+}
+
 export const meta = ({ data }) => {
   return {
     title: `Citation Network Explorer - Citegraph`,
@@ -96,6 +106,7 @@ export default function CitationNetwork() {
               label: getVertexName(elem),
               type: getVertexType(elem),
               pagerank: elem.pagerank,
+              color: getPaperNodeColor(elem.hops)
             },
           }))
         : []),
@@ -149,6 +160,7 @@ export default function CitationNetwork() {
         />
       </div>
       <div id="graph-config">
+        <p>Note: we display all direct references (blue), and all indirect references (green) that are cited by at least two direct references</p>
         <Space>
           <p>Find citation graph of </p>
           {/* TODO: add search by DOI */}
