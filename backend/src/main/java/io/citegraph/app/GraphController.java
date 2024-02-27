@@ -345,52 +345,44 @@ public class GraphController {
         visited.add(vid);
 
         // step 0: get title of current vertex
-        String title = (String) g.V(vid).values("title").next();
-        result.getVertices().add(new VertexDTO(vid, null, title, 0));
+        Map<Object, Object> props = g.V(vid).elementMap("title", "pagerank").next();
+        result.getVertices().add(new VertexDTO(vid, null, (String) props.get("title"), (double) props.get("pagerank")));
 
         // step 1: find immediate neighbors (1-hop references)
-        List<Map<Object, Object>> oneHopVertices = g.V(vid).out("cites").elementMap("title").toList();
+        List<Map<Object, Object>> oneHopVertices = g.V(vid).out("cites").elementMap("title", "pagerank").toList();
         for (Map<Object, Object> oneHopVertex : oneHopVertices) {
             String id = (String) oneHopVertex.get(T.id);
             visited.add(id);
-            title = (String) oneHopVertex.get("title");
-            result.getVertices().add(new VertexDTO(id, null, title, 0));
+            result.getVertices().add(new VertexDTO(id, null, (String) oneHopVertex.get("title"), (double) oneHopVertex.get("pagerank")));
             result.getEdges().add(new EdgeDTO(vid, id, "cites"));
         }
 
-        // step 2: find 2-hop references
-        List<String> frontier = new ArrayList<>();
+        // step 2: find 2-hop references. NOTE: we only keep those who are cited by at least two 1-hop neighbors.
+
+        // two-hop vertex id -> one-hop vertex ids mapping
+        Map<String, List<String>> twoHopVerticesAndEdges = new HashMap<>();
+
         for (Map<Object, Object> oneHopVertex : oneHopVertices) {
             String id = (String) oneHopVertex.get(T.id);
-            List<Map<Object, Object>> twoHopVertices = g.V(id).out("cites").elementMap("title").toList();
-            for (Map<Object, Object> twoHopVertex : twoHopVertices) {
-                String toId = (String) twoHopVertex.get(T.id);
-                result.getEdges().add(new EdgeDTO(id, toId, "cites"));
-                if (visited.contains(toId)) {
-                    frontier.add(toId);
-                } else {
-                    title = (String) twoHopVertex.get("title");
-                    result.getVertices().add(new VertexDTO(toId, null, title, 0));
-                    visited.add(toId);
-                }
+            List<Object> neighbors = g.V(id).out("cites").id().toList();
+            for (Object neighbor : neighbors) {
+                twoHopVerticesAndEdges.computeIfAbsent(neighbor.toString(), k -> new ArrayList<>()).add(id);
             }
         }
 
-        // step 3: if we have less than 20 vertices, find 3-hop references, but only traverse 10 edges per vertex
-        if (frontier.size() < 20) {
-            for (String fromId: frontier) {
-                List<Map<Object, Object>> threeHopVertices = g.V(fromId).out("cites").limit(10).elementMap("title").toList();
-                for (Map<Object, Object> threeHopVertex : threeHopVertices) {
-                    String toId = (String) threeHopVertex.get(T.id);
-                    result.getEdges().add(new EdgeDTO(fromId, toId, "cites"));
-                    if (!visited.add(toId)) {
-                        title = (String) threeHopVertex.get("title");
-                        result.getVertices().add(new VertexDTO(toId, null, title, 0));
-                        visited.add(toId);
-                    }
-                }
-            }
+        for (Map.Entry<String, List<String>> entry : twoHopVerticesAndEdges.entrySet()) {
+            String twoHopVertexId = entry.getKey();
+            // skip two-hop vertices that have already been cited by a single one-hop vertex
+            if (entry.getValue().size() <= 1) continue;
+            // add edges (from one-hop vertex to two-hop vertex)
+            result.getEdges().addAll(entry.getValue().stream()
+                .map(oneHopVertexId -> new EdgeDTO(oneHopVertexId, twoHopVertexId, "cites"))
+                .collect(Collectors.toList()));
+            // add two-hop vertex
+            Map<Object, Object> vProps = g.V(twoHopVertexId).elementMap("title", "pagerank").next();
+            result.getVertices().add(new VertexDTO(twoHopVertexId, null, (String) vProps.get("title"), (double) vProps.get("pagerank")));
         }
+
         return result;
     }
 
