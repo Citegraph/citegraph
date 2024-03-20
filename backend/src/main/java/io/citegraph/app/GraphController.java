@@ -392,7 +392,11 @@ public class GraphController {
         // Generate a "local" pagerank in this subgraph. Rather than use the standard pagerank algorithm to compute,
         // we do a simple scaling to make sure the number is between 0 and 1.
         result.getVertices().forEach(vertexDTO -> {
-            vertexDTO.setPagerank(((double) citationMap.get(vertexDTO.getId())) / maxCitations);
+            if (vertexDTO.getId() != vid) {
+                vertexDTO.setPagerank(((double) citationMap.get(vertexDTO.getId())) / maxCitations);
+            } else {
+                vertexDTO.setPagerank(1);
+            }
         });
 
         return result;
