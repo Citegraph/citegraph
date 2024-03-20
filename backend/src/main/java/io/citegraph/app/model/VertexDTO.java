@@ -15,11 +15,10 @@ public class VertexDTO {
         this.pagerank = pagerank;
     }
 
-    public VertexDTO(String id, String name, String title, double pagerank, int hops) {
+    public VertexDTO(String id, String name, String title, int hops) {
         this.id = id;
         this.name = name;
         this.title = title;
-        this.pagerank = pagerank;
         this.hops = hops;
     }
 

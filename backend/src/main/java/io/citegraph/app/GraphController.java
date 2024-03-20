@@ -341,23 +341,25 @@ public class GraphController {
     @GetMapping("/graph/citations/{vid}")
     public PathDTO getCitationNetwork(@PathVariable String vid) {
         PathDTO result = new PathDTO();
-        Set<String> visited = new HashSet<>();
-        visited.add(vid);
+        // for each paper, how many times has it been cited in this subgraph?
+        Map<String, Integer> citationMap = new HashMap<>();
+        // for the starting vertex, let's assign a default value being one
+        citationMap.put(vid, 1);
 
         // step 0: get title of current vertex
-        Map<Object, Object> props = g.V(vid).elementMap("title", "pagerank").next();
-        result.getVertices().add(new VertexDTO(vid, null, (String) props.get("title"), (double) props.get("pagerank"), 0));
+        Map<Object, Object> props = g.V(vid).elementMap("title").next();
+        result.getVertices().add(new VertexDTO(vid, null, (String) props.get("title"), 0));
 
         // step 1: find immediate neighbors (1-hop references)
-        List<Map<Object, Object>> oneHopVertices = g.V(vid).out("cites").elementMap("title", "pagerank").toList();
+        List<Map<Object, Object>> oneHopVertices = g.V(vid).out("cites").elementMap("title").toList();
         for (Map<Object, Object> oneHopVertex : oneHopVertices) {
             String id = (String) oneHopVertex.get(T.id);
-            visited.add(id);
-            result.getVertices().add(new VertexDTO(id, null, (String) oneHopVertex.get("title"), (double) oneHopVertex.get("pagerank"), 1));
+            citationMap.put(id, citationMap.getOrDefault(id, 0) + 1);
+            result.getVertices().add(new VertexDTO(id, null, (String) oneHopVertex.get("title"), 1));
             result.getEdges().add(new EdgeDTO(vid, id, "cites"));
         }
 
-        // step 2: find 2-hop references. NOTE: we only keep those who are cited by at least two 1-hop neighbors.
+        // step 2: find 2-hop references.
 
         // two-hop vertex id -> one-hop vertex ids mapping
         Map<String, List<String>> twoHopVerticesAndEdges = new HashMap<>();
@@ -372,18 +374,26 @@ public class GraphController {
 
         for (Map.Entry<String, List<String>> entry : twoHopVerticesAndEdges.entrySet()) {
             String twoHopVertexId = entry.getKey();
-            // skip two-hop vertices that have already been cited by a single one-hop vertex
+            // skip two-hop vertices that have only been cited by a single one-hop vertex
             if (entry.getValue().size() <= 1) continue;
             // add edges (from one-hop vertex to two-hop vertex)
             result.getEdges().addAll(entry.getValue().stream()
                 .map(oneHopVertexId -> new EdgeDTO(oneHopVertexId, twoHopVertexId, "cites"))
                 .collect(Collectors.toList()));
             // add two-hop vertex
-            if (!visited.contains(twoHopVertexId)) {
-                Map<Object, Object> vProps = g.V(twoHopVertexId).elementMap("title", "pagerank").next();
-                result.getVertices().add(new VertexDTO(twoHopVertexId, null, (String) vProps.get("title"), (double) vProps.get("pagerank"), 2));
+            if (!citationMap.containsKey(twoHopVertexId)) {
+                Map<Object, Object> vProps = g.V(twoHopVertexId).elementMap("title").next();
+                result.getVertices().add(new VertexDTO(twoHopVertexId, null, (String) vProps.get("title"), 2));
             }
+            citationMap.put(twoHopVertexId, citationMap.getOrDefault(twoHopVertexId, 0) + entry.getValue().size());
         }
+
+        int maxCitations = citationMap.values().stream().max(Integer::compare).get();
+        // Generate a "local" pagerank in this subgraph. Rather than use the standard pagerank algorithm to compute,
+        // we do a simple scaling to make sure the number is between 0 and 1.
+        result.getVertices().forEach(vertexDTO -> {
+            vertexDTO.setPagerank(((double) citationMap.get(vertexDTO.getId())) / maxCitations);
+        });
 
         return result;
     }
