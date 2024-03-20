@@ -78,59 +78,65 @@ function Root() {
     });
   }, [location.pathname]);
 
+  const shouldDisplaySidebar =
+    !location.pathname.startsWith("/visualizer") &&
+    !location.pathname.startsWith("/playground");
+
   return (
     <div id="root">
-      <div id="sidebar-container">
-        <div id="sidebar">
-          <nav>
-            <p>
-              <b>Playground</b>
-            </p>
-            <ul>
-              <li key="path">
-                <Link to={"/playground/shortest-path/"}>
-                  Shortest Path Finder
-                </Link>
-                <Link to={"/playground/cluster/"}>Community Detector</Link>
-              </li>
-            </ul>
-          </nav>
-          {historyList.length > 0 && (
+      {shouldDisplaySidebar && (
+        <div id="sidebar-container">
+          <div id="sidebar">
             <nav>
               <p>
-                <b>Recently viewed</b>
+                <b>Playground</b>
               </p>
               <ul>
-                {historyList.map((entry, index) => (
-                  <li key={index}>
-                    <Link
-                      to={entry.path}
-                      className="truncate-text"
-                      title={entry.title}
-                    >
-                      {entry.title}
-                    </Link>
-                  </li>
-                ))}
+                <li key="path">
+                  <Link to={"/playground/shortest-path/"}>
+                    Shortest Path Finder
+                  </Link>
+                  <Link to={"/playground/cluster/"}>Community Detector</Link>
+                </li>
               </ul>
             </nav>
-          )}
-          {authors.length > 0 && (
-            <nav>
-              <p>
-                <b>Author Trending</b>
-              </p>
-              <ul>
-                {authors.map((author) => (
-                  <li key={author.id}>
-                    <Link to={`author/${author.id}`}>{author.name}</Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          )}
+            {historyList.length > 0 && (
+              <nav>
+                <p>
+                  <b>Recently viewed</b>
+                </p>
+                <ul>
+                  {historyList.map((entry, index) => (
+                    <li key={index}>
+                      <Link
+                        to={entry.path}
+                        className="truncate-text"
+                        title={entry.title}
+                      >
+                        {entry.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            )}
+            {authors.length > 0 && (
+              <nav>
+                <p>
+                  <b>Author Trending</b>
+                </p>
+                <ul>
+                  {authors.map((author) => (
+                    <li key={author.id}>
+                      <Link to={`author/${author.id}`}>{author.name}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            )}
+          </div>
         </div>
-      </div>
+      )}
       <div id="detail">
         {navigation.state == "loading" ? <Skeleton active /> : <Outlet />}
       </div>
