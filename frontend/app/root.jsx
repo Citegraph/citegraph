@@ -207,7 +207,10 @@ export function ErrorBoundary() {
                         Shortest Path Finder
                       </Link>
                       <Link to={"/playground/cluster/"}>
-                        Community Detector
+                        Research Community
+                      </Link>
+                      <Link to={"/playground/citations/"}>
+                        Connected Papers
                       </Link>
                     </li>
                   </ul>
