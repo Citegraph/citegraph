@@ -2,6 +2,7 @@ import { Link } from "@remix-run/react";
 import { Breadcrumb, Card, Col, Row, Space } from "antd";
 import shortPathDemo from "../../assets/short_path_demo.png";
 import communityDemo from "../../assets/community_demo.png";
+import connectedPapersDemo from "../../assets/connected_papers_demo.png";
 
 const { Meta } = Card;
 
@@ -65,6 +66,25 @@ export default function Playground() {
                 <Meta
                   title="Community Detector"
                   description="Explore collaboration communities"
+                />
+              </Card>
+            </Link>
+          </Col>
+          <Col span={8}>
+            <Link to="/playground/citations">
+              <Card
+                hoverable
+                cover={
+                  <img
+                    src={connectedPapersDemo}
+                    alt="Demo of connected papers"
+                    style={{ border: "1px solid #f0f0f0" }}
+                  />
+                }
+              >
+                <Meta
+                  title="Connected Papers"
+                  description="Explore connected papers and find bedrocks"
                 />
               </Card>
             </Link>
