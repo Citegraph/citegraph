@@ -12,8 +12,7 @@
   "dependencies": {
     "@ant-design/static-style-extract": "^1.0.1",
     "@react-sigma/core": "^3.4.2",
-    "@react-sigma/layout-core": "^3.4.2",
-    "@react-sigma/layout-force": "^3.4.2",
+    "@react-sigma/layout-forceatlas2": "^3.4.2",
     "@remix-run/node": "^1.17.1",
     "@remix-run/react": "^1.17.1",
     "@remix-run/serve": "^1.17.1",

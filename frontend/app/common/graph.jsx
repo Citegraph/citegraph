@@ -32,9 +32,9 @@ const SigmaGraph = React.memo(function SigmaGraph({
         setFullScreenControl(() => sigmaModule.FullScreenControl);
       })
       .catch((error) => console.error('Error loading module', error));
-    import('@react-sigma/layout-force')
+    import('@react-sigma/layout-forceatlas2')
       .then((sigmaModule) => {
-        setUseLayout(() => sigmaModule.useLayoutForce);
+        setUseLayout(() => sigmaModule.useLayoutForceAtlas2);
       })
       .catch((error) => console.error('Error loading module', error));
 
