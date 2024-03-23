@@ -97,6 +97,7 @@ function Root() {
                     Shortest Path Finder
                   </Link>
                   <Link to={"/playground/cluster/"}>Community Detector</Link>
+                  <Link to={"/playground/citations/"}>Connected Papers</Link>
                 </li>
               </ul>
             </nav>
