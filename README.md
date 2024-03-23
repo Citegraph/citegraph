@@ -7,16 +7,16 @@ various relationships. In total, Citegraph has 9.4 million vertices and 294 mill
 At the moment, Citegraph only has computer science bibliography.
 
 Some interesting use cases:
-1) How many degrees of separation are between researcher X and Y?
-2) What's researcher X's interests (cited papers, collaborators)?
-3) Who cites my works the most (and might write me a reference letter)?
-4) Which research community do I belong to? Who are my potential collaborators?
-5) What's the pagerank/influence of paper X or author Y?
+1) Find connected papers! What's the bedrock of this paper?
+2) How many degrees of separation are between researcher X and Y?
+3) What's researcher X's interests (cited papers, collaborators)?
+4) Who cites my works the most (and might write me a reference letter)?
+5) Which research community do I belong to? Who are my potential collaborators?
+6) What's the pagerank/influence of paper X or author Y?
 
-<img width="1818" alt="Screenshot 2023-08-27 at 1 05 05 AM" src="https://github.com/Citegraph/citegraph/assets/25746010/d915b6c2-b9e7-4ce8-8072-b833e0e79929">
-<img width="1811" alt="Screenshot 2023-08-27 at 1 05 44 AM" src="https://github.com/Citegraph/citegraph/assets/25746010/793e9246-da54-4c8f-8099-fda1ef34a452">
-<img width="1843" alt="Screenshot 2023-08-27 at 1 06 13 AM" src="https://github.com/Citegraph/citegraph/assets/25746010/99a91339-b90d-4e30-8081-06b3816ccd7f">
-
+![Author Detail](https://github.com/Citegraph/citegraph/assets/25746010/c3d326ec-1821-4160-ac93-be12a25be17b)
+![Collaboration Community](https://www.citegraph.io/build/_assets/community_demo-TBPKATUG.png)
+![Connected Papers](https://www.citegraph.io/build/_assets/connected_papers_demo-AODXZUBX.png)
 
 ## Quick Start
 
