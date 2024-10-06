@@ -30,14 +30,25 @@ See [README](backend/src/main/java/io/citegraph/data/README.md) for steps.
 
 ### Start Graph Database
 
+JanusGraph requires a storage backend and optionally, an index backend. Here we only use a storage
+backend, Cassandra.
+
+```
+cd /datadrive/apache-cassandra-4.0.6
+./bin/cassandra
+```
+
+Cassandra will be running in the background. Then we can start our JanusGraph server.
+
 Enter the root directory of JanusGraph distribution, run the following command
 (please replace the absolute path accordingly, the config file is available [here](https://github.com/Citegraph/citegraph/blob/main/backend/src/main/resources/gremlin-server-cql.yaml):
 
 ```
+cd janusgraph/janusgraph-1.0.0/
 JAVA_OPTIONS="-DJANUSGRAPH_RELATION_DELIMITER=@" ./bin/janusgraph-server.sh console /home/azureuser/gremlin-server-cql.yaml
 ```
 
-### Start Backend
+### Start Web App Backend
 
 Let's package the backend application to a JAR file first.
 
@@ -58,7 +69,7 @@ java -jar app-0.0.1-SNAPSHOT.jar
 
 Now the web backend application runs on port 8080.
 
-### Start Web Server
+### Start Web App Frontend
 
 We use Remix for server-side rendering. Let's launch the web server that runs
 on 3000 port (tested using node.js v16):
