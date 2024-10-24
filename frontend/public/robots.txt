@@ -49,6 +49,9 @@ Disallow: /
 User-agent: ClaudeBot
 Disallow: /
 
+User-agent: ImagesiftBot
+Disallow: /
+
 Sitemap: https://www.citegraph.io/sitemap1.txt
 Sitemap: https://www.citegraph.io/sitemap2.txt
 Sitemap: https://www.citegraph.io/sitemap3.txt
